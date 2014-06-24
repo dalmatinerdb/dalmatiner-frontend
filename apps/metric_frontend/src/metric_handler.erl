@@ -20,15 +20,15 @@ handle(<<"GET">>, Req, State) ->
             Ms = metric_connection:list(),
             {ok, Req3} =
                 cowboy_req:reply(
-                  200, [{<<"content-type">>, <<"application/json">>}],
-                  jsx:encode(Ms), Req2),
+                  200, [{<<"content-type">>, <<"application/x-msgpack">>}],
+                  msgpack:pack(Ms), Req2),
             {ok, Req3, State};
         {Q, Req2} ->
             R1 = mmath_bin:to_list(metric_qry_parser:run(Q)),
             {ok, Req3} =
                 cowboy_req:reply(
-                  200, [{<<"content-type">>, <<"application/json">>}],
-                  jsx:encode(R1), Req2),
+                  200, [{<<"content-type">>, <<"application/x-msgpack">>}],
+                  msgpack:pack(R1), Req2),
             {ok, Req3, State}
     end.
 
