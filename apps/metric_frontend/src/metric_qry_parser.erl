@@ -38,7 +38,7 @@ range(["LAST", A, "S" | L]) ->
     {Mega, Sec, _Micro} = now(),
     Now = Mega * 1000000  + Sec,
     Ad = i(A),
-    metric(L, {range, Now - Ad, Now});
+    metric(L, {range, Now - Ad, Ad});
 range(L) ->
     {error, undefeind, L}.
 
