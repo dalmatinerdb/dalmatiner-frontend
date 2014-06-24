@@ -24,11 +24,12 @@ handle(<<"GET">>, Req, State) ->
                   msgpack:pack(Ms), Req2),
             {ok, Req3, State};
         {Q, Req2} ->
-            R1 = mmath_bin:to_list(metric_qry_parser:run(Q)),
+            {T, R1} = timer:tc(fun() -> mmath_bin:to_list(metric_qry_parser:run(Q)) end),
+            D = [{<<"t">>, T}, {<<"d">>, R1}],
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/x-msgpack">>}],
-                  msgpack:pack(R1), Req2),
+                  msgpack:pack(D, [jsx]), Req2),
             {ok, Req3, State}
     end.
 

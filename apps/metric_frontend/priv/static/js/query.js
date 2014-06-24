@@ -3,9 +3,9 @@ function init() {
 }
 function q() {
     msgpack.download("/metrics?q=" + document.getElementById("bla").value,{}, function(res) {
-        console.log(res);
+        console.log("Fetching " + res.d.length + " elements in " + res.t / 1000 + "ms");
         var idx = [];
-        for (var i = 0; i < res.length; i++)
+        for (var i = 0; i < res.d.length; i++)
         {
             idx[i] = i;
         }
@@ -17,7 +17,7 @@ function q() {
                     strokeColor : "rgba(220,220,220,1)",
                     pointColor : "rgba(220,220,220,1)",
                     pointStrokeColor : "#fff",
-                    data : res
+                    data : res.d
                 }
             ]
         };
