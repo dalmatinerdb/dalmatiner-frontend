@@ -34,6 +34,11 @@ initial(L) ->
 range(["BETWEEN", A, "AND", B | L]) ->
     Ad = date(A),
     metric(L, {range, Ad, date(B) - Ad});
+range(["LAST", A, "S" | L]) ->
+    {Mega, Sec, _Micro} = now(),
+    Now = Mega * 1000000  + Sec,
+    Ad = i(A),
+    metric(L, {range, Ad - Now, Now});
 range(L) ->
     {error, undefeind, L}.
 
