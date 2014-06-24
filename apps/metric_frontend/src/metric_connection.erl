@@ -20,7 +20,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {socket}).
+-record(state, {socket, metrics=[], last_read = {0, 0, 0}}).
 
 %%%===================================================================
 %%% API
@@ -82,11 +82,16 @@ handle_call({get, Metric, Time, Count}, _From, State = #state{socket = S}) ->
     {reply, Reply, State};
 
 handle_call(list, _From, State = #state{socket = S}) ->
-    ok = gen_tcp:send(S, <<1>>),
-    {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
-    {ok, Reply} = gen_tcp:recv(S, Size, 3000),
-    {reply, decode_metrics(Reply, []), State};
-
+    case timer:now_diff(now(), State#state.last_read) div 1000000 of
+        _T when _T > 60  ->
+            ok = gen_tcp:send(S, <<1>>),
+            {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
+            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
+            Ms = decode_metrics(Reply, []),
+            {reply, Ms, State#state{last_read = now(), metrics=Ms}};
+        _ ->
+            {reply, State#state.metrics, State}
+    end;
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
