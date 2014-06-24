@@ -3,9 +3,9 @@
 %% @doc POST echo handler.
 -module(metric_handler).
 
--export([init/3]).
--export([handle/2]).
--export([terminate/3]).
+-export([init/3, handle/2, terminate/3]).
+
+-ignore_xref([init/3, handle/2, terminate/3]).
 
 init(_Transport, Req, []) ->
 	{ok, Req, undefined}.
@@ -21,15 +21,15 @@ handle(<<"GET">>, Req, State) ->
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/json">>}],
-                  jsx:encode(Ms), Req),
-            {ok, Req2, State};
+                  jsx:encode(Ms), Req2),
+            {ok, Req3, State};
         {Q, Req2} ->
             R1 = mmath_bin:to_list(metric_qry_parser:run(Q)),
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/json">>}],
-                  jsx:encode(R1), Req),
-            {ok, Req2, State}
+                  jsx:encode(R1), Req2),
+            {ok, Req3, State}
     end.
 
 terminate(_Reason, _Req, _State) ->

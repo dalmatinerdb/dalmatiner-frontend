@@ -27,7 +27,7 @@ loop(Socket, Transport) ->
             Transport:send(Socket, <<"bye!\r\n">>),
             ok = Transport:close(Socket);
         {ok, <<"metrics\r\n">>} ->
-            {ok, Ms} = metric:list(),
+            {ok, Ms} = metric_connection:list(),
             Ms1 = string:join([binary_to_list(M) || M <- Ms], ", "),
             Ms2 = list_to_binary(Ms1),
             Transport:send(Socket, <<Ms2/binary, "\r\n">>),
