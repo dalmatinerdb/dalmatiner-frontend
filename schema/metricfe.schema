@@ -1,0 +1,26 @@
+%% -*- erlang -*-
+
+%% @doc The tcp port metricfe listens on for the tcp API
+{mapping, "http_port", "metric_frontend.http_port",
+ [{default, {{http_port}} },
+  {datatype, integer}]}.
+
+%% @doc Number of acceptor processes to keep around for tcp connections.
+{mapping, "http_listeners", "metric_frontend.http_listeners",
+ [{default, 100},
+  {datatype, integer}]}.
+
+%% @doc The TCP endpoint for the backend server.
+{mapping, "backend_server", "metric_frontend.backend",
+ [{default, {"127.0.0.1", 5555}},
+  {datatype, ip}]}.
+
+%% @doc The port metricdb listens on for telnet connections
+{mapping, "telnet_port", "metric_frontend.telnet_port",
+ [{default, {{telnet_port}} },
+  {datatype, integer}]}.
+
+%% @doc Number of acceptor processes to keep around for telnet connections.
+{mapping, "telnet_listeners", "metric_frontend.telnet_listeners",
+ [{default, 100},
+  {datatype, integer}]}.

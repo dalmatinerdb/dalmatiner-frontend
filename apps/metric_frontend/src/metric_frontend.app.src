@@ -1,0 +1,14 @@
+{application, metric_frontend,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  ranch,
+                  cowboy
+                 ]},
+  {mod, { metric_frontend_app, []}},
+  {env, []}
+ ]}.
