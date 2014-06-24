@@ -88,9 +88,9 @@ handle_call(list, _From, State = #state{socket = S}) ->
             {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
             {ok, Reply} = gen_tcp:recv(S, Size, 3000),
             Ms = decode_metrics(Reply, []),
-            {reply, Ms, State#state{last_read = now(), metrics=Ms}};
+            {reply, {ok, Ms}, State#state{last_read = now(), metrics=Ms}};
         _ ->
-            {reply, State#state.metrics, State}
+            {reply, {ok, State#state.metrics}, State}
     end;
 handle_call(_Request, _From, State) ->
     Reply = ok,

@@ -17,7 +17,7 @@ handle(Req, State) ->
 handle(<<"GET">>, Req, State) ->
     case cowboy_req:qs_val(<<"q">>, Req) of
         {undefined, Req2} ->
-            Ms = metric_connection:list(),
+            {ok, Ms} = metric_connection:list(),
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/x-msgpack">>}],
