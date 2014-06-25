@@ -113,12 +113,12 @@ unparse({sum, N, C}, Acc) ->
 execute({mget, sum, G, {range, A, B}}) ->
     {ok, Ms} = metric_connection:list(),
     Ms1 = glob_match(G, Ms),
-    mmath_comb:sum([begin {ok, V} = metric_connection:get(M, A, B), V end || M <- Ms1]);
+    mget_sum(Ms1, A, B);
 
 execute({mget, avg, G, {range, A, B}}) ->
     {ok, Ms} = metric_connection:list(),
     Ms1 = glob_match(G, Ms),
-    mmath_comb:avg([begin {ok, V} = metric_connection:get(M, A, B), V end || M <- Ms1]);
+    mget_avg(Ms1, A, B);
 
 execute({get, M, {range, A, B}}) ->
     {ok, V} = metric_connection:get(M, A, B),
@@ -187,3 +187,42 @@ skip_one(<<>>) ->
 skip_one(<<_, R/binary>>) ->
     skip_one(R).
 
+mget_avg(Ms, A, B) ->
+    mmath_aggr:scale(mget_sum(Ms, A, B), 1/length(Ms)).
+
+mget_sum(Ms, A, B) ->
+    mmath_comb:sum(mget_sum(Ms, A, B, [])).
+
+mget_sum([MA, MB | R], S, C, Acc) ->
+    RefA = make_ref(),
+    RefB = make_ref(),
+    Self = self(),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MA, S, C),
+                  Self ! {RefA, V}
+          end),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MB, S, C),
+                  Self ! {RefB, V}
+          end),
+    Va = receive
+             {RefA, VA} ->
+                 VA
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vb = receive
+             {RefB, VB} ->
+                 VB
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    mget_sum(R, S, C, [mmath_comb:sum([Va, Vb]) | Acc]);
+
+mget_sum([], _, _, Acc) ->
+    Acc;
+mget_sum([MA], S, C, Acc) ->
+    {ok, V} = metric_connection:get(MA, S, C),
+    [V | Acc].

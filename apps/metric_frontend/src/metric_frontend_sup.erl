@@ -23,8 +23,21 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    Host = "127.0.0.1",
-    Port = 5555,
-    C = {metric_connection, {metric_connection, start_link, [Host, Port]},
-         permanent, 5000, worker, [metric_connection]},
-    {ok, {{one_for_one, 5, 10}, [C]}}.
+    {Host, Port} =
+        case application:get_env(metric_frontend, backend) of
+            {ok, R} ->
+                R;
+            _ ->
+                {"127.0.0.1", 5555}
+        end,
+    Name = backend_connection,
+    SizeArgs = [
+                {size, 10},
+                {max_overflow, 20}
+               ],
+    PoolArgs = [{name, {local, Name}},
+                {worker_module, metric_connection}] ++ SizeArgs,
+    WorkerArgs = [Host, Port],
+    %%C = {metric_connection, {metric_connection, start_link, [Host, Port]},
+    %%     permanent, 5000, worker, [metric_connection]},
+    {ok, {{one_for_one, 5, 10}, [poolboy:child_spec(Name, PoolArgs, WorkerArgs)]}}.

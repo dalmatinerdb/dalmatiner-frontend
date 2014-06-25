@@ -9,9 +9,10 @@
 -module(metric_connection).
 
 -behaviour(gen_server).
+-behaviour(poolboy_worker).
 
 %% API
--export([start_link/2, get/3, list/0]).
+-export([start_link/1, get/3, list/0]).
 -ignore_xref([start_link/2]).
 
 %% gen_server callbacks
@@ -27,9 +28,16 @@
 %%%===================================================================
 
 get(Metric, Time, Count) ->
-    gen_server:call(?SERVER, {get, Metric, Time, Count}).
+    poolboy:transaction(backend_connection,
+                        fun(Worker) ->
+                                gen_server:call(Worker, {get, Metric, Time, Count})
+                        end).
+
 list() ->
-    gen_server:call(?SERVER, list).
+    poolboy:transaction(backend_connection,
+                        fun(Worker) ->
+                                gen_server:call(Worker, list)
+                        end).
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the server
@@ -37,8 +45,8 @@ list() ->
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link(Host, Port) ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [Host, Port], []).
+start_link(Args) ->
+    gen_server:start_link(?MODULE, Args, []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -133,7 +141,8 @@ handle_info(_Info, State) ->
 %% @spec terminate(Reason, State) -> void()
 %% @end
 %%--------------------------------------------------------------------
-terminate(_Reason, _State) ->
+terminate(_Reason, #state{socket = S}) ->
+    gen_tcp:close(S),
     ok.
 
 %%--------------------------------------------------------------------
