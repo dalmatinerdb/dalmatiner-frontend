@@ -193,6 +193,61 @@ mget_avg(Ms, A, B) ->
 mget_sum(Ms, A, B) ->
     mmath_comb:sum(mget_sum(Ms, A, B, [])).
 
+mget_sum([MA, MB, MC, MD | R], S, C, Acc) ->
+    Self = self(),
+    RefA = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MA, S, C),
+                  Self ! {RefA, V}
+          end),
+    RefB = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MB, S, C),
+                  Self ! {RefB, V}
+          end),
+    Va = receive
+             {RefA, VA} ->
+                 VA
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vb = receive
+             {RefB, VB} ->
+                 VB
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+
+    RefC = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MC, S, C),
+                  Self ! {RefC, V}
+          end),
+    RefD = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = metric_connection:get(MD, S, C),
+                  Self ! {RefD, V}
+          end),
+    Vab = mmath_comb:sum([Va, Vb]),
+    Vc = receive
+             {RefC, VC} ->
+                 VC
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vabc = mmath_comb:sum([Vab, Vc]),
+    Vd = receive
+             {RefD, VD} ->
+                 VD
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    mget_sum(R, S, C, [mmath_comb:sum([Vabc, Vd]) | Acc]);
+
 mget_sum([MA, MB | R], S, C, Acc) ->
     RefA = make_ref(),
     RefB = make_ref(),
