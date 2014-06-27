@@ -21,7 +21,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {socket, metrics=[], last_read = {0, 0, 0}}).
+-record(state, {socket, metrics=[], last_read = {0, 0, 0}, host, port}).
 
 %%%===================================================================
 %%% API
@@ -65,7 +65,7 @@ start_link(Args) ->
 %%--------------------------------------------------------------------
 init([Host, Port]) ->
     {ok, S} = gen_tcp:connect(Host, Port, [binary, {packet, 0}, {active, false}]),
-    {ok, #state{socket = S}}.
+    {ok, #state{socket = S, host=Host, port=Port}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -86,8 +86,17 @@ handle_call({get, Metric, Time, Count}, _From, State = #state{socket = S}) ->
     Msg = <<2, L:16/integer, Metric:L/binary, Time:64/integer, Count:32/integer>>,
     ok = gen_tcp:send(S, Msg),
     Read = Count*9,
-    Reply = gen_tcp:recv(S, Read, 3000),
-    {reply, Reply, State};
+    case gen_tcp:recv(S, Read, 3000) of
+        {ok, D} ->
+            {reply, {ok, D}, State};
+        {error, _} ->
+            gen_tcp:close(S),
+            {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
+                                       [binary, {packet, 0}, {active, false}]),
+            ok = gen_tcp:send(S, Msg),
+            Reply = gen_tcp:recv(S1, Read, 3000),
+            {reply, Reply, State = #state{socket = S1}}
+    end;
 
 handle_call(list, _From, State = #state{socket = S}) ->
     case timer:now_diff(now(), State#state.last_read) div 1000000 of
