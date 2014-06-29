@@ -1,7 +1,7 @@
-{application, metric_frontend,
+{application, dalmatiner_frontend,
  [
-  {description, ""},
-  {vsn, "1"},
+  {description, "Frontend server for dalmatiner DB"},
+  {vsn, "0.1.0"},
   {registered, []},
   {applications, [
                   kernel,
@@ -10,6 +10,6 @@
                   ranch,
                   cowboy
                  ]},
-  {mod, { metric_frontend_app, []}},
+  {mod, { dalmatiner_frontend_app, []}},
   {env, []}
  ]}.

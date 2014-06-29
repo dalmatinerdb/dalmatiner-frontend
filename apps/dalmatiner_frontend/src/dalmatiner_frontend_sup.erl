@@ -1,4 +1,4 @@
--module(metric_frontend_sup).
+-module(dalmatiner_frontend_sup).
 
 -behaviour(supervisor).
 
@@ -24,7 +24,7 @@ start_link() ->
 
 init([]) ->
     {Host, Port} =
-        case application:get_env(metric_frontend, backend) of
+        case application:get_env(dalmatiner_frontend, backend) of
             {ok, R} ->
                 R;
             _ ->
@@ -36,8 +36,8 @@ init([]) ->
                 {max_overflow, 20}
                ],
     PoolArgs = [{name, {local, Name}},
-                {worker_module, metric_connection}] ++ SizeArgs,
+                {worker_module, dalmatiner_connection}] ++ SizeArgs,
     WorkerArgs = [Host, Port],
-    %%C = {metric_connection, {metric_connection, start_link, [Host, Port]},
-    %%     permanent, 5000, worker, [metric_connection]},
+    %%C = {dalmatiner_connection, {dalmatiner_connection, start_link, [Host, Port]},
+    %%     permanent, 5000, worker, [dalmatiner_connection]},
     {ok, {{one_for_one, 5, 10}, [poolboy:child_spec(Name, PoolArgs, WorkerArgs)]}}.

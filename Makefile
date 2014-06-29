@@ -14,10 +14,10 @@ quick-test:
 	$(REBAR) skip_deps=true eunit
 
 version:
-	echo "$(shell git symbolic-ref HEAD 2> /dev/null | cut -b 12-)-$(shell git log --pretty=format:'%h, %ad' -1)" > metric_frontend.version
+	echo "$(shell git symbolic-ref HEAD 2> /dev/null | cut -b 12-)-$(shell git log --pretty=format:'%h, %ad' -1)" > dalmatiner_frontend.version
 
 version_header: version
-	echo "-define(VERSION, <<\"$(shell cat metric_frontend.version)\">>)." > apps/metric_frontend/include/metric_frontend_version.hrl
+	echo "-define(VERSION, <<\"$(shell cat dalmatiner_frontend.version)\">>)." > apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl
 
 compile: version_header
 	$(REBAR) compile
@@ -42,11 +42,11 @@ eqc-ci: clean all
 	$(REBAR) -D EQC_CI -C rebar_eqc_ci.config compile eunit skip_deps=true --verbose
 
 rel: all 
-	-rm -r rel/metricdb
+	-rm -r rel/dalmatinerdb
 	$(REBAR) generate
 
 relclean:
-	rm -rf rel/metricfe
+	rm -rf rel/dalmatinerfe
 
 devrel: dev1 dev2 dev3 dev4
 
@@ -64,7 +64,7 @@ docs:
 ##
 
 stage : rel
-	$(foreach dep,$(wildcard deps/* wildcard apps/*), rm -rf rel/metricfe/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) rel/metricfe/lib;)
+	$(foreach dep,$(wildcard deps/* wildcard apps/*), rm -rf rel/dalmatinerfe/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) rel/dalmatinerfe/lib;)
 
 
 stagedevrel: dev1 dev2 dev3 dev4
@@ -89,7 +89,7 @@ xref: all
 ##
 APPS = kernel stdlib sasl erts ssl tools os_mon runtime_tools crypto inets \
 	xmerl webtool snmp public_key mnesia eunit syntax_tools compiler
-COMBO_PLT = $(HOME)/.metric_frontend_combo_dialyzer_plt
+COMBO_PLT = $(HOME)/.dalmatiner_frontend_combo_dialyzer_plt
 
 check_plt: deps compile
 	dialyzer --check_plt --plt $(COMBO_PLT) --apps $(APPS) \

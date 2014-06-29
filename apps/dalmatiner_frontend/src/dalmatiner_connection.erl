@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 23 Jun 2014 by Heinz Nikolaus Gies <heinz@licenser.net>
 %%%-------------------------------------------------------------------
--module(metric_connection).
+-module(dalmatiner_connection).
 
 -behaviour(gen_server).
 -behaviour(poolboy_worker).

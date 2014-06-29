@@ -1,4 +1,4 @@
--module(metric_qry_parser).
+-module(dalmatiner_qry_parser).
 
 -export([run/1, parse/1, unparse/1, execute/1, glob_match/2, rmatch/2]).
 -ignore_xref([parse/1, unparse/1, execute/1, glob_match/2, rmatch/2]).
@@ -111,17 +111,17 @@ unparse({sum, N, C}, Acc) ->
     unparse(C, ["SUM OVER ", integer_to_list(N), " " | Acc]).
 
 execute({mget, sum, G, {range, A, B}}) ->
-    {ok, Ms} = metric_connection:list(),
+    {ok, Ms} = dalmatiner_connection:list(),
     Ms1 = glob_match(G, Ms),
     mget_sum(Ms1, A, B);
 
 execute({mget, avg, G, {range, A, B}}) ->
-    {ok, Ms} = metric_connection:list(),
+    {ok, Ms} = dalmatiner_connection:list(),
     Ms1 = glob_match(G, Ms),
     mget_avg(Ms1, A, B);
 
 execute({get, M, {range, A, B}}) ->
-    {ok, V} = metric_connection:get(M, A, B),
+    {ok, V} = dalmatiner_connection:get(M, A, B),
     V;
 execute({derivate, C}) ->
     mmath_aggr:derivate(execute(C));
@@ -197,12 +197,12 @@ mget_sum([MA, MB, MC, MD | R], S, C, Acc) ->
     Self = self(),
     RefA = make_ref(),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MA, S, C),
+                  {ok, V} = dalmatiner_connection:get(MA, S, C),
                   Self ! {RefA, V}
           end),
     RefB = make_ref(),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MB, S, C),
+                  {ok, V} = dalmatiner_connection:get(MB, S, C),
                   Self ! {RefB, V}
           end),
     Va = receive
@@ -222,12 +222,12 @@ mget_sum([MA, MB, MC, MD | R], S, C, Acc) ->
 
     RefC = make_ref(),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MC, S, C),
+                  {ok, V} = dalmatiner_connection:get(MC, S, C),
                   Self ! {RefC, V}
           end),
     RefD = make_ref(),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MD, S, C),
+                  {ok, V} = dalmatiner_connection:get(MD, S, C),
                   Self ! {RefD, V}
           end),
     Vab = mmath_comb:sum([Va, Vb]),
@@ -253,11 +253,11 @@ mget_sum([MA, MB | R], S, C, Acc) ->
     RefB = make_ref(),
     Self = self(),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MA, S, C),
+                  {ok, V} = dalmatiner_connection:get(MA, S, C),
                   Self ! {RefA, V}
           end),
     spawn(fun() ->
-                  {ok, V} = metric_connection:get(MB, S, C),
+                  {ok, V} = dalmatiner_connection:get(MB, S, C),
                   Self ! {RefB, V}
           end),
     Va = receive
@@ -279,5 +279,5 @@ mget_sum([MA, MB | R], S, C, Acc) ->
 mget_sum([], _, _, Acc) ->
     Acc;
 mget_sum([MA], S, C, Acc) ->
-    {ok, V} = metric_connection:get(MA, S, C),
+    {ok, V} = dalmatiner_connection:get(MA, S, C),
     [V | Acc].

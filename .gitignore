@@ -10,13 +10,13 @@ dev
 doc
 ebin
 erl_crash.dump
-metricdb.xml
-metricdb_template.xml
+dalmatinerdb.xml
+dalmatinerdb_template.xml
 manifest
-rel/metricfe
+rel/dalmatinerfe
 rel/pkg/*.tgz
 rel/pkg/build-info
 rel/pkg/packlist
 .eqc-info
 *.eqc
-apps/metric_frontend/include/metric_frontend_version.hrl
+apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl

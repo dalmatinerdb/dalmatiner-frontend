@@ -1,4 +1,4 @@
--module(metric_telnet).
+-module(dalmatiner_telnet).
 
 -behaviour(ranch_protocol).
 
@@ -27,7 +27,7 @@ loop(Socket, Transport) ->
             Transport:send(Socket, <<"bye!\r\n">>),
             ok = Transport:close(Socket);
         {ok, <<"metrics\r\n">>} ->
-            {ok, Ms} = metric_connection:list(),
+            {ok, Ms} = dalmatiner_connection:list(),
             Ms1 = string:join([binary_to_list(M) || M <- Ms], ", "),
             Ms2 = list_to_binary(Ms1),
             Transport:send(Socket, <<Ms2/binary, "\r\n">>),
@@ -44,12 +44,12 @@ loop(Socket, Transport) ->
             loop(Socket, Transport);
         {ok, <<"q ", D/binary>>} ->
             QT = do_query_prep(D),
-            Data = metric_qry_parser:execute(QT),
+            Data = dalmatiner_qry_parser:execute(QT),
             Transport:send(Socket, <<Data/binary, "\n\r">>),
             loop(Socket, Transport);
         {ok, <<"query ", D/binary>>} ->
             QT = do_query_prep(D),
-            Data = metric_qry_parser:execute(QT),
+            Data = dalmatiner_qry_parser:execute(QT),
             Transport:send(Socket, <<Data/binary, "\n\r">>),
             loop(Socket, Transport);
         {ok, What} ->
@@ -66,5 +66,5 @@ loop(Socket, Transport) ->
 do_query_prep(D) ->
     S = byte_size(D) - 2,
     <<Q:S/binary, "\r\n">> = D,
-    R1 = metric_qry_parser:parse(Q),
+    R1 = dalmatiner_qry_parser:parse(Q),
     {to_list, R1}.
