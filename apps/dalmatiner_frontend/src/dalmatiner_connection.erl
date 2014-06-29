@@ -96,13 +96,14 @@ handle_call({get, Bucket, Metric, Time, Count}, _From, State = #state{socket = S
     case gen_tcp:recv(S, Read, 3000) of
         {ok, D} ->
             {reply, {ok, D}, State};
-        {error, _} ->
+        {error, E} ->
+            lager:error("[connection/recv] Error: ~p", [E]),
             gen_tcp:close(S),
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 0}, {active, false}]),
             ok = gen_tcp:send(S1, Msg),
             Reply = gen_tcp:recv(S1, Read, 3000),
-            {reply, Reply, State = #state{socket = S1}}
+            {reply, Reply, State#state{socket = S1}}
     end;
 
 handle_call({list, Bucket}, _From, State) ->
