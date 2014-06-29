@@ -17,12 +17,22 @@ handle(Req, State) ->
 handle(<<"GET">>, Req, State) ->
     case cowboy_req:qs_val(<<"q">>, Req) of
         {undefined, Req2} ->
-            {ok, Ms} = dalmatiner_connection:list(),
-            {ok, Req3} =
-                cowboy_req:reply(
-                  200, [{<<"content-type">>, <<"application/x-msgpack">>}],
-                  msgpack:pack(Ms), Req2),
-            {ok, Req3, State};
+            case cowboy_req:qs_val(<<"b">>, Req2) of
+                {undefined, Req3} ->
+                    {ok, Bs} = dalmatiner_connection:list(),
+                    {ok, Req4} =
+                        cowboy_req:reply(
+                          200, [{<<"content-type">>, <<"application/x-msgpack">>}],
+                          msgpack:pack(Bs), Req3),
+                    {ok, Req4, State};
+                {B, Req3} ->
+                    {ok, Ms} = dalmatiner_connection:list(B),
+                    {ok, Req4} =
+                        cowboy_req:reply(
+                          200, [{<<"content-type">>, <<"application/x-msgpack">>}],
+                          msgpack:pack(Ms), Req3),
+                    {ok, Req4, State}
+                end;
         {Q, Req2} ->
             {T, R1} = timer:tc(fun() -> mmath_bin:to_list(dalmatiner_qry_parser:run(Q)) end),
             D = [{<<"t">>, T}, {<<"d">>, R1}],

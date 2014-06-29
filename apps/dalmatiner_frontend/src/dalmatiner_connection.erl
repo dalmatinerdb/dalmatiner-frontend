@@ -8,11 +8,13 @@
 %%%-------------------------------------------------------------------
 -module(dalmatiner_connection).
 
+-include_lib("dproto/include/dproto.hrl").
+
 -behaviour(gen_server).
 -behaviour(poolboy_worker).
 
 %% API
--export([start_link/1, get/3, list/0]).
+-export([start_link/1, get/4, list/1, list/0]).
 -ignore_xref([start_link/2]).
 
 %% gen_server callbacks
@@ -21,16 +23,22 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {socket, metrics=[], last_read = {0, 0, 0}, host, port}).
+-record(state, {socket, metrics=gb_trees:empty(), host, port}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-get(Metric, Time, Count) ->
+get(Bucket, Metric, Time, Count) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
-                                gen_server:call(Worker, {get, Metric, Time, Count})
+                                gen_server:call(Worker, {get, Bucket, Metric, Time, Count})
+                        end).
+
+list(Bucket) ->
+    poolboy:transaction(backend_connection,
+                        fun(Worker) ->
+                                gen_server:call(Worker, {list, Bucket})
                         end).
 
 list() ->
@@ -81,9 +89,8 @@ init([Host, Port]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({get, Metric, Time, Count}, _From, State = #state{socket = S}) ->
-    L = byte_size(Metric),
-    Msg = <<2, L:16/integer, Metric:L/binary, Time:64/integer, Count:32/integer>>,
+handle_call({get, Bucket, Metric, Time, Count}, _From, State = #state{socket = S}) ->
+    Msg = <<?GET, (dproto_tcp:encode_get(Bucket, Metric, Time, Count))/binary>>,
     ok = gen_tcp:send(S, Msg),
     Read = Count*9,
     case gen_tcp:recv(S, Read, 3000) of
@@ -93,22 +100,26 @@ handle_call({get, Metric, Time, Count}, _From, State = #state{socket = S}) ->
             gen_tcp:close(S),
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 0}, {active, false}]),
-            ok = gen_tcp:send(S, Msg),
+            ok = gen_tcp:send(S1, Msg),
             Reply = gen_tcp:recv(S1, Read, 3000),
             {reply, Reply, State = #state{socket = S1}}
     end;
 
-handle_call(list, _From, State = #state{socket = S}) ->
-    case timer:now_diff(now(), State#state.last_read) div 1000000 of
-        _T when _T > 60  ->
-            ok = gen_tcp:send(S, <<1>>),
-            {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
-            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
-            Ms = decode_metrics(Reply, []),
-            {reply, {ok, Ms}, State#state{last_read = now(), metrics=Ms}};
-        _ ->
-            {reply, {ok, State#state.metrics}, State}
+handle_call({list, Bucket}, _From, State) ->
+    case gb_trees:lookup(Bucket, State#state.metrics) of
+        none ->
+            {Ms, State1} = do_list(Bucket, State),
+            {reply, {ok, Ms}, State1};
+        {value, {LastRead, Ms}} ->
+            case timer:now_diff(now(), LastRead) div 1000000 of
+                _T when _T > 60  ->
+                    {Ms, State1} = do_list(Bucket, State),
+                    {reply, {ok, Ms}, State1};
+                _ ->
+                    {reply, {ok, State#state.metrics}, State}
+            end
     end;
+
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
@@ -171,5 +182,24 @@ code_change(_OldVsn, State, _Extra) ->
 
 decode_metrics(<<>>, Acc) ->
     Acc;
+
 decode_metrics(<<S:16/integer, M:S/binary, R/binary>>, Acc) ->
     decode_metrics(R, [M | Acc]).
+
+do_list(Bucket, State = #state{socket = S}) ->
+    ok = gen_tcp:send(S, <<?LIST, (dproto_tcp:encode_list(Bucket))/binary>>),
+    case gen_tcp:recv(S, 4, 3000) of
+        {ok, <<Size:32/integer>>} ->
+            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
+            Ms = decode_metrics(Reply, []),
+            {Ms, State#state{metrics = gb_trees:enter(Bucket, {now(), Ms}, State#state.metrics)}};
+        {error, _} ->
+            gen_tcp:close(S),
+            {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
+                                       [binary, {packet, 0}, {active, false}]),
+            {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
+            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
+            Ms = decode_metrics(Reply, []),
+            {Ms, State#state{metrics = gb_trees:enter(Bucket, {now(), Ms}, State#state.metrics),
+                             socket = S1}}
+    end.

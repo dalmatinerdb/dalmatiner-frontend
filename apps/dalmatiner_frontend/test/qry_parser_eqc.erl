@@ -8,7 +8,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -compile(export_all).
 
--define(P, metric_qry_parser).
+-define(P, dalmatiner_qry_parser).
 
 non_empty_string() ->
     ?SUCHTHAT(L, list(choose($a, $z)), L =/= "").
@@ -21,17 +21,14 @@ non_empty_binary() ->
 
 
 qry_tree() ->
-    ?SIZED(Size, oneof([
-                        qry_tree(Size),
-                        {to_list, qry_tree(Size)}
-                       ])).
+    ?SIZED(Size, qry_tree(Size)).
 
 qry_tree(Size) ->
     ?LAZY(oneof([
                  oneof([
-                        {get, non_empty_binary(), {range, int(), int()}},
-                        {mget, sum, non_empty_binary(), {range, int(), int()}},
-                        {mget, avg, non_empty_binary(), {range, int(), int()}}
+                        {get, non_empty_binary(), non_empty_binary(), {range, int(), int()}},
+                        {mget, sum, non_empty_binary(), non_empty_binary(), {range, int(), int()}},
+                        {mget, avg, non_empty_binary(), non_empty_binary(), {range, int(), int()}}
                        ]) || Size == 0] ++
               [{derivate, qry_tree(Size -1)} || Size > 0] ++
               [{scale, real(), qry_tree(Size -1)} || Size > 0] ++
