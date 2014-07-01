@@ -34,13 +34,23 @@ handle(<<"GET">>, Req, State) ->
                     {ok, Req4, State}
                 end;
         {Q, Req2} ->
-            {T, R1} = timer:tc(fun() -> mmath_bin:to_list(dalmatiner_qry_parser:run(Q)) end),
-            D = [{<<"t">>, T}, {<<"d">>, R1}],
-            {ok, Req3} =
-                cowboy_req:reply(
-                  200, [{<<"content-type">>, <<"application/x-msgpack">>}],
-                  msgpack:pack(D, [jsx]), Req2),
-            {ok, Req3, State}
+            {T, R} = timer:tc(fun() -> mmath_bin:to_list(dql:execute(Q)) end),
+            case R of
+                {error, E} ->
+                    {ok, Req3} =
+                        cowboy_req:reply(
+                          400, [],
+                          list_to_binary(E)),
+                    {ok, Req3, State};
+                {ok, R1} ->
+                    D = [{<<"t">>, T},
+                         {<<"d">>, R1}],
+                    {ok, Req3} =
+                        cowboy_req:reply(
+                          200, [{<<"content-type">>, <<"application/x-msgpack">>}],
+                          msgpack:pack(D, [jsx]), Req2),
+                    {ok, Req3, State}
+            end
     end.
 
 terminate(_Reason, _Req, _State) ->

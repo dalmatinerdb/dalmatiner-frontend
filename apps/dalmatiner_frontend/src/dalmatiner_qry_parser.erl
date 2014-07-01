@@ -1,7 +1,7 @@
 -module(dalmatiner_qry_parser).
 
 -export([run/1, parse/1, unparse/1, execute/1, glob_match/2, rmatch/2]).
--ignore_xref([parse/1, unparse/1, execute/1, glob_match/2, rmatch/2]).
+-ignore_xref([run/1, parse/1, unparse/1, execute/1, glob_match/2, rmatch/2]).
 
 run(Q) ->
     AST = parse(Q),
