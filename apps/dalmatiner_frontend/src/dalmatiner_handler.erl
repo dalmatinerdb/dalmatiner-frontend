@@ -34,17 +34,18 @@ handle(<<"GET">>, Req, State) ->
                     {ok, Req4, State}
                 end;
         {Q, Req2} ->
-            {T, R} = timer:tc(fun() -> mmath_bin:to_list(dql:execute(Q)) end),
-            case R of
+            {T, R1} = timer:tc(fun() -> dql:execute(Q) end),
+            case R1 of
                 {error, E} ->
                     {ok, Req3} =
                         cowboy_req:reply(
                           400, [],
                           list_to_binary(E)),
                     {ok, Req3, State};
-                {ok, R1} ->
+                {ok, R2} ->
+                    R3 = [mmath_bin:to_list(R) || R <- R2],
                     D = [{<<"t">>, T},
-                         {<<"d">>, R1}],
+                         {<<"d">>, R3}],
                     {ok, Req3} =
                         cowboy_req:reply(
                           200, [{<<"content-type">>, <<"application/x-msgpack">>}],
