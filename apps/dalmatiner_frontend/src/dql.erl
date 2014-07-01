@@ -2,6 +2,8 @@
 -export([prepare/1, parse/1, execute/1]).
 -ignore_xref([prepare/1, parse/1, execute/1]).
 
+parse(S) when is_binary(S)->
+    parse(binary_to_list(S));
 parse(S) ->
     case dql_lexer:string(S) of
         {error,{Line,dql_lexer,E},1} ->
