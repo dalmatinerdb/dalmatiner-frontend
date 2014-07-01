@@ -17,8 +17,6 @@ parse(S) ->
             end
     end.
 
-
-
 prepare(S) ->
     case parse(S) of
         {ok, {select, Qx, Aliasesx, Tx, Rx}} ->
@@ -77,7 +75,7 @@ preprocess_qry({maggr, AggF, Qs}, Aliases, Metrics, Rms) ->
 preprocess_qry({get, BM}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(BM, Metrics) of
                    none ->
-                       gb_trees:insert(BM, {get, 1}, Metrics);
+                       gb_trees:insert(BM, {get, 0}, Metrics);
                    {value, {get, N}} ->
                        gb_trees:update(BM, {get, N + 1}, Metrics)
                end,
@@ -86,11 +84,26 @@ preprocess_qry({get, BM}, Aliases, Metrics, _Rms) ->
 preprocess_qry({mget, BM}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(BM, Metrics) of
                    none ->
-                       gb_trees:insert(BM, {mget, 1}, Metrics);
+                       gb_trees:insert(BM, {mget, 0}, Metrics);
                    {value, {get, N}} ->
                        gb_trees:update(BM, {mget, N + 1}, Metrics)
                end,
     {{mget, BM}, Aliases, Metrics1};
+
+preprocess_qry({var, V}, Aliases, Metrics, _Rms) ->
+    Metrics1 = case gb_trees:lookup(V, Aliases) of
+                   none ->
+                       io:format("yeeek: ~p(~p) ~p!~n", [Aliases, V, Metrics]),
+                       Metrics;
+                   {value, {get, BM}} ->
+                       case gb_trees:lookup(BM, Metrics) of
+                           none ->
+                               gb_trees:insert(BM, {get, 1}, Metrics);
+                           {value, {get, N}} ->
+                               gb_trees:update(BM, {get, N + 1}, Metrics)
+                       end
+               end,
+    {{var, V}, Aliases, Metrics1};
 
 preprocess_qry(Q, A, M, _) ->
     {Q, A, M}.
@@ -125,16 +138,16 @@ execute({aggr, min, Q, T}, S, C, A, M) ->
 
 execute({get, BM = {B, M}}, S, C, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
-        {get, 1} ->
+        {get, N} when N =< 1 ->
             {ok, D} = dalmatiner_connection:get(B, M, S, C),
             {D, gb_trees:delete(BM, Metrics)};
-        {get, M} ->
+        {get, N} ->
             {ok, D} = dalmatiner_connection:get(B, M, S, C),
-            {D, gb_trees:update(BM, {get, D, M - 1}, Metrics)};
-        {get, D, 1} ->
+            {D, gb_trees:update(BM, {get, D, N - 1}, Metrics)};
+        {get, D, N} when N =< 1 ->
             {D, gb_trees:delete(BM, Metrics)};
-        {get, D, M} ->
-            {D, gb_trees:update(BM, {get, D, M - 1}, Metrics)}
+        {get, D, N} ->
+            {D, gb_trees:update(BM, {get, D, N - 1}, Metrics)}
     end;
 
 execute({var, V}, S, C, A, M) ->
