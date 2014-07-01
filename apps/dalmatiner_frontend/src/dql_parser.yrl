@@ -44,7 +44,7 @@ timeframe -> kw_last int_or_time: {last, '$2'}.
 
 resolution -> kw_in timeframe : '$2'.
 
-mb -> metric kw_bucket metric : {unwrap('$1'), unwrap('$3')}.
+mb -> metric kw_bucket metric : {unwrap('$3'), unwrap('$1')}.
 
 timeframe -> integer time : {time, unwrap('$1'), unwrap('$2')}.
 timeframe -> time : {time, 1, unwrap('$1')}.
