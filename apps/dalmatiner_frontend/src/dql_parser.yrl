@@ -22,10 +22,13 @@ aliases -> alias : ['$1'].
 
 aliases -> alias ',' aliases  : ['$1'] ++ '$3'.
 
-fun -> derivate '(' selector ')' : {aggr, derivate, unwrap('$1')}.
+fun -> derivate '(' fun ')' : {aggr, derivate, '$3'}.
+fun -> derivate '(' selector ')' : {aggr, derivate, '$3'}.
+fun -> aggr '(' fun ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
 fun -> aggr '(' metric ',' int_or_time ')' : {aggr, unwrap('$1'), {var, unwrap('$3')}, '$5'}.
-fun -> caggr '(' metric ',' int_or_time ')' : {aggr, unwrap('$1'), {var, unwrap('$3')}, '$5'}.
 fun -> aggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
+fun -> caggr '(' fun ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
+fun -> caggr '(' metric ',' int_or_time ')' : {aggr, unwrap('$1'), {var, unwrap('$3')}, '$5'}.
 fun -> caggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
 
 

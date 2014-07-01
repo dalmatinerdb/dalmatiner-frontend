@@ -41,7 +41,7 @@ prepare(Qs, Aliases, T, R) ->
                             {[Q1 | QAcc] , A1, M1}
                     end, {[], AliasesF, MetricsF}, Qs),
     {Start, Count} = compute_se(T1, Rms),
-    {QQ, Start, Count, AliasesQ, MetricsQ}.
+    {QQ, Start, Count, Rms, AliasesQ, MetricsQ}.
 
 compute_se({last, N}, Rms) ->
     _Now = {Mega, Sec, Micro} = now(),
@@ -55,7 +55,7 @@ compute_se({last, N}, Rms) ->
 
 preprocess_qry({aggr, AggF, Q, T}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
-    {{aggr, AggF, Q1, apply_times(T, Rms)}, A1, M1};
+    {{aggr, AggF, Q1, T}, A1, M1};
 
 preprocess_qry({aggr, AggF, Q}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
@@ -106,9 +106,9 @@ preprocess_qry(Q, A, M, _) ->
 
 execute(Qry) ->
     case prepare(Qry) of
-        {Qs, S, C, A, M} ->
+        {Qs, S, C, Rms, A, M} ->
             {D, _} = lists:foldl(fun(Q, {RAcc, MAcc}) ->
-                                         {R, M1} = execute(Q, S, C, A, MAcc),
+                                         {{R, _}, M1} = execute(Q, S, C, Rms, A, MAcc),
                                          {[R | RAcc], M1}
                                  end, {[], M}, Qs),
             {ok, D};
@@ -116,38 +116,42 @@ execute(Qry) ->
             E
     end.
 
-execute({aggr, avg, Q, T}, S, C, A, M) ->
-    {D, M1} = execute(Q, S, C, A, M),
-    {mmath_aggr:avg(D, T), M1};
+execute({aggr, avg, Q, T}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:avg(D, T1), T1}, M1};
 
-execute({aggr, sum, Q, T}, S, C, A, M) ->
-    {D, M1} = execute(Q, S, C, A, M),
-    {mmath_aggr:sum(D, T), M1};
+execute({aggr, sum, Q, T}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:sum(D, T1), T1}, M1};
 
-execute({aggr, max, Q, T}, S, C, A, M) ->
-    {D, M1} = execute(Q, S, C, A, M),
-    {mmath_aggr:max(D, T), M1};
+execute({aggr, max, Q, T}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:max(D, T1), T1}, M1};
 
-execute({aggr, min, Q, T}, S, C, A, M) ->
-    {D, M1} = execute(Q, S, C, A, M),
-    {mmath_aggr:min(D, T), M1};
+execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:min(D, T1), T1}, M1};
 
-execute({get, BM = {B, M}}, S, C, _A, Metrics) ->
+execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
         {get, N} when N =< 1 ->
             {ok, D} = dalmatiner_connection:get(B, M, S, C),
-            {D, gb_trees:delete(BM, Metrics)};
+            {{D, 1}, gb_trees:delete(BM, Metrics)};
         {get, N} ->
             {ok, D} = dalmatiner_connection:get(B, M, S, C),
-            {D, gb_trees:update(BM, {get, D, N - 1}, Metrics)};
+            {{D, 1}, gb_trees:update(BM, {get, {D, 1}, N - 1}, Metrics)};
         {get, D, N} when N =< 1 ->
             {D, gb_trees:delete(BM, Metrics)};
         {get, D, N} ->
             {D, gb_trees:update(BM, {get, D, N - 1}, Metrics)}
     end;
 
-execute({var, V}, S, C, A, M) ->
-    execute(gb_trees:get(V, A), S, C, A, M).
+execute({var, V}, S, C, Rms, A, M) ->
+    execute(gb_trees:get(V, A), S, C, Rms, A, M).
 
 apply_times({last, L}, R) ->
     {last, apply_times(L, R)};
