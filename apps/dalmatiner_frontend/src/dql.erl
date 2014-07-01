@@ -29,9 +29,7 @@ prepare(S) ->
 
 prepare(Qs, Aliases, T, R) ->
     Rms = to_ms(R),
-    io:format("Q: ~p~n", [{Qs, Aliases, T, R}]),
     T1 = apply_times(T, Rms),
-    io:format("T -> T1: ~p -> ~p~n", [T, T1]),
     {_AF, AliasesF, MetricsF} =
         lists:foldl(fun({alias, Alias, Resolution}, {QAcc, AAcc, MAcc}) ->
                             {Q1, A1, M1} = preprocess_qry(Resolution, AAcc, MAcc, Rms),
@@ -43,7 +41,6 @@ prepare(Qs, Aliases, T, R) ->
                             {[Q1 | QAcc] , A1, M1}
                     end, {[], AliasesF, MetricsF}, Qs),
     {Start, Count} = compute_se(T1, Rms),
-    io:format("range: ~p + ~p ~n", [Start, Count]),
     {QQ, Start, Count, AliasesQ, MetricsQ}.
 
 compute_se({last, N}, Rms) ->
@@ -93,7 +90,6 @@ preprocess_qry({mget, BM}, Aliases, Metrics, _Rms) ->
 preprocess_qry({var, V}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(V, Aliases) of
                    none ->
-                       io:format("yeeek: ~p(~p) ~p!~n", [Aliases, V, Metrics]),
                        Metrics;
                    {value, {get, BM}} ->
                        case gb_trees:lookup(BM, Metrics) of
