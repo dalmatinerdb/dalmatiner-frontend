@@ -1,5 +1,5 @@
 function q() {
-    msgpack.download("/metrics?q=" + document.getElementById("bla").value,{}, function(res) {
+    msgpack.download("?q=" + document.getElementById("bla").value, {header: {accept:"application/x-msgpack"}}, function(res) {
         console.log("Fetching " + res.d[0].length + " elements in " + res.t / 1000 + "ms");
         var idx = [];
         for (var i = 0; i < res.d[0].length; i++)

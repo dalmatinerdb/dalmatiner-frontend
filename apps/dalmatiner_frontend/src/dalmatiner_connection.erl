@@ -121,6 +121,28 @@ handle_call({list, Bucket}, _From, State) ->
             end
     end;
 
+handle_call(list, _From, State = #state{socket = S}) ->
+    Msg = <<?BUCKETS>>,
+    ok = gen_tcp:send(S, Msg),
+    case gen_tcp:recv(S, 4, 3000) of
+        {ok, <<Size:32/integer>>} ->
+            {ok, D} = gen_tcp:recv(S, Size, 3000),
+            {reply, {ok, decode_metrics(D, [])}, State};
+        {error, E} ->
+            lager:error("[connection/recv] Error: ~p", [E]),
+            gen_tcp:close(S),
+            {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
+                                       [binary, {packet, 0}, {active, false}]),
+            ok = gen_tcp:send(S1, Msg),
+            {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
+            case gen_tcp:recv(S1, Size, 3000) of
+                {ok, D} ->
+                    {reply, {ok, decode_metrics(D, [])}, State};
+                E ->
+                    {reply, E, State#state{socket = S1}}
+            end
+    end;
+
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.

@@ -34,9 +34,9 @@ start(_StartType, _StartArgs) ->
     Dispatch = cowboy_router:compile(
                  [
                   %% {URIHost, list({URIPath, Handler, Opts})}
-                  {'_', [{"/metrics", dalmatiner_handler, []},
-                         {"/", cowboy_static,
-                          {priv_file, dalmatiner_frontend, "static/index.html"}},
+                  {'_', [{"/", dalmatiner_idx_handler, []},
+                         {"/buckets/", dalmatiner_bucket_handler, []},
+                         {"/buckets/[:bucket]", dalmatiner_metric_handler, []},
                          {"/js/[...]", cowboy_static,
                           {priv_dir, dalmatiner_frontend, "static/js",
                            [{mimetypes, cow_mimetypes, web}]}},

@@ -1,8 +1,8 @@
 $(function() {
     msgpack.download("", {header: {accept:"application/x-msgpack"}}, function(d) {
-        console.log(d);
+        console.log(d)
         d.forEach(function(e) {
-            $("#metrics").append("<tr><td>" + e +"</td></tr>")
+            $("#buckets").append("<tr><td><a href='/buckets/"+ e + "'>" + e +"</a></td></tr>")
         })
     })
 })
