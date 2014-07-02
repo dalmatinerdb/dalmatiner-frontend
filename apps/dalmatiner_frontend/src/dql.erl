@@ -1,6 +1,6 @@
 -module(dql).
--export([prepare/1, parse/1, execute/1]).
--ignore_xref([prepare/1, parse/1, execute/1]).
+-export([prepare/1, parse/1, execute/1, unparse/1]).
+-ignore_xref([prepare/1, parse/1, execute/1, unparse/1]).
 
 parse(S) when is_binary(S)->
     parse(binary_to_list(S));
@@ -53,6 +53,9 @@ compute_se({last, N}, Rms) ->
     {RelativeNow - N, N}.
 
 
+preprocess_qry({named, N, Q}, Aliases, Metrics, Rms) ->
+    {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
+    {{named, N, Q1}, A1, M1};
 preprocess_qry({aggr, AggF, Q, T}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{aggr, AggF, Q1, T}, A1, M1};
@@ -107,15 +110,20 @@ preprocess_qry(Q, A, M, _) ->
 execute(Qry) ->
     case prepare(Qry) of
         {Qs, S, C, Rms, A, M} ->
-            {D, _} = lists:foldl(fun(Q, {RAcc, MAcc}) ->
+            {D, _} = lists:foldl(fun({named, Name, Q}, {RAcc, MAcc}) ->
                                          {{R, _}, M1} = execute(Q, S, C, Rms, A, MAcc),
-                                         {[R | RAcc], M1}
+                                         {[{Name, R} | RAcc], M1};
+                                     (Q, {RAcc, MAcc}) ->
+                                         {{R, _}, M1} = execute(Q, S, C, Rms, A, MAcc),
+                                         {[{unparse(Q), R} | RAcc], M1}
                                  end, {[], M}, Qs),
             {ok, D};
         E ->
             E
     end.
 
+execute({named, _, Q}, S, C, Rms, A, M) ->
+    execute(Q, S, C, Rms, A, M);
 execute({aggr, avg, Q, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
@@ -152,6 +160,44 @@ execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
 
 execute({var, V}, S, C, Rms, A, M) ->
     execute(gb_trees:get(V, A), S, C, Rms, A, M).
+
+unparse(L) when is_list(L) ->
+    <<_, _, R/binary>> = << <<", ", (unparse(Q))/binary>> || Q <- L >>,
+    R;
+unparse({select, Q, A, T, R}) ->
+    <<"SELECT ", (unparse(Q))/binary, " FROM ", (unparse(A))/binary, " ",
+      (unparse(T))/binary, " IN ", (unparse(R))/binary>>;
+unparse({select, Q, T, R}) ->
+    <<"SELECT ", (unparse(Q))/binary, " ", (unparse(T))/binary, " IN ",
+      (unparse(R))/binary>>;
+unparse({last, Q}) ->
+    <<"LAST ", (unparse(Q))/binary>>;
+unparse({var, V}) ->
+    V;
+
+unparse({alias, A, V}) ->
+    <<(unparse(V))/binary, " AS ", A/binary>>;
+unparse({get, {B, M}}) ->
+    <<M/binary, " BUCKET ", B/binary>>;
+unparse(N) when is_integer(N)->
+    <<(integer_to_binary(N))/binary>>;
+unparse({time, N, ms}) ->
+    <<(integer_to_binary(N))/binary, "ms">>;
+unparse({time, N, s}) ->
+    <<(integer_to_binary(N))/binary, "s">>;
+unparse({time, N, m}) ->
+    <<(integer_to_binary(N))/binary, "m">>;
+unparse({time, N, h}) ->
+    <<(integer_to_binary(N))/binary, "h">>;
+unparse({time, N, d}) ->
+    <<(integer_to_binary(N))/binary, "d">>;
+unparse({time, N, w}) ->
+    <<(integer_to_binary(N))/binary, "w">>;
+unparse({aggr, Fun, Q, T}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    Qs = unparse(Q),
+    Ts = unparse(T),
+    <<Funs/binary, "(", Qs/binary, ", ", Ts/binary, ")">>.
 
 apply_times({last, L}, R) ->
     {last, apply_times(L, R)};

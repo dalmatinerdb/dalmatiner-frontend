@@ -1,31 +1,48 @@
+var c;
 function q() {
     msgpack.download("?q=" + document.getElementById("bla").value, {header: {accept:"application/x-msgpack"}}, function(res) {
         console.log("Fetching " + res.d[0].length + " elements in " + res.t / 1000 + "ms");
         var idx = [];
-        for (var i = 0; i < res.d[0].length; i++)
+        for (var i = 0; i < res.d[0].v.length; i++)
         {
             idx[i] = i;
         }
-        points = res.d.map(function(d) {
+
+        colors = [
+            [119, 158, 203],
+            [100,  20, 100],
+            [119, 221, 119],
+            [255, 179,  71],
+            [255, 105,  97],
+            [220, 220, 220],
+        ];
+        points = res.d.map(function(d, i) {
+            console.log(i);
+            color = colors[i % colors.length];
+            col = "rgba(" + color[0] + ", " + color[1] + ", " + color[2];
             return {
-                fillColor : "rgba(220,220,220,0.5)",
-                strokeColor : "rgba(220,220,220,1)",
-                pointColor : "rgba(220,220,220,1)",
-                pointStrokeColor : "#fff",
-                data : d
+                fillColor: col + ", 0.1)",
+                strokeColor: col + ", 1)",
+                pointColor: col + ", 1)",
+                pointStrokeColor: "#fff",
+                data: d.v,
+                label: d.n,
             };
         });
         console.log(points);
         var data = {
-            labels : idx,
-            datasets : points
+            labels: idx,
+            datasets: points
         };
-        c.Line(data);
+        c = new Chart($("#myChart")[0].getContext("2d"));
+        var L = c.Line(data, {});
+        $("#legend").html(L.generateLegend());
+
 
     })
 }
 
 $(function(){
-    var ctx = document.getElementById("myChart").getContext("2d");
-    c = new Chart(ctx);
+    Chart.defaults.global.responsive = true;
+    Chart.defaults.global.scaleBeginAtZero = true;
 });

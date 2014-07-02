@@ -44,7 +44,8 @@ handle(Req, State) ->
                     {ok, Req2, State};
                 {T, {ok, R2}} ->
                     {ok, A, Req2} = cowboy_req:parse_header(<<"accept">>, Req1),
-                    R3 = [mmath_bin:to_list(E) || E <- R2],
+                    R3 = [[{<<"n">>, N}, {<<"v">>, mmath_bin:to_list(E)}]
+                          || {N, E} <- R2],
                     D = [{<<"t">>, T},
                          {<<"d">>, R3}],
                     case content_type(A) of
