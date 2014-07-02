@@ -37,13 +37,12 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         {Q, Req1} ->
-            {T, R1} = timer:tc(fun() -> dql:execute(Q) end),
-            case R1 of
-                {error, E} ->
+            case timer:tc(dql, execute, [Q]) of
+                {_, {error, E}} ->
                     {ok, Req2} =
                         cowboy_req:reply(400, [], list_to_binary(E), Req1),
                     {ok, Req2, State};
-                {ok, R2} ->
+                {T, {ok, R2}} ->
                     {ok, A, Req2} = cowboy_req:parse_header(<<"accept">>, Req1),
                     R3 = [mmath_bin:to_list(E) || E <- R2],
                     D = [{<<"t">>, T},

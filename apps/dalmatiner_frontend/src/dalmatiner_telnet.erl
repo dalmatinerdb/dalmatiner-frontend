@@ -26,6 +26,9 @@ loop(Socket, Transport) ->
         {ok, <<"quit\r\n">>} ->
             Transport:send(Socket, <<"bye!\r\n">>),
             ok = Transport:close(Socket);
+        {ok, <<"q\r\n">>} ->
+            Transport:send(Socket, <<"bye!\r\n">>),
+            ok = Transport:close(Socket);
         {ok, <<"metrics\r\n">>} ->
             {ok, Ms} = dalmatiner_connection:list(),
             Ms1 = string:join([binary_to_list(M) || M <- Ms], ", "),
@@ -42,15 +45,23 @@ loop(Socket, Transport) ->
             R = io_lib:format("~p\n\r", [QT]),
             Transport:send(Socket, list_to_binary(R)),
             loop(Socket, Transport);
-        {ok, <<"q ", D/binary>>} ->
-            QT = do_query_prep(D),
-            Data = dalmatiner_qry_parser:execute(QT),
-            Transport:send(Socket, <<Data/binary, "\n\r">>),
-            loop(Socket, Transport);
-        {ok, <<"query ", D/binary>>} ->
-            QT = do_query_prep(D),
-            Data = dalmatiner_qry_parser:execute(QT),
-            Transport:send(Socket, <<Data/binary, "\n\r">>),
+        {ok, <<"SELECT ", _/binary>> = Q} ->
+            case timer:tc(dql, execute, [Q]) of
+                {T, {ok, Ls}} ->
+                    [begin
+                         <<_, BL/binary>> = << <<$\t, (to_s(E))/binary>> ||
+                                        E <- mmath_bin:to_list(L) >>,
+                         Transport:send(Socket, <<BL/binary, "\n\r">>)
+                     end || L <- Ls],
+                    Transport:send(Socket, <<"Query completed in ",
+                                             (to_s(T/1000))/binary,
+                                             "ms\n\r">>);
+                {T, {error, E}} ->
+                    io:format("E: ~p", [E]),
+                    Transport:send(Socket, <<"Error after ",
+                                             (to_s(T/1000))/binary,
+                                             "ms: ", E/binary, "\n\r">>)
+            end,
             loop(Socket, Transport);
         {ok, What} ->
             Transport:send(Socket, <<"I do not understand: ", What/binary>>),
@@ -68,3 +79,8 @@ do_query_prep(D) ->
     <<Q:S/binary, "\r\n">> = D,
     R1 = dalmatiner_qry_parser:parse(Q),
     {to_list, R1}.
+
+to_s(E) when is_integer(E) ->
+    erlang:integer_to_binary(E);
+to_s(E) when is_float(E) ->
+    erlang:float_to_binary(E, [{decimals, 2}]).
