@@ -1,4 +1,4 @@
-# MetricDB Frontend
+# DalmatinerDB Frontend
 
 ## Query langauge
 
@@ -14,7 +14,7 @@ All keywords need to be uppercase!
 Please keep in mind that each query can only return a single row of data at the moment.
 
 ### Range Section
-There are two ways to declare ranges, while nubers here represent seconds MetricDB does not care about the time unit at all:
+There are two ways to declare ranges, while nubers here represent seconds DalmatinerDB does not care about the time unit at all:
 
 ```
 BETWEEN <start> AND <end>
