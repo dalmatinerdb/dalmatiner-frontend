@@ -6,55 +6,79 @@ The frontend query language is rather remotely related to SQL, this should make 
 
 The basic syntax looks like this:
 ```
-SELECT <RANGE SECTION> FROM <SELECTION SECTION>[ <AGGREGATION SECTION>]
+SELECT <FIELDS> [ FROM <ALIASES>] <TIME RANGE> [IN <RESOLUTIOn>]
 ```
-
-All keywords need to be uppercase!
 
 Please keep in mind that each query can only return a single row of data at the moment.
 
-### Range Section
+### Fields (`SELECT` section)
+A field can either be a metric, a alias to a metric or a function:
+
+* `cloud.zones.cpu.usage.eca485cf-bdbb-4ae5-aba9-dce767 BUCKET tachyon` - a fully qualifeid metric.
+* `vm` - an alias that is defined in the `FROM` section of the queryt.
+* `avg(vm, 1m)` - a aggregation function.
+
+Fields can be aliased for output adding a `AS <alias>` directive after the field.
+
+Multiple fields can be given seperating two fields with a `,`. The resolution of fields do not have to be the same, there is no check enforcing this!
+
+### Aliases (`FROM` section)
+When a metric is used multime times it often gets more readable to alias this metric, this is done in the `FROM` section. Multiple elements can be given seperated with a `,`. Each element takes the form: `<metric> BUCKET <bucket> AS <alias>`.
+
+### TIME RANGE
 There are two ways to declare ranges, while nubers here represent seconds DalmatinerDB does not care about the time unit at all:
 
 ```
-BETWEEN <start> AND <end>
+BETWEEN <start:int> AND <end:int>
 ```
 
 Will select all pints between the `start` and the `end`. However often the most used query is 'what happned in the past X seconds' so there is a simplified form for this:
 
 ```
-LAST <count> S
+LAST <amount:int> [<unit:time-unit>]
 ```
 
-This is equivalent to `BETWEEN now() - <count> AND now()` (this is not valid syntax).
+### Resolution (`IN` section)
+By default queries treat incoming data as a one second resolution, however this can be adjusted by passing a resolution section to the query, the syntax is: `IN <resolution:time>`.
 
-### Selection Sections
-This is where we define which metrics are slected, any string can go here, alternatively multiple metrics can be combined using either:
+## Data Types
 
+### Time
+There are two ways to declare times:
+
+* relatively, in which case the time is a simple integer and corresponds to a number of metric points used. (i.e. `60`)
+* absolute, in which case the time is a integer followed by a time unit such as `ms`, `s`, `m`, `h`, `d` and `w`, in this case the resolution of the metric is taken into acount.
+
+### Metrics
+Metrics are simple strings that are optionally seperated by dots and a second strring for the bucket. The two strings are seperated by the keyword `BUCKET`.
+
+Example:
 ```
-AVG OF <metric with globs>
+cloud.zones.cpu.usage.eca485cf-bdbb-4ae5-aba9-dce767 BUCKET tachyon
 ```
 
-or
+### Aggregation functiosn
+Aggregation functions aggregate a metric over a given range of time and decrease the resolution by doing so. Aggregation functions can be nested in which case the 'higher' functiosn work with the decreased resolution of lower functions and not the raw resolution. This means the correct code to get the 1m average over 10s sums from a 1s resolution metric would be  `avg(sum(m, 10s), 1m)` not `avg(sum(m, 10s), 6s)` - however this does not apply when using the point and not the time declaration, so it would be: `avg(sum(m, 10s), 6)` not `avg(sum(m, 10s), 60)` (please note the missing `s`).
 
-```
-SUM OF <metric with globs>
-```
+#### min/2
+The minimal value over a given range of time.
 
-### Aggregation section
-This is optional however it can be used to combine multiple points into one the syntax always gives the number of points to combine, chaining multiple aggregates will mean one execution is followed after another i.e. `SUM OVER 60 SUM OVER 60` would mean the same as `SUM OVER 360`
+#### max/2
+The maximal value over a given range of time.
 
-Currently supported aggregations are:
+#### sum/2
+The sum of all values of a timerange.
 
-* `SUM OVER <points>` - calculates the sum over the given number of datapoints.
-* `AVG OVER <points>` - calculates the average over the given number of datapoitns.
-* `MAX OF <points>` - finds the maximum of the datapoints.
-* `MIN OF <points>` - finds the minimum of the datapoints.
-* `DERIVATE` - This is a bit of a special case, it takes no agruments but converts a column of absolute values into their deltas (the number of points gets reduced by one since the first point is removed).
+#### avg/2
+The average of a timerange (this is the mean not the median).
+
+#### derivate/1
+Calculates the derivate of a metric, meaing N'(X)=N(X) - N(X-1)
 
 ## Examples
 
-Calcuates the average hourly cpu usage over the last 24h:
+Calcuates the min, max and average of a metric over a hour.
 ```
-SELECT LAST 86400 S FROM AVG OF cloud.zones.cpu.usage.* AVG OVER 3600
+SELECT min(vm, 10m), avg(vm, 10m), max(vm, 10m) AS max FROM cloud.zones.cpu.usage.eca485cf-bdbb-4ae5-aba9-dce767 BUCKET tachyon AS vm LAST 60m
 ```
+
