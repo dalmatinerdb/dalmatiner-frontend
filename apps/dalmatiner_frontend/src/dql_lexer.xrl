@@ -17,6 +17,9 @@ FROM    = [Ff][Rr][Oo][Mm]
 LIKE    = [Ll][Ii][Kk][Ee]
 BETWEEN = [Bb][Ee][Tt][Ww][Ee][Ee][Nn]
 IN      = [Ii][Nn]
+NOW     = [Nn][Oo][Ww]
+AGO     = [Aa][Gg][Oo]
+AND     = [Aa][Nn][Dd]
 
 Rules.
 {SELECT}    :   {token, {kw_select,     TokenLine}}.
@@ -26,7 +29,11 @@ Rules.
 {IN}        :   {token, {kw_in,         TokenLine}}.
 {FROM}      :   {token, {kw_from,       TokenLine}}.
 {BETWEEN}   :   {token, {kw_between,    TokenLine}}.
-{LIKE}      :   {token, {kw_between,    TokenLine}}.
+{LIKE}      :   {token, {kw_like,       TokenLine}}.
+{NOW}       :   {token, {kw_now,        TokenLine}}.
+{AGO}       :   {token, {kw_ago,        TokenLine}}.
+{AND}       :   {token, {kw_and,        TokenLine}}.
+
 derivate    :   {token, {derivate,      TokenLine, a(TokenChars)}}.
 {AGGR}      :   {token, {aggr,          TokenLine, a(TokenChars)}}.
 {CAGGR}     :   {token, {caggr,         TokenLine, a(TokenChars)}}.

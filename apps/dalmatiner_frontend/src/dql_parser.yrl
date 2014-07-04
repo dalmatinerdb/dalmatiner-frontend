@@ -1,8 +1,8 @@
 Nonterminals
-funs fun selector select timeframe caggr_selectors caggr_selector aliases alias resolution int_or_time mb fune name.
+funs fun selector select timeframe caggr_selectors caggr_selector aliases alias resolution int_or_time mb fune name pit.
 
 Terminals '(' ')' ','
-metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in derivate time.
+metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time.
 
 Rootsymbol select.
 
@@ -53,19 +53,20 @@ caggr_selectors -> caggr_selector ',' caggr_selectors : ['$1'] ++ '$3'.
 caggr_selector -> glob_metric kw_bucket name: {mget, {'$3', unwrap('$1')}}.
 
 timeframe -> kw_last int_or_time: {last, '$2'}.
+timeframe -> kw_between pit kw_and pit : {between, '$2', '$4'}.
 
 resolution -> kw_in timeframe : '$2'.
 
 mb -> name kw_bucket name : {'$3', '$1'}.
 
-timeframe -> integer time : {time, unwrap('$1'), unwrap('$2')}.
-timeframe -> time : {time, 1, unwrap('$1')}.
-
-int_or_time -> timeframe : '$1'.
+int_or_time -> integer time : {time, unwrap('$1'), unwrap('$2')}.
 int_or_time -> integer : unwrap('$1').
 
-Erlang code.
+pit -> int_or_time kw_ago : {ago, '$1'}.
+pit -> integer : unwrap('$1').
+pit -> kw_now : now.
 
+Erlang code.
 -ignore_xref([format_error/1, parse_and_scan/1]).
 
 unwrap({_,_,V}) -> V.

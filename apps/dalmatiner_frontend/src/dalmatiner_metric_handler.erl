@@ -26,7 +26,8 @@ content_type([_ | R]) ->
     content_type(R).
 
 handle(Req, State) ->
-    {ok, R, Req1} = cowboy_req:parse_header(<<"accept">>, Req),
+    Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req),
+    {ok, R, Req1} = cowboy_req:parse_header(<<"accept">>, Req0),
     {Bucket, Req2} = cowboy_req:binding(bucket, Req1),
     case content_type(R) of
         html ->

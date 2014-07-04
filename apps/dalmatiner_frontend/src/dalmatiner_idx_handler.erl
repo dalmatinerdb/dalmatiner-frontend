@@ -26,7 +26,8 @@ content_type([_ | R]) ->
     content_type(R).
 
 handle(Req, State) ->
-    case cowboy_req:qs_val(<<"q">>, Req) of
+    Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req),
+    case cowboy_req:qs_val(<<"q">>, Req0) of
         {undefined, Req1} ->
             F = fun (Socket, Transport) ->
                         File = code:priv_dir(dalmatiner_frontend) ++
@@ -44,8 +45,8 @@ handle(Req, State) ->
                     {ok, Req2, State};
                 {T, {ok, R2}} ->
                     {ok, A, Req2} = cowboy_req:parse_header(<<"accept">>, Req1),
-                    R3 = [[{<<"n">>, N}, {<<"v">>, mmath_bin:to_list(E)}]
-                          || {N, E} <- R2],
+                    R3 = [[{<<"n">>, N}, {<<"r">>, R}, {<<"v">>, mmath_bin:to_list(E)}]
+                          || {N, R, E} <- R2],
                     D = [{<<"t">>, T},
                          {<<"d">>, R3}],
                     case content_type(A) of

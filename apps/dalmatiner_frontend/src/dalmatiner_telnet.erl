@@ -52,7 +52,7 @@ loop(Socket, Transport) ->
                          <<_, BL/binary>> = << <<$\t, (to_s(E))/binary>> ||
                                         E <- mmath_bin:to_list(L) >>,
                          Transport:send(Socket, <<BL/binary, "\n\r">>)
-                     end || L <- Ls],
+                     end || {_,_,L} <- Ls],
                     Transport:send(Socket, <<"Query completed in ",
                                              (to_s(T/1000))/binary,
                                              "ms\n\r">>);

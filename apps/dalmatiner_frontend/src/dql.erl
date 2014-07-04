@@ -43,6 +43,11 @@ prepare(Qs, Aliases, T, R) ->
     {Start, Count} = compute_se(T1, Rms),
     {QQ, Start, Count, Rms, AliasesQ, MetricsQ}.
 
+compute_se({between, S, E}, _Rms) when E > S->
+    {S, E - S};
+compute_se({between, S, E}, _Rms) ->
+    {E, S - E};
+
 compute_se({last, N}, Rms) ->
     _Now = {Mega, Sec, Micro} = now(),
     NowMs = ((Mega * 1000000  + Sec) * 1000000 + Micro) div 1000,
@@ -111,11 +116,11 @@ execute(Qry) ->
     case prepare(Qry) of
         {Qs, S, C, Rms, A, M} ->
             {D, _} = lists:foldl(fun({named, Name, Q}, {RAcc, MAcc}) ->
-                                         {{R, _}, M1} = execute(Q, S, C, Rms, A, MAcc),
-                                         {[{Name, R} | RAcc], M1};
+                                         {{D, R}, M1} = execute(Q, S, C, Rms, A, MAcc),
+                                         {[{Name, R, D} | RAcc], M1};
                                      (Q, {RAcc, MAcc}) ->
-                                         {{R, _}, M1} = execute(Q, S, C, Rms, A, MAcc),
-                                         {[{unparse(Q), R} | RAcc], M1}
+                                         {{D, R}, M1} = execute(Q, S, C, Rms, A, MAcc),
+                                         {[{unparse(Q), R, D} | RAcc], M1}
                                  end, {[], M}, Qs),
             {ok, D};
         E ->
@@ -143,6 +148,10 @@ execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
     {{mmath_aggr:min(D, T1), T1}, M1};
+
+execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:derivate(D), Res}, M1};
 
 execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
@@ -202,8 +211,22 @@ unparse({aggr, Fun, Q, T}) ->
 apply_times({last, L}, R) ->
     {last, apply_times(L, R)};
 
+apply_times({between, S, E}, R) ->
+    {between, apply_times(S, R), apply_times(E, R)};
+
 apply_times(N, _) when is_integer(N) ->
     N;
+
+apply_times(now, R) ->
+    _Now = {Mega, Sec, Micro} = now(),
+    NowMs = ((Mega * 1000000  + Sec) * 1000000 + Micro) div 1000,
+    NowMs div R;
+
+apply_times({ago, T}, R) ->
+    _Now = {Mega, Sec, Micro} = now(),
+    NowMs = ((Mega * 1000000  + Sec) * 1000000 + Micro) div 1000,
+    (NowMs - to_ms(T)) div R;
+
 apply_times(T, R) ->
     to_ms(T) div R.
 
