@@ -3,8 +3,8 @@
 Definitions.
 
 D       = [0-9]
-S       = [A-Za-z][A-Za-z0-9.-]*
-GS      = [A-Za-z*][A-Za-z0-9*.-]*
+S       = [A-Za-z][A-Za-z0-9._-]*
+GS      = [A-Za-z*][A-Za-z0-9*._-]*
 WS      = ([\000-\s]|%.*)
 AGGR    = (min|max)
 CAGGR   = (avg|sum)
