@@ -65,6 +65,10 @@ preprocess_qry({aggr, AggF, Q, T}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{aggr, AggF, Q1, T}, A1, M1};
 
+preprocess_qry({math, MathF, Q, V}, Aliases, Metrics, Rms) ->
+    {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
+    {{math, MathF, Q1, V}, A1, M1};
+
 preprocess_qry({aggr, AggF, Q}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{aggr, AggF, Q1}, A1, M1};
@@ -149,6 +153,14 @@ execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
     T1 = apply_times(T, Rms * Res),
     {{mmath_aggr:min(D, T1), T1}, M1};
 
+execute({math, multiply, Q, V}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:scale(D, V), Res}, M1};
+
+execute({math, divide, Q, V}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:scale(D, 1/V), Res}, M1};
+
 execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:derivate(D), Res}, M1};
@@ -210,7 +222,12 @@ unparse({aggr, Fun, Q, T}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
     Qs = unparse(Q),
     Ts = unparse(T),
-    <<Funs/binary, "(", Qs/binary, ", ", Ts/binary, ")">>.
+    <<Funs/binary, "(", Qs/binary, ", ", Ts/binary, ")">>;
+unparse({math, Fun, Q, V}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    Qs = unparse(Q),
+    Vs = unparse(V),
+    <<Funs/binary, "(", Qs/binary, ", ", Vs/binary, ")">>.
 
 apply_times({last, L}, R) ->
     {last, apply_times(L, R)};

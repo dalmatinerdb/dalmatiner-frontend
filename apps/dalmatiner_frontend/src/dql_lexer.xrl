@@ -8,6 +8,7 @@ GS      = [A-Za-z*][A-Za-z0-9*.-]*
 WS      = ([\000-\s]|%.*)
 AGGR    = (min|max)
 CAGGR   = (avg|sum)
+MATH    = (divide|multiply)
 TIME    = (ms|s|m|h|d|w)
 SELECT  = [Ss][Ee][Ll][Ee][Cc][Tt]
 BUCKET  = [Bb][Uu][Cc][Kk][Ee][Tt]
@@ -20,6 +21,7 @@ IN      = [Ii][Nn]
 NOW     = [Nn][Oo][Ww]
 AGO     = [Aa][Gg][Oo]
 AND     = [Aa][Nn][Dd]
+
 
 Rules.
 {SELECT}    :   {token, {kw_select,     TokenLine}}.
@@ -36,6 +38,7 @@ Rules.
 
 derivate    :   {token, {derivate,      TokenLine, a(TokenChars)}}.
 {AGGR}      :   {token, {aggr,          TokenLine, a(TokenChars)}}.
+{MATH}      :   {token, {math,          TokenLine, a(TokenChars)}}.
 {CAGGR}     :   {token, {caggr,         TokenLine, a(TokenChars)}}.
 {TIME}      :   {token, {time,          TokenLine, a(TokenChars)}}.
 

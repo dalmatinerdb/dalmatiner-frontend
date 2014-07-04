@@ -2,7 +2,7 @@ Nonterminals
 funs fun selector select timeframe caggr_selectors caggr_selector aliases alias resolution int_or_time mb fune name pit.
 
 Terminals '(' ')' ','
-metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time.
+metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time math.
 
 Rootsymbol select.
 
@@ -39,6 +39,8 @@ fun -> aggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
 fun -> caggr '(' fun ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
 fun -> caggr '(' name ',' int_or_time ')' : {aggr, unwrap('$1'), {var, '$3'}, '$5'}.
 fun -> caggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
+fun -> math '(' fun ',' integer ')' : {math, unwrap('$1'), '$3', unwrap('$5')}.
+fun -> math '(' selector ',' integer ')' : {math, unwrap('$1'), '$3', unwrap('$5')}.
 
 
 selector -> mb : {get, '$1'}.
