@@ -73,14 +73,6 @@ preprocess_qry({aggr, AggF, Q}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{aggr, AggF, Q1}, A1, M1};
 
-preprocess_qry({maggr, AggF, Qs}, Aliases, Metrics, Rms) ->
-    {Q1, A1, M1} =
-        lists:foldl(fun(SubQ, {QAcc, AAcc, MAcc}) ->
-                            {Qa1, Aa1, Ma1} = preprocess_qry(SubQ, AAcc, MAcc, Rms),
-                            {[Qa1 | QAcc], Aa1, Ma1}
-                    end, {[], Aliases, Metrics}, Qs),
-    {{maggr, AggF, lists:reverse(Q1)}, A1, M1};
-
 preprocess_qry({get, BM}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(BM, Metrics) of
                    none ->
@@ -90,14 +82,14 @@ preprocess_qry({get, BM}, Aliases, Metrics, _Rms) ->
                end,
     {{get, BM}, Aliases, Metrics1};
 
-preprocess_qry({mget, BM}, Aliases, Metrics, _Rms) ->
-    Metrics1 = case gb_trees:lookup(BM, Metrics) of
+preprocess_qry({mget, AggrF, BM}, Aliases, Metrics, _Rms) ->
+    Metrics1 = case gb_trees:lookup({AggrF, BM}, Metrics) of
                    none ->
-                       gb_trees:insert(BM, {mget, 0}, Metrics);
+                       gb_trees:insert({AggrF, BM}, {mget, 0}, Metrics);
                    {value, {get, N}} ->
-                       gb_trees:update(BM, {mget, N + 1}, Metrics)
+                       gb_trees:update({AggrF, BM}, {mget, N + 1}, Metrics)
                end,
-    {{mget, BM}, Aliases, Metrics1};
+    {{mget, AggrF, BM}, Aliases, Metrics1};
 
 preprocess_qry({var, V}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(V, Aliases) of
@@ -179,6 +171,20 @@ execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
             {D, gb_trees:update(BM, {get, D, N - 1}, Metrics)}
     end;
 
+execute({mget, F, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
+    case gb_trees:get({F, BM}, Metrics) of
+        {mget, N} when N =< 1 ->
+            {ok, D} = mget(F, B, M, S, C),
+            {{D, 1}, gb_trees:delete({F, BM}, Metrics)};
+        {mget, N} ->
+            {ok, D} = mget(F, B, M, S, C),
+            {{D, 1}, gb_trees:update({F, BM}, {mget, {D, 1}, N - 1}, Metrics)};
+        {mget, D, N} when N =< 1 ->
+            {D, gb_trees:delete(BM, Metrics)};
+        {mget, D, N} ->
+            {D, gb_trees:update({F, BM}, {mget, D, N - 1}, Metrics)}
+    end;
+
 execute({var, V}, S, C, Rms, A, M) ->
     execute(gb_trees:get(V, A), S, C, Rms, A, M).
 
@@ -200,6 +206,9 @@ unparse({alias, A, V}) ->
     <<(unparse(V))/binary, " AS ", A/binary>>;
 unparse({get, {B, M}}) ->
     <<M/binary, " BUCKET ", B/binary>>;
+unparse({mget, Fun, {B, M}}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    <<Funs/binary, "(", M/binary, " BUCKET ", B/binary, ")">>;
 unparse(N) when is_integer(N)->
     <<(integer_to_binary(N))/binary>>;
 unparse({time, N, ms}) ->
@@ -215,6 +224,10 @@ unparse({time, N, d}) ->
 unparse({time, N, w}) ->
     <<(integer_to_binary(N))/binary, "w">>;
 unparse({aggr, Fun, Q}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    Qs = unparse(Q),
+    <<Funs/binary, "(", Qs/binary, ")">>;
+unparse({maggr, Fun, Q}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
     Qs = unparse(Q),
     <<Funs/binary, "(", Qs/binary, ")">>;
@@ -263,3 +276,149 @@ to_ms({time, N, d}) ->
     N*1000*60*60*24;
 to_ms({time, N, w}) ->
     N*1000*60*60*24*7.
+
+mget(sum, Bucket, G, Start, Count) ->
+    {T, {ok, Ms}} = timer:tc(dalmatiner_connection, list, [Bucket]),
+    {T1, Ms1} = timer:tc(fun () -> glob_match(G, Ms) end),
+    {T2, Res} = timer:tc(fun () -> mget_sum(Bucket, Ms1, Start, Count) end),
+    lager:info("[qry] msum(~s/~s) list: ~.2f glob: ~.2f sum: ~.2f",
+               [Bucket, G, T/1000000, T1/1000000, T2/1000000]),
+    {ok, Res};
+
+mget(avg, Bucket, G, Start, Count) ->
+    {T, {ok, Ms}} = timer:tc(dalmatiner_connection, list, [Bucket]),
+    {T1, Ms1} = timer:tc(fun () -> glob_match(G, Ms) end),
+    {T2, Res} = timer:tc(fun () -> mget_avg(Bucket, Ms1, Start, Count) end),
+    lager:info("[qry] avg(~s/~s) list: ~.2f glob: ~.2f avg: ~.2f",
+               [Bucket, G, T/1000000, T1/1000000, T2/1000000]),
+    {ok, Res}.
+
+
+mget_avg(Bucket, Ms, A, B) ->
+    mmath_aggr:scale(mget_sum(Bucket, Ms, A, B), 1/length(Ms)).
+
+mget_sum(Bucket, Ms, A, B) ->
+    mmath_comb:sum(mget_sum(Bucket, Ms, A, B, [])).
+
+mget_sum(Bucket, [MA, MB, MC, MD | R], S, C, Acc) ->
+    Self = self(),
+    RefA = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MA, S, C),
+                  Self ! {RefA, V}
+          end),
+    RefB = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MB, S, C),
+                  Self ! {RefB, V}
+          end),
+    Va = receive
+             {RefA, VA} ->
+                 VA
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vb = receive
+             {RefB, VB} ->
+                 VB
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+
+    RefC = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MC, S, C),
+                  Self ! {RefC, V}
+          end),
+    RefD = make_ref(),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MD, S, C),
+                  Self ! {RefD, V}
+          end),
+    Vab = mmath_comb:sum([Va, Vb]),
+    Vc = receive
+             {RefC, VC} ->
+                 VC
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vabc = mmath_comb:sum([Vab, Vc]),
+    Vd = receive
+             {RefD, VD} ->
+                 VD
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    mget_sum(Bucket, R, S, C, [mmath_comb:sum([Vabc, Vd]) | Acc]);
+
+mget_sum(Bucket, [MA, MB | R], S, C, Acc) ->
+    RefA = make_ref(),
+    RefB = make_ref(),
+    Self = self(),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MA, S, C),
+                  Self ! {RefA, V}
+          end),
+    spawn(fun() ->
+                  {ok, V} = dalmatiner_connection:get(Bucket, MB, S, C),
+                  Self ! {RefB, V}
+          end),
+    Va = receive
+             {RefA, VA} ->
+                 VA
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    Vb = receive
+             {RefB, VB} ->
+                 VB
+         after
+             1000 ->
+                 throw(timeout)
+         end,
+    mget_sum(Bucket, R, S, C, [mmath_comb:sum([Va, Vb]) | Acc]);
+
+mget_sum(_, [], _, _, Acc) ->
+    Acc;
+mget_sum(Bucket, [MA], S, C, Acc) ->
+    {ok, V} = dalmatiner_connection:get(Bucket, MA, S, C),
+    [V | Acc].
+
+glob_match(G, Ms) ->
+    GE = re:split(G, "\\*"),
+    F = fun(M) ->
+                rmatch(GE, M)
+        end,
+    lists:filter(F, Ms).
+
+
+rmatch([<<>>, <<$., Ar1/binary>> | Ar], B) ->
+    rmatch([Ar1 | Ar], skip_one(B));
+rmatch([<<>> | Ar], B) ->
+    rmatch(Ar, skip_one(B));
+rmatch([<<$., Ar1/binary>> | Ar], B) ->
+    rmatch([Ar1 | Ar], skip_one(B));
+rmatch([A | Ar], B) ->
+    case binary:longest_common_prefix([A, B]) of
+        L when L == byte_size(A) ->
+            <<_:L/binary, Br/binary>> = B,
+            rmatch(Ar, Br);
+        _ ->
+            false
+    end;
+rmatch([], <<>>) ->
+    true;
+rmatch(_A, _B) ->
+    false.
+
+skip_one(<<$., R/binary>>) ->
+    R;
+skip_one(<<>>) ->
+    <<>>;
+skip_one(<<_, R/binary>>) ->
+    skip_one(R).

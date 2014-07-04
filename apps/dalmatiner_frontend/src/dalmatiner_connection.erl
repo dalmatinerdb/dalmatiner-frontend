@@ -22,7 +22,7 @@
          terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
-
+-define(TIMEOUT, 30000).
 -record(state, {socket, metrics=gb_trees:empty(), host, port}).
 
 %%%===================================================================
@@ -32,19 +32,19 @@
 get(Bucket, Metric, Time, Count) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
-                                gen_server:call(Worker, {get, Bucket, Metric, Time, Count})
+                                gen_server:call(Worker, {get, Bucket, Metric, Time, Count}, ?TIMEOUT)
                         end).
 
 list(Bucket) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
-                                gen_server:call(Worker, {list, Bucket})
+                                gen_server:call(Worker, {list, Bucket}, ?TIMEOUT)
                         end).
 
 list() ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
-                                gen_server:call(Worker, list)
+                                gen_server:call(Worker, list, ?TIMEOUT)
                         end).
 %%--------------------------------------------------------------------
 %% @doc
@@ -112,12 +112,13 @@ handle_call({list, Bucket}, _From, State) ->
             {Ms, State1} = do_list(Bucket, State),
             {reply, {ok, Ms}, State1};
         {value, {LastRead, Ms}} ->
-            case timer:now_diff(now(), LastRead) div 1000000 of
-                _T when _T > 60  ->
+            case timer:now_diff(now(), LastRead) div 100000000 of
+                T when T > 60  ->
+                    io:format("~p - ~p: ~p~n", [now(), LastRead, T/100000000]),
                     {Ms, State1} = do_list(Bucket, State),
                     {reply, {ok, Ms}, State1};
                 _ ->
-                    {reply, {ok, State#state.metrics}, State}
+                    {reply, {ok, Ms}, State}
             end
     end;
 
@@ -213,15 +214,16 @@ do_list(Bucket, State = #state{socket = S}) ->
     ok = gen_tcp:send(S, <<?LIST, (dproto_tcp:encode_list(Bucket))/binary>>),
     case gen_tcp:recv(S, 4, 3000) of
         {ok, <<Size:32/integer>>} ->
-            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
+            {ok, Reply} = gen_tcp:recv(S, Size, 30000),
             Ms = decode_metrics(Reply, []),
+            io:format("metrics: ~p~n", [length(Ms)]),
             {Ms, State#state{metrics = gb_trees:enter(Bucket, {now(), Ms}, State#state.metrics)}};
         {error, _} ->
             gen_tcp:close(S),
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 0}, {active, false}]),
             {ok, <<Size:32/integer>>} = gen_tcp:recv(S, 4, 3000),
-            {ok, Reply} = gen_tcp:recv(S, Size, 3000),
+            {ok, Reply} = gen_tcp:recv(S, Size, 30000),
             Ms = decode_metrics(Reply, []),
             {Ms, State#state{metrics = gb_trees:enter(Bucket, {now(), Ms}, State#state.metrics),
                              socket = S1}}

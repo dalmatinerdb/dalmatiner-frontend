@@ -1,5 +1,5 @@
 Nonterminals
-funs fun selector select timeframe caggr_selectors caggr_selector aliases alias resolution int_or_time mb fune name pit.
+funs fun selector select timeframe  aliases alias resolution int_or_time mb fune name pit.
 
 Terminals '(' ')' ','
 metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time math.
@@ -44,15 +44,15 @@ fun -> math '(' selector ',' integer ')' : {math, unwrap('$1'), '$3', unwrap('$5
 
 
 selector -> mb : {get, '$1'}.
-selector -> caggr '(' caggr_selectors ')': {maggr, unwrap('$1'), '$3'}.
+selector -> caggr '(' glob_metric kw_bucket name ')': {mget, unwrap('$1'), {'$5', unwrap('$3')}}.
 
-caggr_selectors -> selector : ['$1'].
-caggr_selectors -> caggr_selector : ['$1'].
-caggr_selectors -> selector ',' caggr_selectors : ['$1'] ++ '$3'.
-caggr_selectors -> caggr_selector ',' caggr_selectors : ['$1'] ++ '$3'.
+%%caggr_selectors -> selector : ['$1'].
+%%caggr_selectors -> caggr_selector : ['$1'].
+%%caggr_selectors -> selector ',' caggr_selectors : ['$1'] ++ '$3'.
+%%caggr_selectors -> caggr_selector ',' caggr_selectors : ['$1'] ++ '$3'.
 
 
-caggr_selector -> glob_metric kw_bucket name: {mget, {'$3', unwrap('$1')}}.
+%%caggr_selector -> glob_metric kw_bucket name: {mget, {unwrap('$3'), unwrap('$1')}}.
 
 timeframe -> kw_last int_or_time: {last, '$2'}.
 timeframe -> kw_between pit kw_and pit : {between, '$2', '$4'}.
