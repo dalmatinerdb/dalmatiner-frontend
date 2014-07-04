@@ -202,6 +202,10 @@ unparse({time, N, d}) ->
     <<(integer_to_binary(N))/binary, "d">>;
 unparse({time, N, w}) ->
     <<(integer_to_binary(N))/binary, "w">>;
+unparse({aggr, Fun, Q}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    Qs = unparse(Q),
+    <<Funs/binary, "(", Qs/binary, ")">>;
 unparse({aggr, Fun, Q, T}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
     Qs = unparse(Q),
