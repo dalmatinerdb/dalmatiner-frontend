@@ -23,13 +23,14 @@
 
 -define(SERVER, ?MODULE).
 -define(TIMEOUT, 30000).
+-define(MAX_COUNT, 604800).
 -record(state, {socket, metrics=gb_trees:empty(), host, port}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-get(Bucket, Metric, Time, Count) ->
+get(Bucket, Metric, Time, Count) when Count =< ?MAX_COUNT ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
                                 gen_server:call(Worker, {get, Bucket, Metric, Time, Count}, ?TIMEOUT)
