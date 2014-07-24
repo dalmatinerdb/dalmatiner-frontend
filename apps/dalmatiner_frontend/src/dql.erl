@@ -140,6 +140,11 @@ execute({aggr, max, Q, T}, S, C, Rms, A, M) ->
     T1 = apply_times(T, Rms * Res),
     {{mmath_aggr:max(D, T1), T1}, M1};
 
+execute({aggr, empty, Q, T}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:empty(D, T1), T1}, M1};
+
 execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
