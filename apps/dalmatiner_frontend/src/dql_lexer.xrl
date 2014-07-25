@@ -2,7 +2,10 @@
 
 Definitions.
 
-D       = [0-9]
+Sign    = [\-+]?
+Digit   = [0-9]
+Float   = {Digit}+\.{Digit}+([eE][-+]?[0-9]+)?
+
 S       = [A-Za-z][A-Za-z0-9._-]*
 GS      = [A-Za-z*][A-Za-z0-9*._-]*
 WS      = ([\000-\s]|%.*)
@@ -37,16 +40,22 @@ Rules.
 {AND}       :   {token, {kw_and,        TokenLine}}.
 
 derivate    :   {token, {derivate,      TokenLine, a(TokenChars)}}.
+percentile  :   {token, {percentile,    TokenLine, a(TokenChars)}}.
 {AGGR}      :   {token, {aggr,          TokenLine, a(TokenChars)}}.
 {MATH}      :   {token, {math,          TokenLine, a(TokenChars)}}.
 {CAGGR}     :   {token, {caggr,         TokenLine, a(TokenChars)}}.
 {TIME}      :   {token, {time,          TokenLine, a(TokenChars)}}.
 
-'{L}+'      :   S = strip(TokenChars,   TokenLen),
-                {token, {string,        TokenLine, S}}.
+
+{Sign}{Digit}+ : {token, {integer,       TokenLine, i(TokenChars)}}.
+{Sign}{Float}  : {token, {float,         TokenLine, f(TokenChars)}}.
+
+'{S}+'      :   S = strip(TokenChars,   TokenLen),
+                {token, {metric,        TokenLine, b(S)}}.
 {S}         :   {token, {metric,        TokenLine, b(TokenChars)}}.
-{GS}        :   {token, {glob_metric,   TokenLine, list_to_binary(TokenChars)}}.
-{D}+        :   {token, {integer,       TokenLine, i(TokenChars)}}.
+'{GS}+'     :   S = strip(TokenChars,   TokenLen),
+                {token, {glob_metric,   TokenLine, b(S)}}.
+{GS}        :   {token, {glob_metric,   TokenLine, b(TokenChars)}}.
 [(),]       :   {token, {a(TokenChars), TokenLine}}.
 {WS}+       :   skip_token.
 
@@ -58,4 +67,5 @@ strip(TokenChars,TokenLen) -> lists:sublist(TokenChars, 2, TokenLen - 2).
 
 a(L) -> list_to_atom(L).
 i(L) -> list_to_integer(L).
+f(L) -> list_to_float(L).
 b(L) -> list_to_binary(L).

@@ -1,8 +1,8 @@
 Nonterminals
-funs fun selector select timeframe  aliases alias resolution int_or_time mb fune name pit.
+funs fun selector select timeframe aliases alias resolution int_or_time mb fune name pit.
 
 Terminals '(' ')' ','
-metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time math.
+metric glob_metric caggr aggr integer kw_bucket kw_select kw_last kw_as kw_from kw_in kw_between kw_and kw_ago kw_now derivate time math percentile float.
 
 Rootsymbol select.
 
@@ -33,6 +33,10 @@ name -> caggr : list_to_binary(atom_to_list(unwrap('$1'))).
 
 fun -> derivate '(' fun ')' : {aggr, derivate, '$3'}.
 fun -> derivate '(' selector ')' : {aggr, derivate, '$3'}.
+
+fun -> percentile '(' fun ',' float ',' int_or_time ')' : {aggr, percentile, '$3', unwrap('$5'), '$7'}.
+fun -> percentile '(' selector ',' float ',' int_or_time ')' : {aggr, percentile, '$3', unwrap('$5'), '$7'}.
+
 fun -> aggr '(' fun ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
 fun -> aggr '(' name ',' int_or_time ')' : {aggr, unwrap('$1'), {var, '$3'}, '$5'}.
 fun -> aggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}.
@@ -42,7 +46,6 @@ fun -> caggr '(' selector ',' int_or_time ')' : {aggr, unwrap('$1'), '$3', '$5'}
 fun -> math '(' fun ',' integer ')' : {math, unwrap('$1'), '$3', unwrap('$5')}.
 fun -> math '(' selector ',' integer ')' : {math, unwrap('$1'), '$3', unwrap('$5')}.
 
-
 selector -> mb : {get, '$1'}.
 selector -> caggr '(' glob_metric kw_bucket name ')': {mget, unwrap('$1'), {'$5', unwrap('$3')}}.
 
@@ -51,13 +54,12 @@ selector -> caggr '(' glob_metric kw_bucket name ')': {mget, unwrap('$1'), {'$5'
 %%caggr_selectors -> selector ',' caggr_selectors : ['$1'] ++ '$3'.
 %%caggr_selectors -> caggr_selector ',' caggr_selectors : ['$1'] ++ '$3'.
 
+%%caggr_selector  -> glob_metric kw_bucket name: {mget, {unwrap('$3'), unwrap('$1')}}.
 
-%%caggr_selector -> glob_metric kw_bucket name: {mget, {unwrap('$3'), unwrap('$1')}}.
+timeframe         -> kw_last int_or_time: {last, '$2'}.
+timeframe         -> kw_between pit kw_and pit : {between, '$2', '$4'}.
 
-timeframe -> kw_last int_or_time: {last, '$2'}.
-timeframe -> kw_between pit kw_and pit : {between, '$2', '$4'}.
-
-resolution -> kw_in timeframe : '$2'.
+resolution        -> kw_in int_or_time : '$2'.
 
 mb -> name kw_bucket name : {'$3', '$1'}.
 

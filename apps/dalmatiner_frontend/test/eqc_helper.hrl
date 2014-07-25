@@ -38,11 +38,11 @@
 -endif.
 
 -ifndef(EQC_NUM_TESTS).
--define(EQC_NUM_TESTS, 500).
+-define(EQC_NUM_TESTS, 100).
 -endif.
 
 -ifndef(EQC_EUNIT_TIMEUT).
--define(EQC_EUNIT_TIMEUT, 60).
+-define(EQC_EUNIT_TIMEUT, 600).
 -endif.
 
 run_test_() ->

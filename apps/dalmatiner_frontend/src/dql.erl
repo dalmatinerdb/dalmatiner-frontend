@@ -1,6 +1,6 @@
 -module(dql).
--export([prepare/1, parse/1, execute/1, unparse/1]).
--ignore_xref([prepare/1, parse/1, execute/1, unparse/1]).
+-export([prepare/1, parse/1, execute/1, unparse/1, glob_match/2]).
+-ignore_xref([prepare/1, parse/1, execute/1, unparse/1, glob_match/2]).
 
 parse(S) when is_binary(S)->
     parse(binary_to_list(S));
@@ -61,17 +61,23 @@ compute_se({last, N}, Rms) ->
 preprocess_qry({named, N, Q}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{named, N, Q1}, A1, M1};
+
+preprocess_qry({aggr, AggF, Q}, Aliases, Metrics, Rms) ->
+    {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
+    {{aggr, AggF, Q1}, A1, M1};
+
 preprocess_qry({aggr, AggF, Q, T}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{aggr, AggF, Q1, T}, A1, M1};
+
+preprocess_qry({aggr, AggF, Q, Arg, T}, Aliases, Metrics, Rms) ->
+    {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
+    {{aggr, AggF, Q1, Arg, T}, A1, M1};
 
 preprocess_qry({math, MathF, Q, V}, Aliases, Metrics, Rms) ->
     {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
     {{math, MathF, Q1, V}, A1, M1};
 
-preprocess_qry({aggr, AggF, Q}, Aliases, Metrics, Rms) ->
-    {Q1, A1, M1} = preprocess_qry(Q, Aliases, Metrics, Rms),
-    {{aggr, AggF, Q1}, A1, M1};
 
 preprocess_qry({get, BM}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(BM, Metrics) of
@@ -125,6 +131,7 @@ execute(Qry) ->
 
 execute({named, _, Q}, S, C, Rms, A, M) ->
     execute(Q, S, C, Rms, A, M);
+
 execute({aggr, avg, Q, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
@@ -162,6 +169,10 @@ execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:derivate(D), Res}, M1};
 
+execute({math, precentile, Q, P, V}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:percentile(D, P, V), Res}, M1};
+
 execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
         {get, N} when N =< 1 ->
@@ -193,9 +204,18 @@ execute({mget, F, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
 execute({var, V}, S, C, Rms, A, M) ->
     execute(gb_trees:get(V, A), S, C, Rms, A, M).
 
+combine([], Acc) ->
+    Acc;
+combine([E | R], <<>>) ->
+    combine(R, E);
+combine([E | R], Acc) ->
+    combine(R, <<Acc/binary, ", ", E/binary>>).
+
 unparse(L) when is_list(L) ->
-    <<_, _, R/binary>> = << <<", ", (unparse(Q))/binary>> || Q <- L >>,
-    R;
+    Ps = [unparse(Q) || Q <- L],
+    Unparsed = combine(Ps, <<>>),
+    Unparsed;
+
 unparse({select, Q, A, T, R}) ->
     <<"SELECT ", (unparse(Q))/binary, " FROM ", (unparse(A))/binary, " ",
       (unparse(T))/binary, " IN ", (unparse(R))/binary>>;
@@ -208,26 +228,28 @@ unparse({var, V}) ->
     V;
 
 unparse({alias, A, V}) ->
-    <<(unparse(V))/binary, " AS ", A/binary>>;
+    <<(unparse(V))/binary, " AS '", A/binary, "'">>;
 unparse({get, {B, M}}) ->
-    <<M/binary, " BUCKET ", B/binary>>;
+    <<"'", M/binary, "' BUCKET '", B/binary, "'">>;
 unparse({mget, Fun, {B, M}}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
-    <<Funs/binary, "(", M/binary, " BUCKET ", B/binary, ")">>;
+    <<Funs/binary, "('", M/binary, "' BUCKET '", B/binary, "')">>;
 unparse(N) when is_integer(N)->
     <<(integer_to_binary(N))/binary>>;
+unparse(F) when is_float(F)->
+    <<(float_to_binary(F))/binary>>;
 unparse({time, N, ms}) ->
-    <<(integer_to_binary(N))/binary, "ms">>;
+    <<(integer_to_binary(N))/binary, " ms">>;
 unparse({time, N, s}) ->
-    <<(integer_to_binary(N))/binary, "s">>;
+    <<(integer_to_binary(N))/binary, " s">>;
 unparse({time, N, m}) ->
-    <<(integer_to_binary(N))/binary, "m">>;
+    <<(integer_to_binary(N))/binary, " m">>;
 unparse({time, N, h}) ->
-    <<(integer_to_binary(N))/binary, "h">>;
+    <<(integer_to_binary(N))/binary, " h">>;
 unparse({time, N, d}) ->
-    <<(integer_to_binary(N))/binary, "d">>;
+    <<(integer_to_binary(N))/binary, " d">>;
 unparse({time, N, w}) ->
-    <<(integer_to_binary(N))/binary, "w">>;
+    <<(integer_to_binary(N))/binary, " w">>;
 unparse({aggr, Fun, Q}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
     Qs = unparse(Q),
@@ -241,6 +263,12 @@ unparse({aggr, Fun, Q, T}) ->
     Qs = unparse(Q),
     Ts = unparse(T),
     <<Funs/binary, "(", Qs/binary, ", ", Ts/binary, ")">>;
+unparse({aggr, Fun, Q, A, T}) ->
+    Funs = list_to_binary(atom_to_list(Fun)),
+    Qs = unparse(Q),
+    As = unparse(A),
+    Ts = unparse(T),
+    <<Funs/binary, "(", Qs/binary, ", ", As/binary, ", ", Ts/binary, ")">>;
 unparse({math, Fun, Q, V}) ->
     Funs = list_to_binary(atom_to_list(Fun)),
     Qs = unparse(Q),
