@@ -38,10 +38,10 @@ case $2 in
         ;;
     POST-INSTALL)
         echo Importing service ...
-        svccfg import /opt/local/fifo-dalmatinerfe/share/dalmatinerfe.xml
+        svccfg import /opt/local/fifo-dalmatinerfe/share/dfe.xml
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | awk -e '{print $2}'`
-        CONFFILE=/opt/local/fifo-dalmatinerfe/etc/dalmatinerfe.conf
+        CONFFILE=/opt/local/dalmatinerfe/etc/dalmatinerfe.conf
         if [ ! -f "${CONFFILE}" ]
         then
             cp ${CONFFILE}.example ${CONFFILE}
@@ -56,11 +56,6 @@ case $2 in
                 sed --in-place -e "s/127.0.0.1/${IP}/g" ${CONFFILE}
                 md5sum ${CONFFILE} > ${CONFFILE}.md5
             fi
-        else
-            mv ${CONFFILE} ${CONFFILE}.old
-            cat ${CONFFILE}.old | grep -v mdns.server | grep -v anti_entropy.max_open_files | grep -v db.dir | grep -v anti_entropy.write_buffer_size | grep -v platform_data_dir > ${CONFFILE}
-            echo anti_entropy.write_buffer_size_min = 4MB >> ${CONFFILE}
-            echo anti_entropy.write_buffer_size_max = 4MB >> ${CONFFILE}
         fi
         ;;
 esac
