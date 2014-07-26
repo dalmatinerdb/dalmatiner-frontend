@@ -9,7 +9,7 @@ package: package_list build_info
 
 package_list:
 	echo "@pkgdep erlang>=15.1.1" > packlist
-	-rm -r deploy/$(COMPONENT)
+	-rm -r deploy/$(COMPONENT) || true
 	cp -r ../$(COMPONENT_INTERNAL) deploy/$(COMPONENT)
 	(cd deploy; find * -type f | sort) >> packlist
 

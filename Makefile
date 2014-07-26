@@ -42,7 +42,7 @@ eqc-ci: clean all
 	$(REBAR) -D EQC_CI -C rebar_eqc_ci.config compile eunit skip_deps=true --verbose
 
 rel: all 
-	-rm -r rel/dalmatinerfe
+	-rm -r rel/dalmatinerfe || true
 	$(REBAR) generate
 
 relclean:
