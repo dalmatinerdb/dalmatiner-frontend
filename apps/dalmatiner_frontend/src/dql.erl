@@ -132,6 +132,10 @@ execute(Qry) ->
 execute({named, _, Q}, S, C, Rms, A, M) ->
     execute(Q, S, C, Rms, A, M);
 
+execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:derivate(D), Res}, M1};
+
 execute({aggr, avg, Q, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
@@ -157,13 +161,10 @@ execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
     T1 = apply_times(T, Rms * Res),
     {{mmath_aggr:min(D, T1), T1}, M1};
 
-execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
+execute({aggr, percentile, Q, P, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
-    {{mmath_aggr:derivate(D), Res}, M1};
-
-execute({aggr, percentile, Q, P, V}, S, C, Rms, A, M) ->
-    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
-    {{mmath_aggr:percentile(D, P, V), Res}, M1};
+    T1 = apply_times(T, Rms * Res),
+    {{mmath_aggr:percentile(D, P, T1), T1}, M1};
 
 execute({math, multiply, Q, V}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
