@@ -157,6 +157,14 @@ execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
     T1 = apply_times(T, Rms * Res),
     {{mmath_aggr:min(D, T1), T1}, M1};
 
+execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:derivate(D), Res}, M1};
+
+execute({aggr, precentile, Q, P, V}, S, C, Rms, A, M) ->
+    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
+    {{mmath_aggr:percentile(D, P, V), Res}, M1};
+
 execute({math, multiply, Q, V}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:scale(D, V), Res}, M1};
@@ -165,13 +173,7 @@ execute({math, divide, Q, V}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:scale(D, 1/V), Res}, M1};
 
-execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
-    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
-    {{mmath_aggr:derivate(D), Res}, M1};
 
-execute({math, precentile, Q, P, V}, S, C, Rms, A, M) ->
-    {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
-    {{mmath_aggr:percentile(D, P, V), Res}, M1};
 
 execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
