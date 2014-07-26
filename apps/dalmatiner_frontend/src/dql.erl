@@ -161,7 +161,7 @@ execute({aggr, derivate, Q}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:derivate(D), Res}, M1};
 
-execute({aggr, precentile, Q, P, V}, S, C, Rms, A, M) ->
+execute({aggr, percentile, Q, P, V}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     {{mmath_aggr:percentile(D, P, V), Res}, M1};
 
