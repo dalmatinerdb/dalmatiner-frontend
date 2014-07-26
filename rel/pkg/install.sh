@@ -1,43 +1,47 @@
 #!/usr/bin/bash
 
-USER=howl
+USER=dalmatiner
 GROUP=$USER
 
 case $2 in
     PRE-INSTALL)
-        if grep '^Image: base64 13.[234].*$' /etc/product
-        then
-            echo "Image version supported"
-        else
-            echo "This image version is not supported please use the base64 13.2.1 image or later."
-            exit 1
+        if grep '^Image: base64 1[34].[1234].*$' /etc/product
+	then
+	    echo "Image version supported"
+	else
+	    echo "This image version is not supported please use the base64 13.2.1 image."
+	    exit 1
         fi
         if grep "^$GROUP:" /etc/group > /dev/null 2>&1
         then
             echo "Group already exists, skipping creation."
         else
-            echo Creating howl group ...
+            echo Creating dalmatinerfe group ...
             groupadd $GROUP
         fi
         if id $USER > /dev/null 2>&1
         then
             echo "User already exists, skipping creation."
         else
-            echo Creating howl user ...
-            useradd -g $GROUP -d /var/db/howl -s /bin/false $USER
+            echo Creating dalmatinerfe user ...
+            useradd -g $GROUP -d /var/db/dalmatinerfe -s /bin/false $USER
         fi
         echo Creating directories ...
-        mkdir -p /var/db/howl/ring
-        chown -R howl:howl /var/db/howl
-        mkdir -p /var/log/howl/sasl
-        chown -R howl:howl /var/log/howl
+        mkdir -p /var/db/dalmatinerfe
+        chown -R $USER:$GROUP /var/db/dalmatinerfe
+        mkdir -p /var/log/dalmatinerfe/sasl
+        chown -R $USER:$GROUP /var/log/dalmatinerfe
+        if [ -d /tmp/dalmatinerfe ]
+        then
+            chown -R $USER:$GROUP /tmp/dalmatinerfe
+        fi
         ;;
     POST-INSTALL)
-        svccfg import /opt/local/fifo-howl/share/howl.xml
+        echo Importing service ...
+        svccfg import /opt/local/fifo-dalmatinerfe/share/dalmatinerfe.xml
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | awk -e '{print $2}'`
-        CONFFILE=/opt/local/fifo-howl/etc/howl.conf
-
+        CONFFILE=/opt/local/fifo-dalmatinerfe/etc/dalmatinerfe.conf
         if [ ! -f "${CONFFILE}" ]
         then
             cp ${CONFFILE}.example ${CONFFILE}
