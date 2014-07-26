@@ -164,7 +164,7 @@ execute({aggr, min, Q, T}, S, C, Rms, A, M) ->
 execute({aggr, percentile, Q, P, T}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
     T1 = apply_times(T, Rms * Res),
-    {{mmath_aggr:percentile(D, P, T1), T1}, M1};
+    {{mmath_aggr:percentile(D, T1, P), T1}, M1};
 
 execute({math, multiply, Q, V}, S, C, Rms, A, M) ->
     {{D, Res}, M1} = execute(Q, S, C, Rms, A, M),
