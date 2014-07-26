@@ -1,3 +1,4 @@
+rel/pkg/deploy/dalmatinerfe
 *.beam
 *.version
 *~
