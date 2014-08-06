@@ -116,12 +116,12 @@ preprocess_qry(Q, A, M, _) ->
 
 execute(Qry) ->
     case prepare(Qry) of
-        {Qs, S, C, Rms, A, M} ->
+        {Qs, S, C, _Rms, A, M} ->
             {D, _} = lists:foldl(fun({named, Name, Q}, {RAcc, MAcc}) ->
-                                         {{D, R}, M1} = execute(Q, S, C, Rms, A, MAcc),
+                                         {{D, R}, M1} = execute(Q, S, C, 1, A, MAcc),
                                          {[{Name, R, D} | RAcc], M1};
                                      (Q, {RAcc, MAcc}) ->
-                                         {{D, R}, M1} = execute(Q, S, C, Rms, A, MAcc),
+                                         {{D, R}, M1} = execute(Q, S, C, 1, A, MAcc),
                                          {[{unparse(Q), R, D} | RAcc], M1}
                                  end, {[], M}, Qs),
             {ok, D};

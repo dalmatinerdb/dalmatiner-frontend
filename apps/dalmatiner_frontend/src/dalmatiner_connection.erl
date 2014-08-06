@@ -94,7 +94,7 @@ handle_call({get, Bucket, Metric, Time, Count}, _From,
             State = #state{socket = S}) ->
     Msg = <<?GET, (dproto_tcp:encode_get(Bucket, Metric, Time, Count))/binary>>,
     ok = gen_tcp:send(S, Msg),
-    Read = Count*9,
+    Read = Count*9 + 8,
     case gen_tcp:recv(S, Read, 3000) of
         {ok, <<Resolution:64/integer, D/binary>>} ->
             {reply, {ok, Resolution, D}, State};
