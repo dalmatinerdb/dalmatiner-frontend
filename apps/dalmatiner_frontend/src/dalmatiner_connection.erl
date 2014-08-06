@@ -96,8 +96,8 @@ handle_call({get, Bucket, Metric, Time, Count}, _From,
     ok = gen_tcp:send(S, Msg),
     Read = Count*9,
     case gen_tcp:recv(S, Read, 3000) of
-        {ok, D} ->
-            {reply, {ok, D}, State};
+        {ok, <<Resolution:64/integer, D/binary>>} ->
+            {reply, {ok, Resolution, D}, State};
         {error, E} ->
             lager:error("[connection/recv] Error: ~p", [E]),
             gen_tcp:close(S),

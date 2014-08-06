@@ -179,11 +179,11 @@ execute({math, divide, Q, V}, S, C, Rms, A, M) ->
 execute({get, BM = {B, M}}, S, C, _Rms, _A, Metrics) ->
     case gb_trees:get(BM, Metrics) of
         {get, N} when N =< 1 ->
-            {ok, D} = dalmatiner_connection:get(B, M, S, C),
-            {{D, 1}, gb_trees:delete(BM, Metrics)};
+            {ok, Res, D} = dalmatiner_connection:get(B, M, S, C),
+            {{D, Res}, gb_trees:delete(BM, Metrics)};
         {get, N} ->
-            {ok, D} = dalmatiner_connection:get(B, M, S, C),
-            {{D, 1}, gb_trees:update(BM, {get, {D, 1}, N - 1}, Metrics)};
+            {ok, Res, D} = dalmatiner_connection:get(B, M, S, C),
+            {{D, Res}, gb_trees:update(BM, {get, {D, Res}, N - 1}, Metrics)};
         {get, D, N} when N =< 1 ->
             {D, gb_trees:delete(BM, Metrics)};
         {get, D, N} ->
