@@ -6,8 +6,8 @@ Sign    = [\-+]?
 Digit   = [0-9]
 Float   = {Digit}+\.{Digit}+([eE][-+]?[0-9]+)?
 
-S       = [A-Za-z][A-Za-z0-9._-]*
-GS      = [A-Za-z*][A-Za-z0-9*._-]*
+S       = [A-Za-z][A-Za-z0-9._@-]*
+GS      = [A-Za-z*][A-Za-z0-9*._@-]*
 WS      = ([\000-\s]|%.*)
 AGGR    = (min|max|empty)
 CAGGR   = (avg|sum)
