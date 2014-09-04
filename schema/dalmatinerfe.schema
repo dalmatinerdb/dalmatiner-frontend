@@ -24,3 +24,8 @@
 {mapping, "telnet_listeners", "dalmatiner_frontend.telnet_listeners",
  [{default, 100},
   {datatype, integer}]}.
+
+%% @doc Maximum length for a single query
+{mapping, "max_read", "dalmatiner_frontend.max_read",
+ [{default, 1209600},
+  {datatype, integer}]}.
