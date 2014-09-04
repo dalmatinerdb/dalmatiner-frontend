@@ -38,7 +38,7 @@ case $2 in
         ;;
     POST-INSTALL)
         echo Importing service ...
-        svccfg import /opt/local/fifo-dalmatinerfe/share/dfe.xml
+        svccfg import /opt/local/dalmatinerfe/share/dfe.xml
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | awk -e '{print $2}'`
         CONFFILE=/opt/local/dalmatinerfe/etc/dalmatinerfe.conf
