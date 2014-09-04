@@ -6,7 +6,7 @@
 
 <service_bundle type='manifest' name='dalmatinerfe'>
   <service
-    name='dalmatiner/db'
+    name='dalmatiner/fe'
     type='service'
     version='0.1.0'>
     <create_default_instance enabled='false' />
