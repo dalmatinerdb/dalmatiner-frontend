@@ -24,13 +24,13 @@
 -define(SERVER, ?MODULE).
 -define(TIMEOUT, 30000).
 -define(MAX_COUNT, 604800).
--record(state, {socket, metrics=gb_trees:empty(), host, port}).
+-record(state, {socket, metrics=gb_trees:empty(), host, port, max_read = ?MAX_COUNT}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 
-get(Bucket, Metric, Time, Count) when Count =< ?MAX_COUNT ->
+get(Bucket, Metric, Time, Count) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
                                 gen_server:call(Worker, {get, Bucket, Metric, Time, Count}, ?TIMEOUT)
@@ -73,8 +73,9 @@ start_link(Args) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Host, Port]) ->
+	{ok, MaxRead} = application:get_env(dalmatiner_frontend, max_read),
     {ok, S} = gen_tcp:connect(Host, Port, [binary, {packet, 0}, {active, false}]),
-    {ok, #state{socket = S, host=Host, port=Port}}.
+    {ok, #state{socket = S, host=Host, port=Port, max_read=MaxRead}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -90,6 +91,10 @@ init([Host, Port]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call({get, _, _, _, Count}, _From, State = #state{max_read = MaxRead})
+  when Count > MaxRead ->
+	{reply, {error, too_big}, State};
+
 handle_call({get, Bucket, Metric, Time, Count}, _From,
             State = #state{socket = S}) ->
     Msg = <<?GET, (dproto_tcp:encode_get(Bucket, Metric, Time, Count))/binary>>,
