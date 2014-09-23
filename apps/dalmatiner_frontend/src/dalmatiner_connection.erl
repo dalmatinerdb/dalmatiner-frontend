@@ -99,7 +99,7 @@ handle_call({get, Bucket, Metric, Time, Count}, _From,
             State = #state{socket = S}) ->
     Msg = <<?GET, (dproto_tcp:encode_get(Bucket, Metric, Time, Count))/binary>>,
     ok = gen_tcp:send(S, Msg),
-    case gen_tcp:recv(S, 0, 3000) of
+    case gen_tcp:recv(S, 0, ?TIMEOUT) of
         {ok, <<Resolution:64/integer, D/binary>>} ->
             {reply, {ok, Resolution, D}, State};
         {error, E} ->
@@ -108,7 +108,7 @@ handle_call({get, Bucket, Metric, Time, Count}, _From,
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 4}, {active, false}]),
             ok = gen_tcp:send(S1, Msg),
-            case gen_tcp:recv(S1, 0, 3000) of
+            case gen_tcp:recv(S1, 0, ?TIMEOUT) of
                 {ok, <<Resolution:64/integer, D/binary>>} ->
                     {reply, {ok, Resolution, D}, State#state{socket = S1}};
                 E ->
@@ -135,7 +135,7 @@ handle_call({list, Bucket}, _From, State) ->
 handle_call(list, _From, State = #state{socket = S}) ->
     Msg = <<?BUCKETS>>,
     ok = gen_tcp:send(S, Msg),
-    case gen_tcp:recv(S, 0, 3000) of
+    case gen_tcp:recv(S, 0, ?TIMEOUT) of
         {ok, <<Size:32/integer, D:Size/binary>>} ->
             {reply, {ok, decode_metrics(D, [])}, State};
         {error, E} ->
@@ -144,7 +144,7 @@ handle_call(list, _From, State = #state{socket = S}) ->
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 4}, {active, false}]),
             ok = gen_tcp:send(S1, Msg),
-            case gen_tcp:recv(S, 0, 3000) of
+            case gen_tcp:recv(S, 0, ?TIMEOUT) of
                 {ok, <<Size:32/integer, D:Size/binary>>} ->
                     {reply, {ok, decode_metrics(D, [])}, State};
                 E ->
@@ -220,7 +220,7 @@ decode_metrics(<<S:16/integer, M:S/binary, R/binary>>, Acc) ->
 
 do_list(Bucket, State = #state{socket = S}) ->
     ok = gen_tcp:send(S, <<?LIST, (dproto_tcp:encode_list(Bucket))/binary>>),
-    case gen_tcp:recv(S, 0, 3000) of
+    case gen_tcp:recv(S, 0, ?TIMEOUT) of
         {ok, <<Size:32/integer, Reply:Size/binary>>} ->
             Ms = decode_metrics(Reply, []),
             io:format("metrics: ~p~n", [length(Ms)]),
@@ -229,7 +229,7 @@ do_list(Bucket, State = #state{socket = S}) ->
             gen_tcp:close(S),
             {ok, S1} = gen_tcp:connect(State#state.host, State#state.port,
                                        [binary, {packet, 4}, {active, false}]),
-            {ok, <<Size:32/integer, Reply:Size/binary>>} = gen_tcp:recv(S, 0, 3000),
+            {ok, <<Size:32/integer, Reply:Size/binary>>} = gen_tcp:recv(S, 0, ?TIMEOUT),
             Ms = decode_metrics(Reply, []),
             {Ms, State#state{metrics = gb_trees:enter(Bucket, {now(), Ms}, State#state.metrics),
                              socket = S1}}
