@@ -11,7 +11,7 @@
   {datatype, integer}]}.
 
 %% @doc The TCP endpoint for the backend server.
-{mapping, "backend_server", "dalmatiner_frontend.backend",
+{mapping, "backend_server", "dqe.backend",
  [{default, {"127.0.0.1", 5555}},
   {datatype, ip}]}.
 

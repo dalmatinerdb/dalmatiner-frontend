@@ -71,6 +71,6 @@ pit -> integer : unwrap('$1').
 pit -> kw_now : now.
 
 Erlang code.
--ignore_xref([format_error/1, parse_and_scan/1]).
+-ignore_xref([format_error/1, parse_and_scan/1, return_error/2]).
 
 unwrap({_,_,V}) -> V.
