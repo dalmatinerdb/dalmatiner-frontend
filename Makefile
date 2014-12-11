@@ -52,7 +52,7 @@ quick-test:
 	-rm -r apps/dalmatiner_frontend/.eunit
 	$(REBAR) -DEQC_SHORT_TEST skip_deps=true eunit -r -v
 
-rel: all zabbix
+rel: all
 	-rm -r rel/dalmatinerfe/share
 	$(REBAR) generate
 
@@ -63,9 +63,6 @@ devrel: dev1 dev2 dev3 dev4
 
 package: rel
 	make -C rel/pkg package
-
-zabbix:
-	sh generate_zabbix_template.sh
 
 ###
 ### Docs
