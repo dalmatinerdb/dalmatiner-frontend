@@ -11,7 +11,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/2, build/1, emit/3, done/1, start/3]).
+-export([start_link/2, build/1, emit/3, done/1, start/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -19,7 +19,6 @@
 
 -define(SERVER, ?MODULE).
 
--type parent() :: {reference(), pid()}.
 -type query_step() :: {Module::atom(), Args::list()}.
 -type child() :: {reference(), query_step()}.
 
@@ -34,8 +33,7 @@
     {ok, State::term(), ChildQueries::child_queries()}.
 
 
--callback start(Start::integer(), Count::integer(), Parents::[parent()],
-                State::term()) ->
+-callback start(Payload::term(), State::term()) ->
     {ok, State::term()} |
     {emit, Data::term(), Resolution::integer(), State::term()} |
     {done, Data::term(), Resolution::integer(), State::term()} |
@@ -43,14 +41,13 @@
 
 
 -callback emit(Child::reference(), Data::term(), Resolution::integer(),
-               Parents::[parent()], State::term()) ->
+               State::term()) ->
     {ok, State::term()} |
     {emit, Data::term(), Resolution::integer(), State::term()} |
     {done, Data::term(), Resolution::integer(), State::term()} |
     {done, State::term()}.
 
--callback done(Child::reference()| {last, reference()} , Parents::[{parent()}],
-               State::term()) ->
+-callback done(Child::reference()| {last, reference()}, State::term()) ->
     {ok, State::term()} |
     {emit, Data::term(), Resolution::integer(), State::term()} |
     {done, Data::term(), Resolution::integer(), State::term()} |
@@ -85,8 +82,8 @@ done(Parents) ->
     [gen_server:cast(Parent, {done, Ref}) ||
         {Ref, Parent} <- Parents].
 
-start(Pid, Start, Count) ->
-    gen_server:cast(Pid, {start, Start, Count}).
+start(Pid, Payload) ->
+    gen_server:cast(Pid, {start, Payload}).
 
 build(Query) ->
     Ref = make_ref(),
@@ -149,26 +146,23 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({start, Start, Count},
+handle_cast({start, Payload},
             State = #state{callback_state = CState,
                            children = Children,
-                           callback_module = Mod,
-                           parents = Parents}) ->
-    CallbackReply = Mod:start(Start, Count,  Parents, CState),
-    [start(Pid, Start, Count) || {_, Pid} <- Children],
+                           callback_module = Mod}) ->
+    CallbackReply = Mod:start(Payload, CState),
+    [start(Pid, Payload) || {_, Pid} <- Children],
     handle_callback_reply(CallbackReply, State);
 
 handle_cast({emit, Ref, Data, Resolution},
             State = #state{callback_state = CState,
-                           callback_module = Mod,
-                           parents = Parents}) ->
-    CallbackReply = Mod:emit(Ref, Data, Resolution,  Parents, CState),
+                           callback_module = Mod}) ->
+    CallbackReply = Mod:emit(Ref, Data, Resolution, CState),
     handle_callback_reply(CallbackReply, State);
 
 handle_cast({done, Ref}, State = #state{children = Children,
                                         callback_state = CState,
-                                        callback_module = Mod,
-                                        parents = Parents}) ->
+                                        callback_module = Mod}) ->
     {State1, CRef} = case Children of
                          [{Ref, _}] ->
                              {State#state{children = []}, {last, Ref}};
@@ -176,7 +170,7 @@ handle_cast({done, Ref}, State = #state{children = Children,
                              Children1 = lists:keydelete(Ref, 1, Children),
                              {State#state{children = Children1}, Ref}
                      end,
-    CallbackReply = Mod:done(CRef, Parents, CState),
+    CallbackReply = Mod:done(CRef, CState),
     handle_callback_reply(CallbackReply, State1);
 
 handle_cast(_Msg, State) ->

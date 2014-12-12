@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/4, emit/5, done/3]).
+-export([init/1, start/2, emit/4, done/2]).
 
 -record(state, {
           aggr :: atom(),
@@ -14,18 +14,18 @@
 init([Aggr, SubQ, Time]) ->
     {ok, #state{aggr = Aggr, time = Time}, SubQ}.
 
-start(_Start, _Count, _Parents, State) ->
+start({_Start, _Count}, State) ->
     {ok, State}.
 
 %% When we get the first data we can calculate both the applied
 %% time and the upwards resolution.
-emit(Child, Data, Resolution, Parents,
+emit(Child, Data, Resolution,
      State = #state{resolution = undefined, time = Time}) ->
     Time1 = dqe_time:apply_times(Time, Resolution),
-    emit(Child, Data, Resolution, Parents,
+    emit(Child, Data, Resolution,
          State#state{resolution = Time1 * Resolution, time = Time1});
 
-emit(_Child, Data, _R, _Parents,
+emit(_Child, Data, _R,
      State = #state{aggr = Aggr, time = Time, acc = Acc}) ->
     case execute(Aggr, <<Data/binary, Acc/binary>>, Time, <<>>) of
         {Acc1, <<>>} ->
@@ -35,10 +35,10 @@ emit(_Child, Data, _R, _Parents,
     end.
 
 
-done(_Child, _Parents, State = #state{acc = <<>>}) ->
+done(_Child, State = #state{acc = <<>>}) ->
     {done, State};
 
-done(_Child, _Parents, State = #state{aggr = Aggr, time = Time, acc = Acc}) ->
+done(_Child, State = #state{aggr = Aggr, time = Time, acc = Acc}) ->
     Data = mmath_aggr:Aggr(Acc, Time),
     {done, Data, State#state.resolution, State#state{acc = <<>>}}.
 

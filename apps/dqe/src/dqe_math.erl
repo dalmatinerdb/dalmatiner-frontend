@@ -1,7 +1,7 @@
 -module(dqe_math).
--behaviour(dflow_behaviour).
+-behaviour(dflow).
 
--export([init/1, start/4, emit/5, done/3]).
+-export([init/1, start/2, emit/4, done/2]).
 -record(state, {
           op :: atom(),
           arg :: number()
@@ -10,11 +10,11 @@
 init([Op, SubQ, Arg]) ->
     {ok, #state{op = Op, arg = Arg}, SubQ}.
 
-start(_Start, _Count, _Parents, State) ->
+start({_Start, _Count}, State) ->
     {ok, State}.
 
-emit(_Child, Data, Resolution, _Parents, State = #state{op = Op, arg = Arg}) ->
+emit(_Child, Data, Resolution, State = #state{op = Op, arg = Arg}) ->
     {emit, mmath_aggr:Op(Data, Arg), Resolution, State}.
 
-done({last, _Child}, _Parents, Aggr) ->
+done({last, _Child}, Aggr) ->
     {done, Aggr}.

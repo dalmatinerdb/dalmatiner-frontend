@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/4, emit/5, done/3]).
+-export([init/1, start/2, emit/4, done/2]).
 
 -record(state, {
           bucket :: binary(),
@@ -16,22 +16,23 @@ init([Bucket, Metric]) ->
 init([Bucket, Metric, Chunk]) ->
     {ok, #state{bucket = Bucket, metric = Metric, chunk = Chunk}, []}.
 
-start(_Start, 0, _Parents, State) ->
+start({_Start, 0}, State) ->
     {done, State};
 
-start(Start, Count, Parents,
+start({Start, Count},
       State = #state{bucket = Bucket, metric = Metric, chunk = Chunk}) when
       Count >= Chunk ->
     {ok, Res, Data} = dalmatiner_connection:get(Bucket, Metric, Start, Chunk),
-    dflow_behaviour:emit(Parents, Data, Res),
-    start(Start + Chunk, Count - Chunk, Parents, State);
+    %% We do a bit of cheating here this allows us to loop.
+    dflow:start(self(), {Start + Chunk, Count - Chunk}),
+    {emit, Data, Res, State};
 
-start(Start, Count, _, State = #state{bucket = Bucket, metric = Metric}) ->
+start({Start, Count}, State = #state{bucket = Bucket, metric = Metric}) ->
     {ok, Res, Data} = dalmatiner_connection:get(Bucket, Metric, Start, Count),
     {done, Data, Res, State}.
 
-emit(_Child, _Data, _Resolution, _Parents, State) ->
+emit(_Child, _Data, _Resolution, State) ->
     {ok, State}.
 
-done(_, _Parents, State) ->
+done(_, State) ->
     {done, State}.
