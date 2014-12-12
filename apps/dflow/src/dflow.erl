@@ -11,7 +11,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/2, build/1, emit/3, done/1, start/2]).
+-export([start_link/3, build/1, emit/3, done/1, start/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -71,8 +71,8 @@
 %% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
 %% @end
 %%--------------------------------------------------------------------
-start_link(Parent, Query) ->
-    gen_server:start_link(?MODULE, [Parent, Query], []).
+start_link(Parent, Query, Queries) ->
+    gen_server:start_link(?MODULE, [Parent, Query, Queries], []).
 
 emit(Parents, Data, Resolution) ->
     [gen_server:cast(Parent, {emit, Ref, Data, Resolution}) ||
@@ -85,9 +85,21 @@ done(Parents) ->
 start(Pid, Payload) ->
     gen_server:cast(Pid, {start, Payload}).
 
+add_parent(Pid, Ref) ->
+    link(Pid),
+    gen_server:call(Pid, {add_parent, {Ref, self()}}).
+
 build(Query) ->
     Ref = make_ref(),
-    {ok, Pid} = supervisor:start_child(dflow_sup, [{Ref, self()}, Query]),
+    {ok, Pid} = supervisor:start_child(
+                  dflow_sup, [{Ref, self()}, Query, dict:new()]),
+    receive
+        {queries, Ref, _} ->
+            ok
+    after
+        1000 ->
+            error(timeout)
+    end,
     {ok, Ref, Pid}.
 
 %%%===================================================================
@@ -105,16 +117,32 @@ build(Query) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
-init([Parent, {Module, Args}]) ->
+init([{PRef, Parent}, {Module, Args}, Queries]) ->
     {ok, CState, SubQs} = Module:init(Args),
-    Children = [begin
-                    {ok, Pid} = start_link({Ref, self()}, Query),
-                    {Ref, Pid}
-                end || {Ref, Query} <- ensure_refed(SubQs, [])],
+    {Queries1, Children} =
+        lists:foldl(
+          fun ({Ref, Query}, {QAcc, CAcc}) ->
+                  case dict:find(Query, QAcc) of
+                      error ->
+                          {ok, Pid} = start_link({Ref, self()}, Query, QAcc),
+                          receive
+                              {queries, Ref, QAcc1} ->
+                                  QAcc2 = dict:store(Query, Pid, QAcc1),
+                                  {QAcc2, [{Ref, Pid} | CAcc]}
+                          after
+                              1000 ->
+                                  error(timeout)
+                          end;
+                      {ok, Pid} ->
+                          add_parent(Pid, Ref),
+                          {QAcc, [{Ref, Pid} | CAcc]}
+                  end
+          end, {Queries, []}, ensure_refed(SubQs, [])),
+    Parent ! {queries, PRef, Queries1},
     {ok, #state{
             callback_module = Module,
             callback_state = CState,
-            parents = [Parent],
+            parents = [{PRef, Parent}],
             children = Children
            }}.
 
@@ -132,6 +160,9 @@ init([Parent, {Module, Args}]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_call({add_parent, Parent}, _From, State = #state{parents = Parents}) ->
+    {reply, ok, State#state{parents = [Parent | Parents]}};
+
 handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
