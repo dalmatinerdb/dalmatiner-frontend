@@ -7,11 +7,12 @@
 -record(state, {
           bucket :: binary(),
           metric :: binary(),
-          chunk = 100000 :: pos_integer()
+          chunk :: pos_integer()
          }).
 
 init([Bucket, Metric]) ->
-    init([Bucket, Metric, 100000]);
+    {ok, Chunk} = application:get_env(dqe, get_chunk),
+    init([Bucket, Metric, Chunk]);
 
 init([Bucket, Metric, Chunk]) ->
     {ok, #state{bucket = Bucket, metric = Metric, chunk = Chunk}, []}.

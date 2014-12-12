@@ -24,7 +24,8 @@
 -define(SERVER, ?MODULE).
 -define(TIMEOUT, 30000).
 -define(MAX_COUNT, 604800).
--record(state, {connection, metrics=gb_trees:empty(), host, port, max_read = ?MAX_COUNT}).
+-record(state, {connection, metrics=gb_trees:empty(), host, port,
+                max_read = ?MAX_COUNT}).
 
 %%%===================================================================
 %%% API
