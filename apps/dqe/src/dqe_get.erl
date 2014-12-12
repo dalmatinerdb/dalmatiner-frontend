@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/4, done/2]).
+-export([init/1, start/2, emit/3, done/2]).
 
 -record(state, {
           bucket :: binary(),
@@ -27,21 +27,21 @@ start({Start, Count},
     case dalmatiner_connection:get(Bucket, Metric, Start, Chunk) of
         {ok, Res, <<>>} ->
             dflow:start(self(), {Start + Chunk, Count - Chunk}),
-            {emit, mmath_bin:empty(Chunk), Res, State};
+            {emit, {mmath_bin:empty(Chunk), Res}, State};
         {ok, Res, Data} ->
             dflow:start(self(), {Start + Chunk, Count - Chunk}),
-            {emit, Data, Res, State}
+            {emit, {Data, Res}, State}
     end;
 
 start({Start, Count}, State = #state{bucket = Bucket, metric = Metric}) ->
     case dalmatiner_connection:get(Bucket, Metric, Start, Count) of
         {ok, Res, <<>>} ->
-            {done, mmath_bin:empty(Count), Res, State};
+            {done, {mmath_bin:empty(Count), Res}, State};
         {ok, Res, Data} ->
-            {done, Data, Res, State}
+            {done, {Data, Res}, State}
     end.
 
-emit(_Child, _Data, _Resolution, State) ->
+emit(_Child, _Data, State) ->
     {ok, State}.
 
 done(_, State) ->

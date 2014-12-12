@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/4, done/2]).
+-export([init/1, start/2, emit/3, done/2]).
 
 -record(state, {}).
 
@@ -12,8 +12,8 @@ init([SubQs])  ->
 start({_Start, _Count}, State) ->
     {ok, State}.
 
-emit(_Child, Data, Resolution, State) ->
-    {emit, Data, Resolution, State}.
+emit(_Child, Data, State) ->
+    {emit, Data, State}.
 
 done({last, _}, State) ->
     {done, State};

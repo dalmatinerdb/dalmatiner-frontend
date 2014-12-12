@@ -24,9 +24,12 @@ run(Query, Timeout) ->
 
 wait(Ref, Timeout, Replies) ->
     receive
-        {'$gen_cast', {emit, Ref, Data, _Res}} ->
-            wait(Ref, Timeout, [Data | Replies]);
-        {'$gen_cast',{done, Ref}} ->
+        {'$gen_cast', {emit, Ref, {Name, Data, _Res}}} ->
+            wait(Ref, Timeout, [{Name, Data} | Replies]);
+        {'$gen_cast', {emit, Ref, Reply}} ->
+            io:format("[~p] bad reply: ~p~n", [Ref, Reply]),
+            wait(Ref, Timeout, Replies);
+        {'$gen_cast', {done, Ref}} ->
             {ok, Replies}
     after
         Timeout ->

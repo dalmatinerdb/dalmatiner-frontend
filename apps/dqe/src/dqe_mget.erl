@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/4, done/2]).
+-export([init/1, start/2, emit/3, done/2]).
 
 -record(state, {
           acc = gb_trees:empty(),
@@ -17,7 +17,7 @@ init([SubQs]) ->
 start({_Start, _Count}, State) ->
     {ok, State}.
 
-emit(Child, Data, Resolution,
+emit(Child, {Data, Resolution},
      State = #state{term_for_child = TFC, count = Count, acc = Tree}) ->
     TFC1 = dict:update_counter(Child, 1, TFC),
     Term = dict:fetch(Child, TFC1),
@@ -26,7 +26,7 @@ emit(Child, Data, Resolution,
         {Tree2, <<>>} ->
             {ok, State#state{acc = Tree2, term_for_child = TFC}};
         {Tree2, Data1} ->
-            {emit, Data1, Resolution,
+            {emit, {Data1, Resolution},
              State#state{acc = Tree2, term_for_child = TFC}}
     end.
 

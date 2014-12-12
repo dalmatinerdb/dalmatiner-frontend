@@ -37,22 +37,21 @@
 
 -callback start(Payload::term(), State::term()) ->
     {ok, State::term()} |
-    {emit, Data::term(), Resolution::integer(), State::term()} |
-    {done, Data::term(), Resolution::integer(), State::term()} |
+    {emit, Data::term(), State::term()} |
+    {done, Data::term(), State::term()} |
     {done, State::term()}.
 
 
--callback emit(Child::reference(), Data::term(), Resolution::integer(),
-               State::term()) ->
+-callback emit(Child::reference(), Data::term(), State::term()) ->
     {ok, State::term()} |
-    {emit, Data::term(), Resolution::integer(), State::term()} |
-    {done, Data::term(), Resolution::integer(), State::term()} |
+    {emit, Data::term(), State::term()} |
+    {done, Data::term(), State::term()} |
     {done, State::term()}.
 
 -callback done(Child::reference()| {last, reference()}, State::term()) ->
     {ok, State::term()} |
-    {emit, Data::term(), Resolution::integer(), State::term()} |
-    {done, Data::term(), Resolution::integer(), State::term()} |
+    {emit, Data::term(), State::term()} |
+    {done, Data::term(), State::term()} |
     {done, State::term()}.
 
 -record(state, {
@@ -78,15 +77,15 @@
 start_link(Parent, Query, Queries) ->
     gen_server:start_link(?MODULE, [Parent, Query, Queries], []).
 
-emit(Parents, Data, Resolution) ->
-    [emit(Parent, Ref, Data, Resolution) || {Ref, Parent} <- Parents].
+emit(Parents, Data) ->
+    [emit(Parent, Ref, Data) || {Ref, Parent} <- Parents].
 
-emit(Pid, Ref, Data, Resolution) ->
+emit(Pid, Ref, Data) ->
     case erlang:process_info(Pid, message_queue_len) of
         {message_queue_len, N} when N > ?MAX_Q_LEN ->
-            gen_server:call(Pid, {emit, Ref, Data, Resolution}, infinity);
+            gen_server:call(Pid, {emit, Ref, Data}, infinity);
         _ ->
-            gen_server:cast(Pid, {emit, Ref, Data, Resolution})
+            gen_server:cast(Pid, {emit, Ref, Data})
     end.
 
 done(Parents) ->
@@ -176,10 +175,10 @@ handle_call({add_parent, Parent}, _From,
     {reply, ok, State#state{parents = [Parent | Parents],
                             parent_count = Count + 1}};
 
-handle_call({emit, Ref, Data, Resolution}, _From,
+handle_call({emit, Ref, Data}, _From,
             State = #state{callback_state = CState,
                            callback_module = Mod}) ->
-    CallbackReply = Mod:emit(Ref, Data, Resolution, CState),
+    CallbackReply = Mod:emit(Ref, Data, CState),
     case handle_callback_reply(CallbackReply, State) of
         {noreply, State1} ->
             {reply, ok, State1};
@@ -215,10 +214,10 @@ handle_cast({start, _Payload}, State = #state{start_count = Count}) ->
     {noreply, State#state{start_count = Count + 1}};
 
 
-handle_cast({emit, Ref, Data, Resolution},
+handle_cast({emit, Ref, Data},
             State = #state{callback_state = CState,
                            callback_module = Mod}) ->
-    CallbackReply = Mod:emit(Ref, Data, Resolution, CState),
+    CallbackReply = Mod:emit(Ref, Data, CState),
     handle_callback_reply(CallbackReply, State);
 
 handle_cast({done, Ref}, State = #state{children = Children,
@@ -290,13 +289,14 @@ ensure_refed(Q, []) ->
 handle_callback_reply({ok, CState1}, State) ->
     {noreply, State#state{callback_state = CState1}};
 
-handle_callback_reply({emit, Data, Resolution, CState1},
+handle_callback_reply({emit, Data, CState1},
                       State = #state{parents = Parents}) ->
-    emit(Parents, Data, Resolution),
+    emit(Parents, Data),
     {noreply, State#state{callback_state = CState1}};
-handle_callback_reply({done, Data, Resolution, CState1},
+
+handle_callback_reply({done, Data, CState1},
                       State = #state{parents = Parents}) ->
-    emit(Parents, Data, Resolution),
+    emit(Parents, Data),
     done(Parents),
     {stop, normal, State#state{callback_state = CState1}};
 
