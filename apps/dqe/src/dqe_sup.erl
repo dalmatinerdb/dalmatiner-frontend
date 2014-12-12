@@ -23,17 +23,13 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {Host, Port} =
-        case application:get_env(dqe, backend) of
-            {ok, R} ->
-                R;
-            _ ->
-                {"127.0.0.1", 5555}
-        end,
+    {ok, {Host, Port}} = application:get_env(dqe, backend),
+    {ok, PoolSize} = application:get_env(dqe, pool_size),
+    {ok, PoolMax} = application:get_env(dqe, pool_max),
     Name = backend_connection,
     SizeArgs = [
-                {size, 10},
-                {max_overflow, 20}
+                {size, PoolSize},
+                {max_overflow, PoolMax}
                ],
     PoolArgs = [{name, {local, Name}},
                 {worker_module, dalmatiner_connection}] ++ SizeArgs,

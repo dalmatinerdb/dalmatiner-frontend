@@ -94,6 +94,9 @@ needs_buckets({aggr, _Aggr, SubQ, _}, Buckets) ->
 needs_buckets({mget, _, {Bucket, _}}, Buckets) ->
     ordsets:add_element(Bucket, Buckets);
 
+needs_buckets({named, _, SubQ}, Buckets) ->
+    needs_buckets(SubQ, Buckets);
+
 needs_buckets({var, _}, Buckets) ->
     Buckets;
 

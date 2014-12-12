@@ -92,7 +92,7 @@ preprocess_qry({mget, AggrF, BM}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup({AggrF, BM}, Metrics) of
                    none ->
                        gb_trees:insert({AggrF, BM}, {mget, 0}, Metrics);
-                   {value, {get, N}} ->
+                   {value, {mget, N}} ->
                        gb_trees:update({AggrF, BM}, {mget, N + 1}, Metrics)
                end,
     {{mget, AggrF, BM}, Aliases, Metrics1};
@@ -101,6 +101,13 @@ preprocess_qry({var, V}, Aliases, Metrics, _Rms) ->
     Metrics1 = case gb_trees:lookup(V, Aliases) of
                    none ->
                        Metrics;
+                   {value, {mget, AggrF, BM}} ->
+                       case gb_trees:lookup({AggrF, BM}, Metrics) of
+                           none ->
+                               gb_trees:insert({AggrF, BM}, {mget, 0}, Metrics);
+                           {value, {mget, N}} ->
+                               gb_trees:update({AggrF, BM}, {mget, N + 1}, Metrics)
+                       end;
                    {value, {get, BM}} ->
                        case gb_trees:lookup(BM, Metrics) of
                            none ->

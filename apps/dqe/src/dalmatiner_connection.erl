@@ -34,19 +34,19 @@ get(Bucket, Metric, Time, Count) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
                                 gen_server:call(Worker, {get, Bucket, Metric, Time, Count}, ?TIMEOUT)
-                        end).
+                        end, ?TIMEOUT).
 
 list(Bucket) ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
                                 gen_server:call(Worker, {list, Bucket}, ?TIMEOUT)
-                        end).
+                        end, ?TIMEOUT).
 
 list() ->
     poolboy:transaction(backend_connection,
                         fun(Worker) ->
                                 gen_server:call(Worker, list, ?TIMEOUT)
-                        end).
+                        end, ?TIMEOUT).
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the server
