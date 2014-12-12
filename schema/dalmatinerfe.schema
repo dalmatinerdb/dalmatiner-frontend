@@ -40,3 +40,8 @@
  [{default, 100000},
   {datatype, integer}]}.
 
+
+%% @doc Maximum length for a single query
+{mapping, "max_read", "dalmatiner_frontend.max_read",
+ [{default, 1209600},
+  {datatype, integer}]}.
