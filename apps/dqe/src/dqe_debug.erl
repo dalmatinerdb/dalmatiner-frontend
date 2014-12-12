@@ -20,7 +20,7 @@ emit(Child, Data, Resolution, State) ->
     io:format("[~p] ~p~n", [Child, mmath_bin:to_list(Data)]),
     {emit, Data, Resolution, State}.
 
-done(Child, State = #state{start = Start}) ->
+done({last, Child}, State = #state{start = Start}) ->
     Diff  = round(timer:now_diff(now(), Start) / 1000),
     io:format("[~p] Finished after ~pms.~n", [Child, Diff]),
     {done, State}.
