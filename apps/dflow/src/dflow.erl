@@ -57,6 +57,8 @@
           callback_module,
           callback_state,
           parents,
+          start_count = 0,
+          parent_count = 1,
           children
          }).
 
@@ -160,8 +162,10 @@ init([{PRef, Parent}, {Module, Args}, Queries]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({add_parent, Parent}, _From, State = #state{parents = Parents}) ->
-    {reply, ok, State#state{parents = [Parent | Parents]}};
+handle_call({add_parent, Parent}, _From,
+            State = #state{parents = Parents, parent_count = Count}) ->
+    {reply, ok, State#state{parents = [Parent | Parents],
+                            parent_count = Count + 1}};
 
 handle_call(_Request, _From, State) ->
     Reply = ok,
@@ -180,10 +184,16 @@ handle_call(_Request, _From, State) ->
 handle_cast({start, Payload},
             State = #state{callback_state = CState,
                            children = Children,
-                           callback_module = Mod}) ->
+                           callback_module = Mod,
+                           start_count = SCount,
+                           parent_count = PCount}) when PCount =:= SCount + 1 ->
     CallbackReply = Mod:start(Payload, CState),
     [start(Pid, Payload) || {_, Pid} <- Children],
     handle_callback_reply(CallbackReply, State);
+
+handle_cast({start, _Payload}, State = #state{start_count = Count}) ->
+    {noreply, State#state{start_count = Count + 1}};
+
 
 handle_cast({emit, Ref, Data, Resolution},
             State = #state{callback_state = CState,
@@ -202,10 +212,7 @@ handle_cast({done, Ref}, State = #state{children = Children,
                              {State#state{children = Children1}, Ref}
                      end,
     CallbackReply = Mod:done(CRef, CState),
-    handle_callback_reply(CallbackReply, State1);
-
-handle_cast(_Msg, State) ->
-    {noreply, State}.
+    handle_callback_reply(CallbackReply, State1).
 
 %%--------------------------------------------------------------------
 %% @private
