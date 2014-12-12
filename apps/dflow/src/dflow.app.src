@@ -1,15 +1,12 @@
-{application, dqe,
+{application, dflow,
  [
   {description, ""},
-  {vsn, "0.1.0"},
+  {vsn, "1"},
   {registered, []},
   {applications, [
                   kernel,
-                  ddb_client,
-                  poolboy,
-                  dflow,
                   stdlib
                  ]},
-  {mod, { dqe_app, []}},
+  {mod, { dflow_app, []}},
   {env, []}
  ]}.

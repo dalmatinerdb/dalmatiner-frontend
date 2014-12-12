@@ -1,2 +1,3 @@
+.rebar
 src/dql_lexer.erl
 src/dql_parser.erl

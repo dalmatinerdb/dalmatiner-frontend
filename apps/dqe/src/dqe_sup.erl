@@ -39,6 +39,5 @@ init([]) ->
                 {worker_module, dalmatiner_connection}] ++ SizeArgs,
     WorkerArgs = [Host, Port],
     {ok, {{one_for_one, 5, 10},
-          [?CHILD(dqe_step_sup, supervisor),
-           poolboy:child_spec(Name, PoolArgs, WorkerArgs)]}}.
+          [poolboy:child_spec(Name, PoolArgs, WorkerArgs)]}}.
 
