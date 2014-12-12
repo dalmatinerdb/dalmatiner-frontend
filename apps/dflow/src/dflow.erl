@@ -18,6 +18,8 @@
          terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(MAX_Q_LEN, 20).
+
 
 -type query_step() :: {Module::atom(), Args::list()}.
 -type child() :: {reference(), query_step()}.
@@ -77,8 +79,15 @@ start_link(Parent, Query, Queries) ->
     gen_server:start_link(?MODULE, [Parent, Query, Queries], []).
 
 emit(Parents, Data, Resolution) ->
-    [gen_server:cast(Parent, {emit, Ref, Data, Resolution}) ||
-        {Ref, Parent} <- Parents].
+    [emit(Parent, Ref, Data, Resolution) || {Ref, Parent} <- Parents].
+
+emit(Pid, Ref, Data, Resolution) ->
+    case erlang:process_info(Pid, message_queue_len) of
+        {message_queue_len, N} when N > ?MAX_Q_LEN ->
+            gen_server:call(Pid, {emit, Ref, Data, Resolution});
+        _ ->
+            gen_server:cast(Pid, {emit, Ref, Data, Resolution})
+    end.
 
 done(Parents) ->
     [gen_server:cast(Parent, {done, Ref}) ||
@@ -166,6 +175,17 @@ handle_call({add_parent, Parent}, _From,
             State = #state{parents = Parents, parent_count = Count}) ->
     {reply, ok, State#state{parents = [Parent | Parents],
                             parent_count = Count + 1}};
+
+handle_call({emit, Ref, Data, Resolution}, _From,
+            State = #state{callback_state = CState,
+                           callback_module = Mod}) ->
+    CallbackReply = Mod:emit(Ref, Data, Resolution, CState),
+    case handle_callback_reply(CallbackReply, State) of
+        {noreply, State1} ->
+            {reply, ok, State1};
+         Stop ->
+            Stop
+    end;
 
 handle_call(_Request, _From, State) ->
     Reply = ok,
