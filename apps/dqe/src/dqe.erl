@@ -1,10 +1,6 @@
 -module(dqe).
 
--export([prepare/1]).
-
-%% f(Q), Q = "SELECT avg(dalmatinerdb.mput.count BUCKET dalmatinerdb, 1d), avg(dalmatinerdb.mget.count BUCKET dalmatinerdb, 1d) LAST 1w".
-%% f(Qs), Qs = dqe_step:prepare(dql:prepare(Q)).
- %%[dqe_step:start(P) || P <- Qs].
+-export([prepare/1, run/1, run/2]).
 
 prepare(Query) ->
     {Parts, Start, Count, _Res, Aliases, _SomethingElse} = dql:prepare(Query),
@@ -15,6 +11,27 @@ prepare(Query) ->
                   {dqe_name, [Name, Translated]}
               end || Q <- Parts],
     {Parts1, Start, Count}.
+
+run(Query) ->
+    run(Query, infinity).
+
+run(Query, Timeout) ->
+    {Parts, Start, Count} = prepare(Query),
+    Funnel = {dqe_funnel, [[{dqe_collect, [Part]} || Part <- Parts]]},
+    {ok, Ref, Flow} = dflow:build(Funnel),
+    dflow:start(Flow, {Start, Count}),
+    wait(Ref, Timeout, []).
+
+wait(Ref, Timeout, Replies) ->
+    receive
+        {'$gen_cast', {emit, Ref, Data, _Res}} ->
+            wait(Ref, Timeout, [Data | Replies]);
+        {'$gen_cast',{done, Ref}} ->
+            {ok, Replies}
+    after
+        Timeout ->
+            {error, timeout}
+    end.
 
 translate({aggr, Aggr, SubQ}, Aliases, Buckets) ->
     {dqe_aggr1, [Aggr, translate(SubQ, Aliases, Buckets)]};
