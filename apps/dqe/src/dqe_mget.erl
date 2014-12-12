@@ -6,21 +6,19 @@
 
 -record(state, {
           acc = gb_trees:empty(),
-          aggr :: atom(),
           count,
           term_for_child = dict:new()
          }).
 
-init([Aggr, SubQs]) ->
+init([SubQs]) ->
     SubQs1 = [{make_ref(), SubQ} || SubQ <- SubQs],
-    {ok, #state{aggr = Aggr, count = length(SubQs1)}, SubQs1}.
+    {ok, #state{count = length(SubQs1)}, SubQs1}.
 
 start({_Start, _Count}, State) ->
     {ok, State}.
 
 emit(Child, Data, Resolution,
-     State = #state{term_for_child = TFC, count = Count, acc = Tree,
-                    aggr = Aggr}) ->
+     State = #state{term_for_child = TFC, count = Count, acc = Tree}) ->
     TFC1 = dict:update_counter(Child, 1, TFC),
     Term = dict:fetch(Child, TFC1),
     Tree1 = add_to_tree(Term, Data, Tree),
@@ -28,13 +26,7 @@ emit(Child, Data, Resolution,
         {Tree2, <<>>} ->
             {ok, State#state{acc = Tree2, term_for_child = TFC}};
         {Tree2, Data1} ->
-            Data2 = case Aggr of
-                        sum ->
-                            Data1;
-                        avg ->
-                            mmath_aggr:scale(Data1, 1/Count)
-                    end,
-            {emit, Data2, Resolution,
+            {emit, Data1, Resolution,
              State#state{acc = Tree2, term_for_child = TFC}}
     end.
 

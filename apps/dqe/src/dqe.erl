@@ -28,10 +28,17 @@ translate({aggr, divide, SubQ, Arg}, Aliases, Buckets) ->
 translate({aggr, Aggr, SubQ, Time}, Aliases, Buckets) ->
     {dqe_aggr2, [Aggr, translate(SubQ, Aliases, Buckets), dqe_time:to_ms(Time)]};
 
-translate({mget, Aggr, {Bucket, Glob}}, _Aliases, Buckets) ->
+translate({mget, avg, {Bucket, Glob}}, _Aliases, Buckets) ->
     {ok, Metrics} = orddict:fetch(Bucket, Buckets),
     Gets = [{dqe_get, [Bucket, Metric]} || Metric <- glob_match(Glob, Metrics)],
-    {dqe_mget, [Aggr, Gets]};
+    Gets1 = keep_optimizing_mget(Gets),
+    {dqe_math, [scale, {dqe_mget, [Gets1]}, 1/length(Gets)]};
+
+translate({mget, sum, {Bucket, Glob}}, _Aliases, Buckets) ->
+    {ok, Metrics} = orddict:fetch(Bucket, Buckets),
+    Gets = [{dqe_get, [Bucket, Metric]} || Metric <- glob_match(Glob, Metrics)],
+    Gets1 = keep_optimizing_mget(Gets),
+    {dqe_mget, [Gets1]};
 
 translate({var, Name}, Aliases, Buckets) ->
     translate(gb_trees:get(Name, Aliases), Aliases, Buckets);
@@ -45,6 +52,16 @@ name({named, N, Q}, Aliases, Buckets) ->
 name(Q, Aliases, Buckets) ->
     {dql:unparse(Q), translate(Q, Aliases, Buckets)}.
 
+keep_optimizing_mget([_, _, _, _, _ | _] = Gets) ->
+    keep_optimizing_mget(optimize_mget(Gets));
+keep_optimizing_mget(Gets) ->
+    Gets.
+
+optimize_mget([G1, G2, G3, G4 | GRest]) ->
+    [{dqe_mget, [[G1, G2, G3, G4]]} | optimize_mget(GRest)];
+
+optimize_mget(Gets) ->
+    Gets.
 
 
 glob_match(G, Ms) ->
