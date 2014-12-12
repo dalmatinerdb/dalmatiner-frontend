@@ -84,7 +84,7 @@ emit(Parents, Data, Resolution) ->
 emit(Pid, Ref, Data, Resolution) ->
     case erlang:process_info(Pid, message_queue_len) of
         {message_queue_len, N} when N > ?MAX_Q_LEN ->
-            gen_server:call(Pid, {emit, Ref, Data, Resolution});
+            gen_server:call(Pid, {emit, Ref, Data, Resolution}, infinity);
         _ ->
             gen_server:cast(Pid, {emit, Ref, Data, Resolution})
     end.
