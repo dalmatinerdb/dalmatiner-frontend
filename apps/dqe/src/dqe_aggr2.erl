@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/3, done/2]).
+-export([init/1, describe/1, start/2, emit/3, done/2]).
 
 -record(state, {
           aggr :: atom(),
@@ -16,6 +16,9 @@ init([Aggr, SubQ, Time]) ->
 
 start({_Start, _Count}, State) ->
     {ok, State}.
+
+describe(#state{aggr = Aggr, time = Time}) ->
+    [atom_to_list(Aggr), "(", integer_to_list(round(Time/1000)), "ms)"].
 
 %% When we get the first data we can calculate both the applied
 %% time and the upwards resolution.

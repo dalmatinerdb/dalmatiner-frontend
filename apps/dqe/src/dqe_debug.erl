@@ -2,12 +2,15 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/3, done/2]).
+-export([init/1, describe/1, start/2, emit/3, done/2]).
 
 -record(state, {start = now()}).
 
 init([SubQ]) when not is_list(SubQ) ->
     {ok, #state{}, SubQ}.
+
+describe(_) ->
+    "debug".
 
 start({_Start, _Count}, State) ->
     {ok, State}.

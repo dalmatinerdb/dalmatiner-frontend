@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/3, done/2]).
+-export([init/1, describe/1, start/2, emit/3, done/2]).
 
 -record(state, {
           acc = gb_trees:empty(),
@@ -13,6 +13,9 @@
 init([SubQs]) ->
     SubQs1 = [{make_ref(), SubQ} || SubQ <- SubQs],
     {ok, #state{count = length(SubQs1)}, SubQs1}.
+
+describe(_) ->
+    "sum".
 
 start({_Start, _Count}, State) ->
     {ok, State}.

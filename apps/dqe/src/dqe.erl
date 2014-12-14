@@ -80,8 +80,11 @@ keep_optimizing_mget(Gets) ->
 optimize_mget([G1, G2, G3, G4 | GRest]) ->
     [{dqe_mget, [[G1, G2, G3, G4]]} | optimize_mget(GRest)];
 
+optimize_mget([Get]) ->
+    [Get];
+
 optimize_mget(Gets) ->
-    Gets.
+    [{dqe_mget, [Gets]}].
 
 
 glob_match(G, Ms) ->

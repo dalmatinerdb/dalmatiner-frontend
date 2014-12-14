@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/3, done/2]).
+-export([init/1, describe/1, start/2, emit/3, done/2]).
 
 -record(state, {
           bucket :: binary(),
@@ -16,6 +16,9 @@ init([Bucket, Metric]) ->
 
 init([Bucket, Metric, Chunk]) ->
     {ok, #state{bucket = Bucket, metric = Metric, chunk = Chunk}, []}.
+
+describe(#state{bucket = Bucket, metric = Metric}) ->
+    [Bucket, "/", Metric].
 
 start({_Start, 0}, State) ->
     {done, State};

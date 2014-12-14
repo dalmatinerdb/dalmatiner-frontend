@@ -2,7 +2,7 @@
 
 -behaviour(dflow).
 
--export([init/1, start/2, emit/3, done/2]).
+-export([init/1, describe/1, start/2, emit/3, done/2]).
 
 -record(state, {
           acc :: binary(),
@@ -11,6 +11,9 @@
 
 init([SubQ]) when not is_list(SubQ) ->
     {ok, #state{}, SubQ}.
+
+describe(_) ->
+    "collect".
 
 start({_Start, _Count}, State) ->
     {ok, State}.
