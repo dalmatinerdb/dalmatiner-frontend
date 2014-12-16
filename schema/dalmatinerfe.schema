@@ -10,10 +10,6 @@
  [{default, 100},
   {datatype, integer}]}.
 
-%% @doc The TCP endpoint for the backend server.
-{mapping, "backend_server", "dalmatiner_frontend.backend",
- [{default, {"127.0.0.1", 5555}},
-  {datatype, ip}]}.
 
 %% @doc The port dalmatinerdb listens on for telnet connections
 {mapping, "telnet_port", "dalmatiner_frontend.telnet_port",
@@ -23,9 +19,4 @@
 %% @doc Number of acceptor processes to keep around for telnet connections.
 {mapping, "telnet_listeners", "dalmatiner_frontend.telnet_listeners",
  [{default, 100},
-  {datatype, integer}]}.
-
-%% @doc Maximum length for a single query
-{mapping, "max_read", "dalmatiner_frontend.max_read",
- [{default, 1209600},
   {datatype, integer}]}.

@@ -23,21 +23,4 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {Host, Port} =
-        case application:get_env(dalmatiner_frontend, backend) of
-            {ok, R} ->
-                R;
-            _ ->
-                {"127.0.0.1", 5555}
-        end,
-    Name = backend_connection,
-    SizeArgs = [
-                {size, 10},
-                {max_overflow, 20}
-               ],
-    PoolArgs = [{name, {local, Name}},
-                {worker_module, dalmatiner_connection}] ++ SizeArgs,
-    WorkerArgs = [Host, Port],
-    %%C = {dalmatiner_connection, {dalmatiner_connection, start_link, [Host, Port]},
-    %%     permanent, 5000, worker, [dalmatiner_connection]},
-    {ok, {{one_for_one, 5, 10}, [poolboy:child_spec(Name, PoolArgs, WorkerArgs)]}}.
+    {ok, {{one_for_one, 5, 10}, []}}.
