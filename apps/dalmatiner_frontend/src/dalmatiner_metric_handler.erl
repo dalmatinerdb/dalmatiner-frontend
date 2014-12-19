@@ -40,19 +40,16 @@ handle(Req, State) ->
             {ok, Req4} = cowboy_req:reply(200, Req3),
             {ok, Req4, State};
         json ->
-            {ok, Ms} = dalmatiner_connection:list(Bucket),
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/json">>}],
-                  jsx:encode(Ms), Req2),
+                  jsx:encode(get_metrics(Bucket)), Req2),
             {ok, Req3, State};
         msgpack ->
-            {Bucket, Req2} = cowboy_req:binding(bucket, Req1),
-            {ok, Ms} = dalmatiner_connection:list(Bucket),
             {ok, Req3} =
                 cowboy_req:reply(
                   200, [{<<"content-type">>, <<"application/x-msgpack">>}],
-                  msgpack:pack(Ms), Req2),
+                  msgpack:pack(get_metrics(Bucket)), Req2),
             {ok, Req3, State};
         _ ->
             {ok, Req2} = cowboy_req:reply(415, Req1),
@@ -61,3 +58,9 @@ handle(Req, State) ->
 
 terminate(_Reason, _Req, State) ->
     {ok, State}.
+
+get_metrics(Bucket) ->
+    {ok, Ms} = dalmatiner_connection:list(Bucket),
+    Sep = <<"'.'">>,
+    [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>
+         || Metric <- Ms].
