@@ -134,19 +134,11 @@ execute({sum, N, C}) ->
 execute({to_list, C}) ->
     D = execute(C),
     L = mmath_bin:to_list(D),
-    case mmath_bin:find_type(D) of
-        float ->
-            << <<(f2b(V))/binary, " ">> || V <- L >>;
-        _ ->
-            << <<(i2b(V))/binary, " ">> || V <- L >>
-    end.
+    << <<(i2b(V))/binary, " ">> || V <- L >>.
 
 
 i2b(I) ->
     list_to_binary(integer_to_list(I)).
-
-f2b(I) ->
-    list_to_binary(float_to_list(I)).
 
 glob_match(G, Ms) ->
     GE = re:split(G, "\\*"),
