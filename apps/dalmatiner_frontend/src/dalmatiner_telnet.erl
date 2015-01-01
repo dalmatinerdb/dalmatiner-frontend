@@ -46,13 +46,19 @@ loop(Socket, Transport) ->
             Transport:send(Socket, list_to_binary(R)),
             loop(Socket, Transport);
         {ok, <<"SELECT ", _/binary>> = Q} ->
-            case timer:tc(dql, execute, [Q]) of
+            _Now = {Mega, Sec, Micro} = now(),
+            NowMs = ((Mega * 1000000  + Sec) * 1000000 + Micro) div 1000,
+            case timer:tc(dqe, run, [Q]) of
                 {T, {ok, Ls}} ->
                     [begin
-                         <<_, BL/binary>> = << <<$\t, (to_s(E))/binary>> ||
-                                        E <- mmath_bin:to_list(L) >>,
-                         Transport:send(Socket, <<BL/binary, "\n\r">>)
-                     end || {_,_,L} <- Ls],
+                         Now = (NowMs div Resolution) * Resolution,
+                         TL = << <<$\t, (to_s(Now + E*Resolution))/binary>> ||
+                                  E <- lists:seq(0, mmath_bin:length(Data) - 1) >>,
+                         Transport:send(Socket, <<"Time", TL/binary, "\n\r">>),
+                         BL = << <<$\t, (to_s(E))/binary>> ||
+                                  E <- mmath_bin:to_list(Data) >>,
+                         Transport:send(Socket, <<Name/binary, BL/binary, "\n\r">>)
+                     end || {Name, Data, Resolution} <- Ls],
                     Transport:send(Socket, <<"Query completed in ",
                                              (to_s(T/1000))/binary,
                                              "ms\n\r">>);
