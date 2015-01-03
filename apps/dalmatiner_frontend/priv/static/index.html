@@ -6,6 +6,7 @@
     <title>DalmatinerDB | Query</title>
     <link rel="stylesheet" href="css/foundation.css" />
     <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/foundation-icons.css" />
     <script src="/js/vendor/modernizr.js"></script>
     <script src="/js/vendor/jquery.js"></script>
     <script src="/js/vendor/jquery.cookie.js"></script>
@@ -15,7 +16,6 @@
     <script src="/js/msgpack.base.js"></script>
     <script src="/js/msgpack.codec.js"></script>
     <script src="/js/msgpack.js"></script>
-    <script src="/js/query.js"></script>
   </head>
   <body>
     <nav class="top-bar" data-topbar>
@@ -37,7 +37,8 @@
     </nav>
     <div class="row">
       <div class="large-10 columns">
-        <input style="width: 100%" id="bla" value="" />
+        <input style="width: 98%" id="query" value="" />
+        <a href="" id="permalink"><i  class="fi-link"></i></a>
       </div>
       <div class="large-2 columns">
         <a href="#" class="button tiny" onclick="q()">query</a>
@@ -49,6 +50,6 @@
       </div>
       <div class="large-2 columns" id="legend"></div>
     </div>
-
+    <script src="/js/query.js"></script>
   </body>
 </html>
