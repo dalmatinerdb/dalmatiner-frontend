@@ -2,6 +2,7 @@ var c;
 Chart.defaults.global.responsive = true;
 
 $("#permalink").hide();
+$("#timewrap").hide();
 
 var QueryString = function () {
   // This function is anonymous, is executed immediately and
@@ -29,22 +30,24 @@ var QueryString = function () {
 if (QueryString.metric && QueryString.bucket) {
   var metric = decodeURIComponent(QueryString.metric);
   var bucket = decodeURIComponent(QueryString.bucket);
-  document.getElementById("query").value = "SELECT " + metric + " BUCKET " + bucket + " LAST 60s"
+  $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s")
   q();
 } else if (QueryString.query) {
   var query = decodeURIComponent(QueryString.query);
-  document.getElementById("query").value = query;
+  $("#query").val(query);
   q();
 }
 
 
 
 function q() {
-  var query = document.getElementById("query").value;
+  var query = $("#query").val();
   msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
     console.log("Fetching " + res.d[0].length + " elements in " + res.t / 1000 + "ms");
-    document.getElementById("permalink").href = "/?query=" + encodeURIComponent(query);
+    $("#permalink").attr("href", "/?query=" + encodeURIComponent(query))
     $("#permalink").show();
+    $("#time").text((res.t / 1000) + "ms");
+    $("#timewrap").show();
     var idx = [];
     for (var i = 0; i < res.d[0].v.length; i++)
     {
