@@ -62,7 +62,7 @@ Example:
 cloud.zones.cpu.usage.eca485cf-bdbb-4ae5-aba9-dce767 BUCKET tachyon
 ```
 
-### Aggregation functiosn
+### Aggregation functions
 Aggregation functions aggregate a metric over a given range of time and decrease the resolution by doing so. Aggregation functions can be nested in which case the 'higher' functiosn work with the decreased resolution of lower functions and not the raw resolution. This means the correct code to get the 1m average over 10s sums from a 1s resolution metric would be  `avg(sum(m, 10s), 1m)` not `avg(sum(m, 10s), 6s)` - however this does not apply when using the point and not the time declaration, so it would be: `avg(sum(m, 10s), 6)` not `avg(sum(m, 10s), 60)` (please note the missing `s`).
 
 #### min/2
