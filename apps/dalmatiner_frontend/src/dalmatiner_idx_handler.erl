@@ -43,13 +43,14 @@ handle(Req, State) ->
                     {ok, Req2} =
                         cowboy_req:reply(400, [], list_to_binary(E), Req1),
                     {ok, Req2, State};
-                {T, {ok, R2}} ->
+                {T, {ok, Start, R2}} ->
                     {ok, A, Req2} = cowboy_req:parse_header(<<"accept">>, Req1),
                     R3 = [[{<<"n">>, Name},
                            {<<"r">>, Resolution},
                            {<<"v">>, mmath_bin:to_list(Data)}]
                           || {Name, Data, Resolution} <- R2],
-                    D = [{<<"t">>, T},
+                    D = [{<<"s">>, Start},
+                         {<<"t">>, T},
                          {<<"d">>, R3}],
                     case content_type(A) of
                         json ->
