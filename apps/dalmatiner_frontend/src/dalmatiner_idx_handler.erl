@@ -40,8 +40,9 @@ handle(Req, State) ->
         {Q, Req1} ->
             case timer:tc(dqe, run, [Q]) of
                 {_, {error, E}} ->
+                    Error = list_to_binary(dqe:error_string({error, E})),
                     {ok, Req2} =
-                        cowboy_req:reply(400, [], list_to_binary(E), Req1),
+                        cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
                 {T, {ok, Start, R2}} ->
                     {ok, A, Req2} = cowboy_req:parse_header(<<"accept">>, Req1),
