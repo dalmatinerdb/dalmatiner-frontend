@@ -28,8 +28,7 @@ content_type([_ | R]) ->
 handle(Req, State) ->
     Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req),
     {ok, R, Req1} = cowboy_req:parse_header(<<"accept">>, Req0),
-    {Bucket, Req15} = cowboy_req:binding(bucket, Req1),
-    {Path, Req2} = cowboy_req:path_info(Req15),
+    {[Bucket | Path], Req2} = cowboy_req:path_info(Req1),
     case content_type(R) of
         html ->
             F = fun (Socket, Transport) ->
@@ -60,9 +59,14 @@ handle(Req, State) ->
 terminate(_Reason, _Req, State) ->
     {ok, State}.
 
-get_metrics(Bucket, Path) ->
-    lager:info("Path: ~p", [Path]),
+get_metrics(Bucket, []) ->
     {ok, Ms} = dalmatiner_connection:list(Bucket),
+    Sep = <<"'.'">>,
+    [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>
+         || Metric <- Ms];
+
+get_metrics(Bucket, Path) ->
+    {ok, Ms} = dalmatiner_connection:list(Bucket, dproto:metric_from_list(Path)),
     Sep = <<"'.'">>,
     [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>
          || Metric <- Ms].

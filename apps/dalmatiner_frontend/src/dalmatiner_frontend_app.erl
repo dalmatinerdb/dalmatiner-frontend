@@ -36,7 +36,7 @@ start(_StartType, _StartArgs) ->
                   %% {URIHost, list({URIPath, Handler, Opts})}
                   {'_', [{"/", dalmatiner_idx_handler, []},
                          {"/buckets/", dalmatiner_bucket_handler, []},
-                         {"/buckets/[:bucket]/[...]", dalmatiner_metric_handler, []},
+                         {"/buckets/[...]", dalmatiner_metric_handler, []},
                          {"/js/[...]", cowboy_static,
                           {priv_dir, dalmatiner_frontend, "static/js",
                            [{mimetypes, cow_mimetypes, web}]}},
