@@ -35,8 +35,7 @@ range(["BETWEEN", A, "AND", B | L]) ->
     Ad = date(A),
     metric(L, {range, Ad, date(B) - Ad});
 range(["LAST", A, "S" | L]) ->
-    {Mega, Sec, _Micro} = now(),
-    Now = Mega * 1000000  + Sec,
+    Now = erlang:system_time(seconds),
     Ad = i(A),
     metric(L, {range, Now - Ad, Ad});
 range(L) ->
