@@ -9,6 +9,8 @@
                   dqe,
                   lager,
                   ranch,
+                  jsx,
+                  msgpack,
                   cowboy
                  ]},
   {mod, { dalmatiner_frontend_app, []}},
