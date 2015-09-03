@@ -90,3 +90,6 @@ cleanplt:
 
 tags:
 	find . -name "*.[he]rl" -print | etags -
+
+tree:
+	rebar3 tree | grep '|' | sed 's/ (.*//' > tree
