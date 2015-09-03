@@ -1,8 +1,8 @@
-REBAR = $(shell pwd)/rebar
+REBAR = $(shell pwd)/rebar3
 
 .PHONY: deps rel stagedevrel package version all
 
-all: cp-hooks deps compile
+all: cp-hooks compile
 
 cp-hooks:
 	cp hooks/* .git/hooks
@@ -16,50 +16,22 @@ version_header: version
 compile: version_header
 	$(REBAR) compile
 
-deps:
-	$(REBAR) get-deps
-
 clean:
 	$(REBAR) clean
 	make -C rel/pkg clean
 	-rm -r apps/*/ebin
 
-distclean: clean devclean relclean
-	$(REBAR) delete-deps
-
-long-test:
-	-rm -r apps/dalmatiner_frontend/.eunit
-	$(REBAR) skip_deps=true -DEQC_LONG_TESTS eunit -v -r
-
 qc:
-	$(REBAR) -C rebar_eqc.config compile skip_deps=true eunit --verbose
-
-eqc-ci: clean all
-	$(REBAR) -D EQC_CI -C rebar_eqc_ci.config compile eunit skip_deps=true --verbose
+	$(REBAR) as eqc eqc
 
 eunit: 
-	$(REBAR) compile
-	-rm -r apps/dalmatiner_frontend/.eunit
-	$(REBAR) eunit skip_deps=true -r -v
+	$(REBAR) eunit
 
 test: eunit
-	$(REBAR) xref skip_deps=true -r
-
-quick-xref:
-	$(REBAR) xref skip_deps=true -r
-
-quick-test:
-	-rm -r apps/dalmatiner_frontend/.eunit
-	$(REBAR) -DEQC_SHORT_TEST skip_deps=true eunit -r -v
+	$(REBAR) xref
 
 rel: all
-	-rm -r rel/dalmatinerfe/share
-	$(REBAR) generate
-
-relclean:
-	rm -rf rel/dalmatinerfe
-
-devrel: dev1 dev2 dev3 dev4
+	$(REBAR) as prod release
 
 package: rel
 	make -C rel/pkg package
@@ -68,34 +40,14 @@ package: rel
 ### Docs
 ###
 docs:
-	$(REBAR) skip_deps=true doc
+	$(REBAR) doc
 
 ##
 ## Developer targets
 ##
 
 xref: all
-	$(REBAR) xref skip_deps=true -r
-
-stage : rel
-	$(foreach dep,$(wildcard deps/* wildcard apps/*), rm -rf rel/dalmatinerfe/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) rel/dalmatinerfe/lib;)
-
-
-stagedevrel: dev1 dev2 dev3 dev4
-	mkdir -p dev/dev{1,2,3}/data/{ipranges,datasets,packages,ring}
-	$(foreach dev,$^,\
-	  $(foreach dep,$(wildcard deps/* wildcard apps/*), rm -rf dev/$(dev)/lib/$(shell basename $(dep))-* && ln -sf $(abspath $(dep)) dev/$(dev)/lib;))
-
-devrel: dev1 dev2 dev3 dev4
-
-
-devclean:
-	rm -rf dev
-
-dev1 dev2 dev3 dev4: all
-	mkdir -p dev
-	(cd rel && $(REBAR) generate target_dir=../dev/$@ overlay_vars=vars/$@.config)
-
+	$(REBAR) xref
 
 ##
 ## Dialyzer
@@ -138,3 +90,6 @@ cleanplt:
 
 tags:
 	find . -name "*.[he]rl" -print | etags -
+
+tree:
+	rebar3 tree | grep '|' | sed 's/ (.*//' > tree

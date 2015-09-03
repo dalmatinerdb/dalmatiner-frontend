@@ -46,8 +46,7 @@ loop(Socket, Transport) ->
             Transport:send(Socket, list_to_binary(R)),
             loop(Socket, Transport);
         {ok, <<"SELECT ", _/binary>> = Q} ->
-            _Now = {Mega, Sec, Micro} = now(),
-            NowMs = ((Mega * 1000000  + Sec) * 1000000 + Micro) div 1000,
+            NowMs = erlang:system_time(milli_seconds),
             case timer:tc(dqe, run, [Q]) of
                 {T, {ok, Ls}} ->
                     [begin
