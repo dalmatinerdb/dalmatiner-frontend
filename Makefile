@@ -1,6 +1,6 @@
 REBAR = $(shell pwd)/rebar3
 
-.PHONY: deps rel stagedevrel package version all
+.PHONY: deps rel stagedevrel package version all tree
 
 all: cp-hooks compile update
 
