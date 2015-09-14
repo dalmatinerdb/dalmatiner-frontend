@@ -2,7 +2,10 @@ REBAR = $(shell pwd)/rebar3
 
 .PHONY: deps rel stagedevrel package version all
 
-all: cp-hooks compile
+all: cp-hooks compile update
+
+update:
+	$(REBAR) update
 
 cp-hooks:
 	cp hooks/* .git/hooks
@@ -13,7 +16,7 @@ version:
 version_header: version
 	@echo "-define(VERSION, <<\"$(shell cat dalmatiner_frontend.version)\">>)." > apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl
 
-compile: version_header
+compile: update version_header
 	$(REBAR) compile
 
 clean:
