@@ -25,6 +25,7 @@ content_type([{{<<"application">>,<<"x-msgpack">>,_},_,_} | _]) ->
 content_type([_ | R]) ->
     content_type(R).
 
+-dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
     Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req),
     case cowboy_req:qs_val(<<"q">>, Req0) of
