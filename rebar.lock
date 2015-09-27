@@ -9,7 +9,7 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.1.10">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"6e74b78e8b1cb9237237ec57be5ed5cd588810b5"}},
+       {ref,"a9833111c68862094ef718dfa6be254d804155fe"}},
   0},
  {<<"eper">>,{pkg,<<"eper">>,<<"0.94.0">>},0},
  {<<"erlang_localtime">>,
