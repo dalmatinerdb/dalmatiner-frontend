@@ -51,10 +51,11 @@ case $2 in
             cp ${CONFFILE}.example ${CONFFILE}
             $SED -i bak -e "s/127.0.0.1/${IP}/g" ${CONFFILE}
         else
-            echo "Merging old file with new template, the original can be found in ${CONFFILE}.old."
-            /opt/local/dalmatinerfe/share/update_config.sh ${CONFFILE}.example ${CONFFILE} > ${CONFFILE}.new &&
-                mv ${CONFFILE} ${CONFFILE}.old &&
-                mv ${CONFFILE}.new ${CONFFILE}
+            echo "Config file exists you might need to update settings"
+            #echo "Merging old file with new template, the original can be found in ${CONFFILE}.old."
+            #/opt/local/dalmatinerfe/share/update_config.sh ${CONFFILE}.example ${CONFFILE} > ${CONFFILE}.new &&
+            #    mv ${CONFFILE} ${CONFFILE}.old &&
+            #    mv ${CONFFILE}.new ${CONFFILE}
         fi
         ;;
 esac
