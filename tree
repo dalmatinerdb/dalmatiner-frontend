@@ -4,19 +4,20 @@
 │  ├─ getopt─0.4.3
 │  └─ neotoma─1.7.2
 ├─ dalmatiner_frontend─0.1.0
-├─ dqe─0.1.19
-│  ├─ ddb_client─0.1.14
+├─ dqe─0.1.20
+│  ├─ ddb_client─0.1.16
 │  ├─ dflow─0.1.5
-│  ├─ dproto─0.1.10
+│  ├─ dproto─0.1.12
 │  ├─ poolboy─1.5.1
 │  └─ qdate─0.3.0-pre
 │     ├─ erlang_localtime─1.0
 │     └─ erlware_commons─0.16.0
 ├─ eper─0.94.0
+├─ fifo_utils─0.1.13
 ├─ jsx─1.4.5
 ├─ lager─2.1.1
 │  └─ goldrush─0.1.6
-├─ mmath─0.1.14
+├─ mmath─0.1.15
 ├─ msgpack─0.3.3
 ├─ ranch─1.1.0
 └─ recon─2.2.1
