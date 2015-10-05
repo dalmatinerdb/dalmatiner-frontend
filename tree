@@ -13,7 +13,7 @@
 │     ├─ erlang_localtime─1.0
 │     └─ erlware_commons─0.16.0
 ├─ eper─0.94.0
-├─ fifo_utils─0.1.13
+├─ fifo_utils─0.1.15
 ├─ jsx─1.4.5
 ├─ lager─2.1.1
 │  └─ goldrush─0.1.6

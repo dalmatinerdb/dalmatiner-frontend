@@ -1,7 +1,8 @@
 VERSION=0.1.0
 COMPONENT_INTERNAL=dalmatinerfe
 COMPONENT=dalmatinerfe
-DEPS="erlang>=16.1.2" "coreutils>=8.22nb1" "sudo>=1.7.10p9"
+DEPS="erlang" "coreutils" "sudo"
+#DEPS="erlang>=16.1.2" "coreutils>=8.22nb1" "sudo>=1.7.10p9"
 
 include ../../_build/default/lib/fifo_utils/priv/pkg.mk
 
