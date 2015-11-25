@@ -67,7 +67,7 @@ send(json, D, Req, State) ->
     {ok, Req1} =
         cowboy_req:reply(
           200, [{<<"content-type">>, <<"application/json">>}],
-          jsx:encode(D), Req),
+          jsone:encode(D), Req),
     {ok, Req1, State};
 send(msgpack, D, Req, State) ->
     {ok, Req1} =

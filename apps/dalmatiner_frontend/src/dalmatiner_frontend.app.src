@@ -9,7 +9,7 @@
                   dqe,
                   lager,
                   ranch,
-                  jsx,
+                  jsone,
                   msgpack,
                   cowboy
                  ]},
