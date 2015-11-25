@@ -10,26 +10,14 @@
 init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
-content_type([]) ->
-    other;
-content_type([{{<<"text">>,<<"html">>,_},_,_} | _]) ->
-    html;
-content_type([{{<<"application">>,<<"xhtml+xml">>,_},_,_} | _]) ->
-    html;
-content_type([{{<<"application">>,<<"json">>,_},_,_} | _]) ->
-    json;
-content_type([{{<<"application">>,<<"msgpack">>,_},_,_} | _]) ->
-    msgpack;
-content_type([{{<<"application">>,<<"x-msgpack">>,_},_,_} | _]) ->
-    msgpack;
-content_type([_ | R]) ->
-    content_type(R).
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>, <<"*">>, Req),
-    {ok, R, Req1} = cowboy_req:parse_header(<<"accept">>, Req0),
-    case content_type(R) of
+    Req0 = cowboy_req:set_resp_header(
+             <<"access-control-allow-origin">>, <<"*">>, Req),
+
+    {ContentType, Req1} = dalmatiner_idx_handler:content_type(Req0),
+    case ContentType of
         html ->
             F = fun (Socket, Transport) ->
                         File = code:priv_dir(dalmatiner_frontend) ++
@@ -39,24 +27,9 @@ handle(Req, State) ->
             Req2 = cowboy_req:set_resp_body_fun(F, Req1),
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
-        json ->
+        _ ->
             {ok, Bs} = dalmatiner_connection:list(),
-            {ok, Req2} =
-                cowboy_req:reply(200, [{<<"content-type">>,
-                                        <<"application/json-msgpack">>}],
-                                 jsx:encode(Bs), Req1),
-            {ok, Req2, State};
-        msgpack ->
-            {ok, Bs} = dalmatiner_connection:list(),
-            {ok, Req2} =
-                cowboy_req:reply(200, [{<<"content-type">>,
-                                        <<"application/x-msgpack">>}],
-                                 msgpack:pack(Bs), Req1),
-            {ok, Req2, State};
-        O ->
-            io:format("~p <- ~p~n", [O, R]),
-            {ok, Req2} = cowboy_req:reply(415, Req1),
-            {ok, Req2, State}
+            dalmatiner_idx_handler:send(ContentType, Bs, Req1, State)
     end.
 
 terminate(_Reason, _Req, State) ->

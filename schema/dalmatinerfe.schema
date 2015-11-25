@@ -9,14 +9,3 @@
 {mapping, "http_listeners", "dalmatiner_frontend.http_listeners",
  [{default, 100},
   {datatype, integer}]}.
-
-
-%% @doc The port dalmatinerdb listens on for telnet connections
-{mapping, "telnet_port", "dalmatiner_frontend.telnet_port",
- [{default, {{telnet_port}} },
-  {datatype, integer}]}.
-
-%% @doc Number of acceptor processes to keep around for telnet connections.
-{mapping, "telnet_listeners", "dalmatiner_frontend.telnet_listeners",
- [{default, 100},
-  {datatype, integer}]}.
