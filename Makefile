@@ -16,3 +16,11 @@ clean:
 	$(REBAR) clean
 	make -C rel/pkg clean
 	-rm -r apps/*/ebin
+
+rel: update
+	$(REBAR) as prod compile
+	sh generate_zabbix_template.sh
+	$(REBAR) as prod release
+
+package: rel
+	make -C rel/pkg package
