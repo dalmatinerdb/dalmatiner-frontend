@@ -30,7 +30,10 @@ var QueryString = function () {
 if (QueryString.metric && QueryString.bucket) {
   var metric = decodeURIComponent(QueryString.metric);
   var bucket = decodeURIComponent(QueryString.bucket);
-  $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s")
+  if (bucket.match(/^[0-9]/)) {
+    bucket = "'" + bucket + "'";
+  }
+  $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s");
   q();
 } else if (QueryString.query) {
   var query = decodeURIComponent(QueryString.query);
