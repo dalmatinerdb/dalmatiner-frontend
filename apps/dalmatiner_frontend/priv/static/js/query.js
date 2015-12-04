@@ -4,6 +4,26 @@ Chart.defaults.global.responsive = true;
 $("#permalink").hide();
 $("#timewrap").hide();
 
+// If browser supports history pushStete, avoid reloading page on query change
+if (typeof(history) == "object" && typeof(history.pushState) == "function") {
+  $("#queryfrom").on("submit", function(e) {
+    var query = $("#query").val();
+    history.pushState({query: query}, document.title, "/?query=" + encodeURIComponent(query));
+    e.preventDefault();
+    q();
+  });
+  $(window).on("popstate", function(e) {
+    var m = window.location.search.match(/(\?|&)query=(.*)(&|$)/);
+    var query = m ? decodeURIComponent(m[2]) : "";
+    if (query) {
+      $("#query").val(query);
+      q();
+    } else {
+      window.location.reload();
+    }
+  });
+}
+
 var QueryString = function () {
   // This function is anonymous, is executed immediately and
   // the return value is assigned to QueryString!
@@ -33,7 +53,7 @@ if (QueryString.metric && QueryString.bucket) {
   $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s")
   q();
 } else if (QueryString.query) {
-  var query = decodeURIComponent(QueryString.query);
+  var query = decodeURIComponent(QueryString.query).replace(/\+/g, ' ');
   $("#query").val(query);
   q();
 }
