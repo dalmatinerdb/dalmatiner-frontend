@@ -30,7 +30,7 @@ var QueryString = function () {
 if (QueryString.metric && QueryString.bucket) {
   var metric = decodeURIComponent(QueryString.metric);
   var bucket = decodeURIComponent(QueryString.bucket);
-  if (bucket.match(/^[0-9]/)) {
+  if (! bucket.match(/^'.*'$/)) {
     bucket = "'" + bucket + "'";
   }
   $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s");
