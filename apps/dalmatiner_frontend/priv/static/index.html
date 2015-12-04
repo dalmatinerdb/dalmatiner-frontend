@@ -36,13 +36,14 @@
       </section>
     </nav>
     <div class="row">
-      <div class="large-10 columns">
-        <input style="width: 98%" id="query" value="" />
-        <a href="" id="permalink"><i  class="fi-link"></i></a>
-      </div>
-      <div class="large-2 columns">
-        <a href="#" class="button tiny" onclick="q()">query</a>
-      </div>
+      <form id="queryfrom" action="/" method="get">
+        <div class="large-10 columns">
+          <input style="width: 98%" id="query" name="query" value="" />
+        </div>
+        <div class="large-2 columns">
+          <button type="submit" class="button tiny">query</a>
+        </div>
+      </form>
     </div>
     <div class="row">
       <div class="large-10 columns">
