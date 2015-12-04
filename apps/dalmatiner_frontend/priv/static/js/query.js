@@ -43,7 +43,7 @@ if (QueryString.metric && QueryString.bucket) {
 function q() {
   var query = $("#query").val();
   msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
-    console.log("Fetching " + res.d[0].length + " elements in " + res.t / 1000 + "ms");
+    console.log("Fetched " + res.d[0].v.length + " elements in " + res.t / 1000 + "ms");
     $("#permalink").attr("href", "/?query=" + encodeURIComponent(query))
     $("#permalink").show();
     $("#time").text((res.t / 1000) + "ms");
@@ -63,7 +63,6 @@ function q() {
       [220, 220, 220],
     ];
     points = res.d.map(function(d, i) {
-      console.log(i);
       color = colors[i % colors.length];
       col = "rgba(" + color[0] + ", " + color[1] + ", " + color[2];
       return {
@@ -75,7 +74,6 @@ function q() {
         label: d.n,
       };
     });
-    console.log(points);
     var data = {
       labels: idx,
       datasets: points
