@@ -4,6 +4,26 @@ Chart.defaults.global.responsive = true;
 $("#permalink").hide();
 $("#timewrap").hide();
 
+// If browser supports history pushStete, avoid reloading page on query change
+if (typeof(history) == "object" && typeof(history.pushState) == "function") {
+  $("#queryfrom").on("submit", function(e) {
+    var query = $("#query").val();
+    history.pushState({query: query}, document.title, "/?query=" + encodeURIComponent(query));
+    e.preventDefault();
+    q();
+  });
+  $(window).on("popstate", function(e) {
+    var m = window.location.search.match(/(\?|&)query=(.*)(&|$)/);
+    var query = m ? decodeURIComponent(m[2]) : "";
+    if (query) {
+      $("#query").val(query);
+      q();
+    } else {
+      window.location.reload();
+    }
+  });
+}
+
 var QueryString = function () {
   // This function is anonymous, is executed immediately and
   // the return value is assigned to QueryString!
@@ -33,7 +53,7 @@ if (QueryString.metric && QueryString.bucket) {
   $("#query").val("SELECT " + metric + " BUCKET " + bucket + " LAST 60s")
   q();
 } else if (QueryString.query) {
-  var query = decodeURIComponent(QueryString.query);
+  var query = decodeURIComponent(QueryString.query).replace(/\+/g, ' ');
   $("#query").val(query);
   q();
 }
@@ -43,7 +63,7 @@ if (QueryString.metric && QueryString.bucket) {
 function q() {
   var query = $("#query").val();
   msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
-    console.log("Fetching " + res.d[0].length + " elements in " + res.t / 1000 + "ms");
+    console.log("Fetched " + res.d[0].v.length + " elements in " + res.t / 1000 + "ms");
     $("#permalink").attr("href", "/?query=" + encodeURIComponent(query))
     $("#permalink").show();
     $("#time").text((res.t / 1000) + "ms");
@@ -63,7 +83,6 @@ function q() {
       [220, 220, 220],
     ];
     points = res.d.map(function(d, i) {
-      console.log(i);
       color = colors[i % colors.length];
       col = "rgba(" + color[0] + ", " + color[1] + ", " + color[2];
       return {
@@ -75,7 +94,6 @@ function q() {
         label: d.n,
       };
     });
-    console.log(points);
     var data = {
       labels: idx,
       datasets: points
