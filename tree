@@ -3,8 +3,8 @@
 ├─ cuttlefish─2.0.0+build.479.reff5f6fdc
 │  ├─ getopt─0.4.3
 │  └─ neotoma─1.7.2
-├─ dalmatiner_frontend─0.1.1
-├─ dqe─0.1.28
+├─ dalmatiner_frontend─0.1.2
+├─ dqe─0.1.32
 │  ├─ ddb_client─0.1.17
 │  ├─ dflow─0.1.5
 │  ├─ dproto─0.1.12
