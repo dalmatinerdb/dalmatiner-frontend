@@ -3,7 +3,7 @@
 ├─ cuttlefish─2.0.0+build.479.reff5f6fdc
 │  ├─ getopt─0.4.3
 │  └─ neotoma─1.7.2
-├─ dalmatiner_frontend─0.1.2
+├─ dalmatiner_frontend─0.1.4
 ├─ dqe─0.1.32
 │  ├─ ddb_client─0.1.17
 │  ├─ dflow─0.1.5
@@ -14,7 +14,7 @@
 │     └─ erlware_commons─0.18.0
 │        └─ cf─0.2.1
 ├─ eper─0.94.0
-├─ fifo_utils─0.1.18
+├─ fifo_utils─0.1.19
 ├─ jsone─1.2.0
 ├─ lager─3.0.2
 │  └─ goldrush─0.1.7
