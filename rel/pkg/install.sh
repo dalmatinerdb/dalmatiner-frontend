@@ -21,12 +21,13 @@ case $2 in
         else
             echo Creating dalmatinerfe user ...
             useradd -g $GROUP -d /var/db/dalmatinerfe -s /bin/false $USER
+            /usr/sbin/usermod -K defaultpriv=basic,net_privaddr $USER
         fi
         echo Creating directories ...
-        mkdir -p /var/db/dalmatinerfe
-        chown -R $USER:$GROUP /var/db/dalmatinerfe
-        mkdir -p /var/log/dalmatinerfe/sasl
-        chown -R $USER:$GROUP /var/log/dalmatinerfe
+        mkdir -p /data/dalmatinerfe/etc
+        mkdir -p /data/dalmatinerfe/db
+        mkdir -p /data/dalmatinerfe/log/sasl
+        chown -R $USER:$GROUP /data/dalmatinerfe
         if [ -d /tmp/dalmatinerfe ]
         then
             chown -R $USER:$GROUP /tmp/dalmatinerfe
@@ -37,7 +38,10 @@ case $2 in
         svccfg import /opt/local/dalmatinerfe/share/dfe.xml
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | $AWK '{print $2}'`
-        CONFFILE=/opt/local/dalmatinerfe/etc/dalmatinerfe.conf
+
+        CONFFILE=/data/dalmatinerfe/etc/dfe.conf
+        cp /opt/local/fifo-dalmatinerfe/etc/dfe.conf.example ${CONFFILE}.example
+
         if [ ! -f "${CONFFILE}" ]
         then
             echo "Creating new configuration from example file."
@@ -45,9 +49,6 @@ case $2 in
             $SED -i bak -e "s/127.0.0.1/${IP}/g" ${CONFFILE}
         else
             echo "Please make sure you update your config according to the update manual!"
-            #/opt/local/fifo-sniffle/share/update_config.sh ${CONFFILE}.example ${CONFFILE} > ${CONFFILE}.new &&
-            #    mv ${CONFFILE} ${CONFFILE}.old &&
-            #    mv ${CONFFILE}.new ${CONFFILE}
         fi
         ;;
 esac
