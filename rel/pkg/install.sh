@@ -20,7 +20,7 @@ case $2 in
             echo "User already exists, skipping creation."
         else
             echo Creating dalmatinerfe user ...
-            useradd -g $GROUP -d /var/db/dalmatinerfe -s /bin/false $USER
+            useradd -g $GROUP -d /data/dalmatinerfe -s /bin/false $USER
             /usr/sbin/usermod -K defaultpriv=basic,net_privaddr $USER
         fi
         echo Creating directories ...
@@ -39,8 +39,8 @@ case $2 in
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | $AWK '{print $2}'`
 
-        CONFFILE=/data/dalmatinerfe/etc/dfe.conf
-        cp /opt/local/fifo-dalmatinerfe/etc/dfe.conf.example ${CONFFILE}.example
+        CONFFILE=/data/dalmatinerfe/etc/dalmatinerfe.conf
+        cp /opt/local/dalmatinerfe/etc/dalmatinerfe.conf.example ${CONFFILE}.example
 
         if [ ! -f "${CONFFILE}" ]
         then
