@@ -40,7 +40,7 @@ case $2 in
         IP=`ifconfig net0 | grep inet | $AWK '{print $2}'`
 
         CONFFILE=/data/dalmatinerfe/etc/dfe.conf
-        cp /opt/local/fifo-dalmatinerfe/etc/dfe.conf.example ${CONFFILE}.example
+        cp /opt/local/dalmatinerfe/etc/dfe.conf.example ${CONFFILE}.example
 
         if [ ! -f "${CONFFILE}" ]
         then
