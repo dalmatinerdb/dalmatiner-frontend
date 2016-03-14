@@ -47,7 +47,7 @@
       exec='/opt/local/dalmatinerfe/bin/dalmatinerfe %m'
       timeout_seconds='30'>
       <method_context>
-        <method_credential user='dalmatinerfe' group='dalmatinerfe' privileges='basic,net_privaddr' />
+        <method_credential user='dalmatiner' group='dalmatiner' privileges='basic,net_privaddr' />
 	<method_environment>
 	  <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
 	  <envvar name='HOME' value='/data/dalmatinerfe'/>
@@ -61,7 +61,7 @@
         exec='/opt/local/dalmatinerfe/bin/dalmatinerfe %m'
 	timeout_seconds='60'>
       <method_context>
-        <method_credential user='dalmatinerfe' group='dalmatinerfe' privileges='basic,net_privaddr' />
+        <method_credential user='dalmatiner' group='dalmatiner' privileges='basic,net_privaddr' />
 	<method_environment>
 	  <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
 	  <envvar name='HOME' value='/data/dalmatinerfe'/>
@@ -75,7 +75,7 @@
         exec='/opt/local/dalmatinerfe/bin/dalmatinerfe %m'
 	timeout_seconds='60'>
       <method_context>
-        <method_credential user='dalmatinerfe' group='dalmatinerfe' privileges='basic,net_privaddr' />
+        <method_credential user='dalmatiner' group='dalmatiner' privileges='basic,net_privaddr' />
 	<method_environment>
 	  <envvar name='PATH' value='/opt/local/gnu/bin:/opt/local/bin:/opt/local/sbin:/usr/bin:/usr/sbin'/>
 	  <envvar name='HOME' value='/data/dalmatinerfe'/>
