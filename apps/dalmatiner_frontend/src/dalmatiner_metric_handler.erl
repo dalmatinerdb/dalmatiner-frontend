@@ -36,13 +36,13 @@ terminate(_Reason, _Req, State) ->
     {ok, State}.
 
 get_metrics(Bucket, []) ->
-    {ok, Ms} = dalmatiner_connection:list(Bucket),
+    {ok, Ms} = ddb_connection:list(Bucket),
     Sep = <<"'.'">>,
     [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>
          || Metric <- Ms];
 
 get_metrics(Bucket, Path) ->
-    {ok, Ms} = dalmatiner_connection:list(
+    {ok, Ms} = ddb_connection:list(
                  Bucket, dproto:metric_from_list(Path)),
     Sep = <<"'.'">>,
     [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>
