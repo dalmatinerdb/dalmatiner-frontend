@@ -21,10 +21,10 @@
 ├─ fifo_utils─0.1.22
 │  └─ uuid─1.5.1
 │     └─ quickrand─1.5.1
-├─ jsone─1.2.2
+├─ jsone─1.2.3
 ├─ lager─2.1.1
 │  └─ goldrush─0.1.7
 ├─ mmath─0.1.16
 ├─ msgpack─0.3.5
-├─ ranch─1.2.0
+├─ ranch─1.2.1
 └─ recon─2.3.1
