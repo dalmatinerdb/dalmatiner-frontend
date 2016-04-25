@@ -24,3 +24,5 @@ apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl
 apps/dalmatiner_frontend/src/dql_lexer.erl
 apps/dalmatiner_frontend/src/dql_parser.erl
 _build
+TEST-*
+rebar3.crashdump

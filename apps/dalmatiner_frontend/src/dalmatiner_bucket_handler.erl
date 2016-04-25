@@ -28,7 +28,7 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         _ ->
-            {ok, Bs} = dalmatiner_connection:list(),
+            {ok, Bs} = ddb_connection:list(),
             dalmatiner_idx_handler:send(ContentType, Bs, Req1, State)
     end.
 
