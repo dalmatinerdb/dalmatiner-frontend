@@ -21,7 +21,7 @@
  {<<"hdr_histogram">>,{pkg,<<"hdr_histogram">>,<<"0.2.0">>},1},
  {<<"jsone">>,{pkg,<<"jsone">>,<<"1.2.3">>},0},
  {<<"lager">>,{pkg,<<"lager">>,<<"2.1.1">>},0},
- {<<"mmath">>,{pkg,<<"mmath">>,<<"0.1.16">>},0},
+ {<<"mmath">>,{pkg,<<"mmath">>,<<"0.2.0-alpha">>},0},
  {<<"msgpack">>,{pkg,<<"msgpack">>,<<"0.3.5">>},0},
  {<<"pgapp">>,{pkg,<<"pgapp">>,<<"0.0.1">>},2},
  {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.1">>},2},
