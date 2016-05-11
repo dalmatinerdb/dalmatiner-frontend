@@ -97,7 +97,8 @@ function q() {
       target: '#results',
       legend: legend,
       legend_target: '#legend',
-      missing_is_hidden: true
+      missing_is_hidden: true,
+      aggregate_rollover: true
     });
   });
 }
