@@ -1,5 +1,4 @@
 var c;
-Chart.defaults.global.responsive = true;
 
 $("#permalink").hide();
 $("#timewrap").hide();
@@ -67,50 +66,39 @@ function q() {
   var query = $("#query").val();
   msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
     console.log("Fetched " + res.d[0].v.length + " elements in " + res.t / 1000 + "ms");
-    $("#permalink").attr("href", "/?query=" + encodeURIComponent(query))
+    $("#permalink").attr("href", "/?query=" + encodeURIComponent(query));
     $("#permalink").show();
     $("#time").text((res.t / 1000) + "ms");
     $("#timewrap").show();
-    var idx = [];
-    for (var i = 0; i < res.d[0].v.length; i++)
-    {
-      idx[i] = i;
-    }
 
-    colors = [
-      [119, 158, 203],
-      [100,  20, 100],
-      [119, 221, 119],
-      [255, 179,  71],
-      [255, 105,  97],
-      [220, 220, 220],
-    ];
-    points = res.d.map(function(d, i) {
-      color = colors[i % colors.length];
-      col = "rgba(" + color[0] + ", " + color[1] + ", " + color[2];
-      return {
-        fillColor: col + ", 0.1)",
-        strokeColor: col + ", 1)",
-        pointColor: col + ", 1)",
-        pointStrokeColor: "#fff",
-        data: d.v,
-        label: d.n,
-      };
+    var start = res.s * 1000,
+        legend = [],
+        data;
+
+    data = res.d.map(function(s) {
+      var resolution = s.r,
+          values = s.v,
+          points = new Array(values.length);
+      
+      legend.push(s.n);
+      for (var i = 0; i < values.length; i++) {
+        points[i] = {
+          "date": new Date(start + (i * resolution)),
+          "value": values[i]
+        };
+      }
+      return points;
     });
-    var data = {
-      labels: idx,
-      datasets: points
-    };
-    if (c) {
-      c.destroy();
-    }
-    var ctx = new Chart($("#myChart")[0].getContext("2d"));
-    c = ctx.Line(data, {});
-    $("#legend").html(c.generateLegend());
-  })
-}
 
-$(function(){
-  Chart.defaults.global.responsive = true;
-  Chart.defaults.global.scaleBeginAtZero = true;
-});
+    MG.data_graphic({
+      data: data,
+      height: 400,
+      full_width: true,
+      target: '#results',
+      legend: legend,
+      legend_target: '#legend',
+      missing_is_hidden: true,
+      aggregate_rollover: true
+    });
+  });
+}
