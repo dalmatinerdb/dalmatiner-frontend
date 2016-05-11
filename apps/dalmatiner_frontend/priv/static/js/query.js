@@ -90,13 +90,8 @@ function q() {
       return points;
     });
 
-    console.log('Got response', res);
-    console.log('Plotting data: ', data);
-
     MG.data_graphic({
       data: data,
-      //width: 850,
-      //height: 350,
       height: 400,
       full_width: true,
       target: '#results',
