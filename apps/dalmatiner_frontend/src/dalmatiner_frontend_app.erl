@@ -19,6 +19,26 @@ start(_StartType, _StartArgs) ->
                   {'_', [{"/", dalmatiner_idx_handler, []},
                          {"/buckets/", dalmatiner_bucket_handler, []},
                          {"/buckets/[...]", dalmatiner_metric_handler, []},
+
+
+                         %% List all collections
+                         {"/collections", dalmatiner_collection_h, []},
+
+                         %% List all metrics in a collection
+                         {"/collections/:collection/metrics/",
+                          dalmatiner_metric_h, []},
+                         %% List all namespaces
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/",
+                          dalmatiner_namespace_h, []},
+                         %% List all tags in a namespace
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/:namespace/tags/",
+                          dalmatiner_tag_h, []},
+
+                         {"/collection/:colleciton/metrics/",
+                          dalmatiner_collection_handler, []},
+
                          {"/js/[...]", cowboy_static,
                           {priv_dir, dalmatiner_frontend, "static/js",
                            [{mimetypes, cow_mimetypes, web}]}},
