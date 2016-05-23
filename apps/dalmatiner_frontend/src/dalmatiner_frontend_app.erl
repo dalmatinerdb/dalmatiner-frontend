@@ -36,6 +36,12 @@ start(_StartType, _StartArgs) ->
                           ":metric/namespaces/:namespace/tags/",
                           dalmatiner_tag_h, []},
 
+                         %% List all values in a tag
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/:namespace/tags/"
+                          ":tag/values",
+                          dalmatiner_value_h, []},
+
                          {"/collection/:colleciton/metrics/",
                           dalmatiner_collection_handler, []},
 
