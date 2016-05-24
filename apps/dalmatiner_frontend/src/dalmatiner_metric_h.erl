@@ -1,4 +1,5 @@
 -module(dalmatiner_metric_h).
+-behaviour(cowboy_http_handler).
 
 -export([init/3, handle/2, terminate/3]).
 
@@ -32,5 +33,5 @@ handle(Req, State) ->
             dalmatiner_idx_handler:send(ContentType, Ms1, Req2, State)
     end.
 
-terminate(_Reason, _Req, State) ->
-    {ok, State}.
+terminate(_Reason, _Req, _State) ->
+    ok.

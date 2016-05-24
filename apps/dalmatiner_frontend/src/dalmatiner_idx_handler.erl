@@ -1,7 +1,5 @@
-%% Feel free to use, reuse and abuse the code in this file.
-
-%% @doc POST echo handler.
 -module(dalmatiner_idx_handler).
+-behaviour(cowboy_http_handler).
 
 -export([send/4, content_type/1, init/3, handle/2, terminate/3]).
 
@@ -79,5 +77,5 @@ send(_, _D, Req, State) ->
     {ok, Req1} = cowboy_req:reply(415, Req),
     {ok, Req1, State}.
 
-terminate(_Reason, _Req, State) ->
-    {ok, State}.
+terminate(_Reason, _Req, _State) ->
+    ok.

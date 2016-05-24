@@ -59,9 +59,11 @@ start(_StartType, _StartArgs) ->
                            [{mimetypes, cow_mimetypes, web}]}}]}
                  ]),
     %% Name, NbAcceptors, TransOpts, ProtoOpts
-    cowboy:start_http(dalmatiner_http_listener, Listeners,
-                      [{port, Port}],
-                      [{env, [{dispatch, Dispatch}]}]),
+    {ok, _} = cowboy:start_http(dalmatiner_http_listener, Listeners,
+                                [{port, Port}],
+                                [{env, [{dispatch, Dispatch}]},
+                                 {max_keepalive, 5},
+                                 {timeout, 50000}]),
     dalmatiner_frontend_sup:start_link().
 
 stop(_State) ->
