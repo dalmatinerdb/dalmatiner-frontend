@@ -28,6 +28,7 @@ handle(Req, State) ->
             case timer:tc(dqe, run, [Q]) of
                 {_, {error, E}} ->
                     Error = list_to_binary(dqe:error_string({error, E})),
+                    lager:warn("Error in query [~s]: ~p", [Q, E]),
                     {ok, Req2} =
                         cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
