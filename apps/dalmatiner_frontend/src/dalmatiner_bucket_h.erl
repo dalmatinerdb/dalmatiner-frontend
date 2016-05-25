@@ -1,4 +1,4 @@
--module(dalmatiner_bucket_handler).
+-module(dalmatiner_bucket_h).
 -behaviour(cowboy_http_handler).
 
 -export([init/3, handle/2, terminate/3]).

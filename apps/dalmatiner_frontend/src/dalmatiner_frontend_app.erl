@@ -18,8 +18,8 @@ start(_StartType, _StartArgs) ->
                   %% {URIHost, list({URIPath, Handler, Opts})}
                   {'_', [{"/", dalmatiner_idx_handler, []},
                          %% Old style API
-                         {"/buckets/", dalmatiner_bucket_handler, []},
-                         {"/buckets/[...]", dalmatiner_metric_handler, []},
+                         {"/buckets/", dalmatiner_bucket_h, []},
+                         {"/buckets/[...]", dalmatiner_key_h, []},
 
                          %% New style API
                          %% List all collections
