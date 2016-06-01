@@ -28,13 +28,18 @@ handle(Req, State) ->
         _ ->
             {Collection, Req2} = cowboy_req:binding(collection, Req1),
             {Metric64, Req3} = cowboy_req:binding(metric, Req2),
-            Metric = base64:decode(Metric64),
             {Namespace, Req4} = cowboy_req:binding(namespace, Req3),
             {Tag, Req5} = cowboy_req:binding(tag, Req4),
-            {ok, Vs} = dqe_idx:values(Collection, Metric, Namespace, Tag),
+            {ok, Vs} = values(Collection, Metric64, Namespace, Tag),
             dalmatiner_idx_handler:send(ContentType, Vs, Req5, State)
 
     end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
+
+values(Collection, undefined, Namespace, Tag) ->
+    dqe_idx:values(Collection, Namespace, Tag);
+values(Collection, Metric64, Namespace, Tag) ->
+    Metric = base64:decode(Metric64),
+    dqe_idx:values(Collection, Metric, Namespace, Tag).
