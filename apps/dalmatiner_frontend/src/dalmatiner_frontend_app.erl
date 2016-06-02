@@ -24,18 +24,29 @@ start(_StartType, _StartArgs) ->
                          %% New style API
                          %% List all collections
                          {"/collections", dalmatiner_collection_h, []},
+                         %% List all tag namespaces in collection
+                         {"/collections/:collection/namespaces",
+                          dalmatiner_namespace_h, []},
+                         %% List all tag in a namespace
+                         {"/collections/:collection/namespaces/"
+                          ":namespace/tags",
+                          dalmatiner_tag_h, []},
+                         %% List all values in a teg
+                         {"/collections/:collection/namespaces/"
+                          ":namespace/tags/:tag/values",
+                          dalmatiner_value_h, []},
                          %% List all metrics in a collection
                          {"/collections/:collection/metrics/",
                           dalmatiner_metric_h, []},
-                         %% List all namespaces
+                         %% List all namespaces per metric
                          {"/collections/:collection/metrics/"
                           ":metric/namespaces/",
                           dalmatiner_namespace_h, []},
-                         %% List all tags in a namespace
+                         %% List all tags in a namespace per metric
                          {"/collections/:collection/metrics/"
                           ":metric/namespaces/:namespace/tags/",
                           dalmatiner_tag_h, []},
-                         %% List all values in a tag
+                         %% List all values in a tag per metric
                          {"/collections/:collection/metrics/"
                           ":metric/namespaces/:namespace/tags/"
                           ":tag/values",
