@@ -1,7 +1,5 @@
-%% Feel free to use, reuse and abuse the code in this file.
-
-%% @doc POST echo handler.
 -module(dalmatiner_idx_handler).
+-behaviour(cowboy_http_handler).
 
 -export([send/4, content_type/1, init/3, handle/2, terminate/3]).
 
@@ -28,6 +26,7 @@ handle(Req, State) ->
             case timer:tc(dqe, run, [Q]) of
                 {_, {error, E}} ->
                     Error = list_to_binary(dqe:error_string({error, E})),
+                    lager:warning("Error in query [~s]: ~p", [Q, E]),
                     {ok, Req2} =
                         cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
@@ -79,5 +78,5 @@ send(_, _D, Req, State) ->
     {ok, Req1} = cowboy_req:reply(415, Req),
     {ok, Req1, State}.
 
-terminate(_Reason, _Req, State) ->
-    {ok, State}.
+terminate(_Reason, _Req, _State) ->
+    ok.

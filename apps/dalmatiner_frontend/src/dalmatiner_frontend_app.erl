@@ -17,8 +17,31 @@ start(_StartType, _StartArgs) ->
                  [
                   %% {URIHost, list({URIPath, Handler, Opts})}
                   {'_', [{"/", dalmatiner_idx_handler, []},
-                         {"/buckets/", dalmatiner_bucket_handler, []},
-                         {"/buckets/[...]", dalmatiner_metric_handler, []},
+                         %% Old style API
+                         {"/buckets/", dalmatiner_bucket_h, []},
+                         {"/buckets/[...]", dalmatiner_key_h, []},
+
+                         %% New style API
+                         %% List all collections
+                         {"/collections", dalmatiner_collection_h, []},
+                         %% List all metrics in a collection
+                         {"/collections/:collection/metrics/",
+                          dalmatiner_metric_h, []},
+                         %% List all namespaces
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/",
+                          dalmatiner_namespace_h, []},
+                         %% List all tags in a namespace
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/:namespace/tags/",
+                          dalmatiner_tag_h, []},
+                         %% List all values in a tag
+                         {"/collections/:collection/metrics/"
+                          ":metric/namespaces/:namespace/tags/"
+                          ":tag/values",
+                          dalmatiner_value_h, []},
+
+                         %% STatic content.
                          {"/js/[...]", cowboy_static,
                           {priv_dir, dalmatiner_frontend, "static/js",
                            [{mimetypes, cow_mimetypes, web}]}},
@@ -36,9 +59,11 @@ start(_StartType, _StartArgs) ->
                            [{mimetypes, cow_mimetypes, web}]}}]}
                  ]),
     %% Name, NbAcceptors, TransOpts, ProtoOpts
-    cowboy:start_http(dalmatiner_http_listener, Listeners,
-                      [{port, Port}],
-                      [{env, [{dispatch, Dispatch}]}]),
+    {ok, _} = cowboy:start_http(dalmatiner_http_listener, Listeners,
+                                [{port, Port}],
+                                [{env, [{dispatch, Dispatch}]},
+                                 {max_keepalive, 5},
+                                 {timeout, 50000}]),
     dalmatiner_frontend_sup:start_link().
 
 stop(_State) ->
