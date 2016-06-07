@@ -96,6 +96,7 @@ function q() {
       full_width: true,
       target: '#results',
       legend: legend,
+      max_data_size: 11,
       legend_target: '#legend',
       missing_is_hidden: true,
       aggregate_rollover: true

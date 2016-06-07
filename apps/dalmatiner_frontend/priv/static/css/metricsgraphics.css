@@ -185,36 +185,116 @@ tspan.hist-symbol {
 }
 
 .mg-line2-color {
-    stroke: #05b378;
+    stroke: #9740e8;
 }
 
 .mg-hover-line2-color {
-    fill: #05b378;
+    fill: #9740e8;
 }
 
 .mg-line3-color {
-    stroke: #db4437;
+    stroke: #ff4659;
 }
 
 .mg-hover-line3-color {
-    fill: #db4437;
+    fill: #ff4659;
 }
 
 .mg-line4-color {
-    stroke: #f8b128;
+    stroke: #ff7946;
 }
 
 .mg-hover-line4-color {
-    fill: #f8b128;
+    fill: #ff7946;
 }
 
 .mg-line5-color {
-    stroke: #5c5c5c;
+    stroke: #ffa946;
 }
 
 .mg-hover-line5-color {
-    fill: #5c5c5c;
+    fill: #ffa946;
 }
+
+.mg-line6-color {
+    stroke: #ffce46;
+}
+
+.mg-hover-line6-color {
+    fill: #ffce46;
+}
+
+.mg-line7-color {
+    stroke: #fff346;
+}
+
+.mg-hover-line7-color {
+    fill: #fff346;
+}
+
+.mg-line8-color {
+    stroke: #d8f343;
+}
+
+.mg-hover-line8-color {
+    fill: #d8f343;
+}
+
+.mg-line9-color {
+    stroke: #63e03e;
+}
+
+.mg-hover-line9-color {
+    fill: #63e03e;
+}
+
+.mg-line10-color {
+    stroke: #3cdabd;
+}
+
+.mg-hover-line10-color {
+    fill: #3cdabd;
+}
+
+.mg-line11-color {
+    stroke: #4096e8;
+}
+
+.mg-hover-line11-color {
+    fill: #4096e8;
+}
+
+/* .mg-line2-color { */
+/*     stroke: #05b378; */
+/* } */
+
+/* .mg-hover-line2-color { */
+/*     fill: #05b378; */
+/* } */
+
+/* .mg-line3-color { */
+/*     stroke: #db4437; */
+/* } */
+
+/* .mg-hover-line3-color { */
+/*     fill: #db4437; */
+/* } */
+
+/* .mg-line4-color { */
+/*     stroke: #f8b128; */
+/* } */
+
+/* .mg-hover-line4-color { */
+/*     fill: #f8b128; */
+/* } */
+
+/* .mg-line5-color { */
+/*     stroke: #5c5c5c; */
+/* } */
+
+/* .mg-hover-line5-color { */
+/*     fill: #5c5c5c; */
+/* } */
 
 .mg-line-legend text {
     font-size: 0.9rem;
