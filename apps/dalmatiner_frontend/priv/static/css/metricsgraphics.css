@@ -308,24 +308,74 @@ tspan.hist-symbol {
 }
 
 .mg-line2-legend-color {
-    color: #05b378;
-    fill: #05b378;
+    color: #9740e8;
+    fill: #9740e8;
 }
 
 .mg-line3-legend-color {
-    color: #db4437;
-    fill: #db4437;
+    color: #ff4659;
+    fill: #ff4659;
 }
 
 .mg-line4-legend-color {
-    color: #f8b128;
-    fill: #f8b128;
+    color: #ff7946;
+    fill: #ff7946;
 }
 
 .mg-line5-legend-color {
-    color: #5c5c5c;
-    fill: #5c5c5c;
+    color: #ffa946;
+    fill: #ffa946;
 }
+
+.mg-line6-legend-color {
+    color: #ffce46;
+    fill: #ffce46;
+}
+
+.mg-line7-legend-color {
+    color: #fff346;
+    fill: #fff346;
+}
+
+.mg-line8-legend-color {
+    color: #d8f343;
+    fill: #d8f343;
+}
+
+.mg-line9-legend-color {
+    color: #63e03e;
+    fill: #63e03e;
+}
+
+.mg-line10-legend-color {
+    color: #3cdabd;
+    fill: #3cdabd;
+}
+
+.mg-line11-legend-color {
+    color: #4096e8;
+    fill: #4096e8;
+}
+
+/* .mg-line2-legend-color { */
+/*     color: #05b378; */
+/*     fill: #05b378; */
+/* } */
+
+/* .mg-line3-legend-color { */
+/*     color: #db4437; */
+/*     fill: #db4437; */
+/* } */
+
+/* .mg-line4-legend-color { */
+/*     color: #f8b128; */
+/*     fill: #f8b128; */
+/* } */
+
+/* .mg-line5-legend-color { */
+/*     color: #5c5c5c; */
+/*     fill: #5c5c5c; */
+/* } */
 
 .mg-main-area-solid svg .mg-main-area {
     fill: #ccccff;
