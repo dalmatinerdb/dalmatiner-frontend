@@ -21,6 +21,9 @@ start(_StartType, _StartArgs) ->
                          {"/buckets/", dalmatiner_bucket_h, []},
                          {"/buckets/[...]", dalmatiner_key_h, []},
 
+
+                         {"/functions", dalmatiner_function_h, []},
+
                          %% New style API
                          %% List all collections
                          {"/collections", dalmatiner_collection_h, []},
