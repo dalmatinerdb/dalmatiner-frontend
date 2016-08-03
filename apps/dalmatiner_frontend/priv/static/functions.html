@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DalmatinerDB | Metrics</title>
+    <title>DalmatinerDB | Functions</title>
     <link rel="stylesheet" href="/css/foundation.css" />
     <script src="/js/vendor/modernizr.js"></script>
     <script src="/js/vendor/jquery.js"></script>
@@ -13,13 +13,13 @@
     <script src="/js/msgpack.base.js"></script>
     <script src="/js/msgpack.codec.js"></script>
     <script src="/js/msgpack.js"></script>
-    <script src="/js/metric.js"></script>
+    <script src="/js/functions.js"></script>
   </head>
   <body>
     <nav class="top-bar" data-topbar>
       <ul class="title-area">
         <li class="name">
-          <h1><a href="#">Metric DB</a></h1>
+          <h1><a href="#">Dalmatiner DB</a></h1>
         </li>
         <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
         <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
@@ -29,23 +29,43 @@
         <!-- Left Nav Section -->
         <ul class="left tabs" data-options="deep_linking:true" data-tab>
           <li><a href="/">Query</a></li>
-          <li><a href="/buckets" id="h">Buckets</a></li>
+          <li><a href="/buckets">Buckets</a></li>
           <li><a href="/functions">Functions</a></li>
         </ul>
       </section>
     </nav>
     <div class="row">
       <div class="large-12 columns">
+        <h3>Aggregates</h3>
         <table>
           <thead>
             <tr>
-              <th>Metric</th>
+              <th>Functions</th>
+              <th>description</th>
+              <th>Help</th>
             </tr>
           </thead>
-          <tbody id="metrics">
+          <tbody id="aggr_funs">
           </tbody>
         </table>
       </div>
     </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <table>
+          <h3>Combiners</h3>
+          <thead>
+            <tr>
+              <th>Functions</th>
+              <th>description</th>
+              <th>Help</th>
+            </tr>
+          </thead>
+          <tbody id="comb_funs">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </body>
 </html>
