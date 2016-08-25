@@ -9,3 +9,9 @@
 {mapping, "http_listeners", "dalmatiner_frontend.http_listeners",
  [{default, 100},
   {datatype, integer}]}.
+
+%% @doc The path data gets stored into.
+{mapping, "run_user_home", "setup.home",
+ [{default, "{{run_user_home}}"},
+  hidden,
+  {datatype, string}]}.

@@ -1,0 +1,5 @@
+description "Dalmatiner Frontend"
+start on filesystem
+stop on runlevel [06]
+respawn
+exec /usr/lib/dfe/bin/dalmatinerfe console -noinput +Bd
