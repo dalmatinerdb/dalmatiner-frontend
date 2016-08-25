@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Sort out file permissions
+if [[ $(id dalmatiner 2>/dev/null) ]] ;then
+    chown -R dalmatiner:dalmatiner /var/lib/dfe
+    chown -R dalmatiner:dalmatiner /var/log/dfe
+fi
+
+CONFFILE=/etc/dfe/dalmatinerfe.conf
+
+cp ${CONFFILE}.example ${CONFFILE}
+sed -i -e "s/dqe_idx_ddb/dqe_idx_pg/g" ${CONFFILE}

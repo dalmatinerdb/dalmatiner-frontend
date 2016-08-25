@@ -1,0 +1,11 @@
+[Unit]
+Description=DalmatinerDB Frontend
+After=network.target
+
+[Service]
+User=dalmatiner
+ExecStart=/usr/lib/dfe/bin/dalmatinerfe console -noinput +Bd
+
+[Install]
+WantedBy=multi-user.target
+
