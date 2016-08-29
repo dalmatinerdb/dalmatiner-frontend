@@ -3,7 +3,8 @@
 ├─ dalmatiner_frontend─0.2.0
 ├─ dqe─0.3.7
 │  ├─ ddb_connection─0.1.8
-│  │  ├─ ddb_client─0.1.26
+│  │  ├─ ddb_client─0.1.27
+│  │  │  └─ snappy─1.1.1
 │  │  └─ poolboy─1.5.1
 │  ├─ dflow─0.1.5
 │  ├─ dproto─0.1.20
@@ -28,4 +29,4 @@
 │  └─ goldrush─0.1.8
 ├─ msgpack─0.3.5
 ├─ ranch─1.2.1
-└─ recon─2.3.1
+└─ recon─2.3.2
