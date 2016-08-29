@@ -13,7 +13,7 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.1.20">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"7ed14d25aed4c8db080302b4f19dcb3de1595ce9"}},
+       {ref,"e958c997be63cd0c8fcafad18ff9f500dce7854d"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.1.10">>},1},
  {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.1.18">>},1},
