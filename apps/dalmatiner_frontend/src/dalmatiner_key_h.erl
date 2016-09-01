@@ -11,9 +11,7 @@ init(_Transport, Req, []) ->
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    Req0 = cowboy_req:set_resp_header(
-             <<"access-control-allow-origin">>, <<"*">>, Req),
-    {[Bucket | Path], Req1} = cowboy_req:path_info(Req0),
+    {[Bucket | Path], Req1} = cowboy_req:path_info(Req),
     {ContentType, Req2} = dalmatiner_idx_handler:content_type(Req1),
     case ContentType of
         html ->

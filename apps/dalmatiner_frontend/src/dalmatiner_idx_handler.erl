@@ -10,9 +10,7 @@ init(_Transport, Req, []) ->
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>,
-                                      <<"*">>, Req),
-    case cowboy_req:qs_val(<<"q">>, Req0) of
+    case cowboy_req:qs_val(<<"q">>, Req) of
         {undefined, Req1} ->
             F = fun (Socket, Transport) ->
                         File = code:priv_dir(dalmatiner_frontend) ++
