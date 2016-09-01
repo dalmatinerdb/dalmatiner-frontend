@@ -13,7 +13,7 @@
 execute(Req, Env) ->
     R1 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>,
                                     <<"*">>, Req),
-    case cowboy_req:method(R1) of 
+    case cowboy_req:method(R1) of
         {<<"OPTIONS">>, R2} ->
             R3 = cowboy_req:set_resp_header(<<"access-control-allow-methods">>,
                                             <<"GET">>, R2),
