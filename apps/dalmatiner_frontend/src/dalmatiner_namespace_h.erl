@@ -11,10 +11,7 @@ init(_Transport, Req, []) ->
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    Req0 = cowboy_req:set_resp_header(
-             <<"access-control-allow-origin">>, <<"*">>, Req),
-
-    {ContentType, Req1} = dalmatiner_idx_handler:content_type(Req0),
+    {ContentType, Req1} = dalmatiner_idx_handler:content_type(Req),
     case ContentType of
         html ->
             F = fun (Socket, Transport) ->

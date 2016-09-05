@@ -10,9 +10,7 @@ init(_Transport, Req, []) ->
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    Req0 = cowboy_req:set_resp_header(<<"access-control-allow-origin">>,
-                                      <<"*">>, Req),
-    case cowboy_req:qs_val(<<"q">>, Req0) of
+    case cowboy_req:qs_val(<<"q">>, Req) of
         {undefined, Req1} ->
             F = fun (Socket, Transport) ->
                         File = code:priv_dir(dalmatiner_frontend) ++
@@ -47,6 +45,8 @@ content_type(Req) ->
     {ok, A, Req1} = cowboy_req:parse_header(<<"accept">>, Req),
     {content_type_(A), Req1}.
 
+content_type_(undefined) ->
+    json;
 content_type_([]) ->
     other;
 content_type_([{{<<"text">>, <<"html">>, _}, _, _} | _]) ->
