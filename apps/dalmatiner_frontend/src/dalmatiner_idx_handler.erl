@@ -45,6 +45,8 @@ content_type(Req) ->
     {ok, A, Req1} = cowboy_req:parse_header(<<"accept">>, Req),
     {content_type_(A), Req1}.
 
+content_type_(undefined) ->
+    json;
 content_type_([]) ->
     other;
 content_type_([{{<<"text">>, <<"html">>, _}, _, _} | _]) ->
