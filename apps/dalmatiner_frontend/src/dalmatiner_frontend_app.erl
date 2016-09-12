@@ -24,6 +24,8 @@ start(_StartType, _StartArgs) ->
 
                          {"/functions", dalmatiner_function_h, []},
 
+                         {"/events", dalmatiner_event_h, []},
+
                          %% New style API
                          %% List all collections
                          {"/collections", dalmatiner_collection_h, []},
