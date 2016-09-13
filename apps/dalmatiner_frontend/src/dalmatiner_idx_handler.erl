@@ -72,7 +72,7 @@ send(msgpack, D, Req, State) ->
     {ok, Req1} =
         cowboy_req:reply(
           200, [{<<"content-type">>, <<"application/x-msgpack">>}],
-          msgpack:pack(D, [jsx]), Req),
+          msgpack:pack(D, [jsx, {allow_atom, pack}]), Req),
     {ok, Req1, State};
 send(_, _D, Req, State) ->
     {ok, Req1} = cowboy_req:reply(415, Req),
