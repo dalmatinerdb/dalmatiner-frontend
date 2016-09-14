@@ -1,5 +1,12 @@
-.line-legend span {
-    display: inline;
-    padding-left: 10px;
-    margin-right: 5px;
+#queryfrom {
+    margin-top: 1rem;
+}
+#queryfrom, #queryfrom input, #queryfrom .button {
+    margin-bottom: 0;
+}
+#legend {
+    text-align:center;
+}
+#timewrap {
+    margin-top: 2rem;
 }

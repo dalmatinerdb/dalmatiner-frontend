@@ -212,6 +212,7 @@ function decode() { // @return Mix:
                 exp  = (rv >> 20) & 0x7ff;  // 11bits
                 frac = rv & 0xfffff;        // 52bits - 32bits (high word)
                 if (!rv || rv === 0x80000000) { // 0.0 or -0.0
+                    readByte(that, 4);
                     return 0;
                 }
                 if (exp === 0x7ff) { // NaN or Infinity
