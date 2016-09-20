@@ -24,4 +24,4 @@ flatten({'or', A, B}) ->
 flatten({'not', A}) ->
     [{'not', flatten(A)}];
 flatten(O) ->
-    [O].
+    lists:flatten([O]).

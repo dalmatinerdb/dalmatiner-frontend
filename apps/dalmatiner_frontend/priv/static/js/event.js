@@ -16,10 +16,15 @@ $(function() {
   msgpack.download(
     "", {header: {accept:"application/x-msgpack"}},
     function(d) {
-      d.forEach(function(e) {
+      $("#time").text((d.t / 1000) + "ms");
+      $("#count").text(d.e.length);
+      d.e.forEach(function(e) {
         var date = new Date(e.timestamp/1000/1000);
-        $("#events").append("<tr><td>" + date +
-                            "</td><td>" + JSON.stringify(e.event) + "</td></tr>")
+        var row = "<tr>" +
+          "<td>" + date + "</td>" +
+          "<td><pre>" + JSON.stringify(e.event, null, 2) + "</pre></td>" + +
+          "</tr>";
+        $("#events").append(row)
       })
     })
 })

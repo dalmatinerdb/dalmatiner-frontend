@@ -52,9 +52,14 @@ handle(Req, State) ->
             Start = erlang:convert_time_unit(StartSec, seconds, nano_seconds),
             EndSec = qdate:to_unixtime(EndS),
             End = erlang:convert_time_unit(EndSec, seconds, nano_seconds),
-            {ok, Es} = ddb_connection:read_events(Bucket, Start, End, Filter),
-            Es1 = [[{<<"timestamp">>, T}, {<<"event">>, E}] ||
-                      {T, E} <- Es],
+            {QT, {ok, Es}} =
+                timer:tc(ddb_connection, read_events,
+                         [Bucket, Start, End, Filter]),
+            Es1 = #{
+              t => QT,
+              e => [#{timestamp => T, event => E} ||
+                       {T, E} <- Es]
+             },
             dalmatiner_idx_handler:send(ContentType, Es1, Req4, State)
     end.
 
