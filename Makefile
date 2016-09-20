@@ -1,3 +1,4 @@
+APP=dalmatiner_frontend
 REBAR = $(shell pwd)/rebar3
 
 .PHONY: deps rel stagedevrel package version all tree
