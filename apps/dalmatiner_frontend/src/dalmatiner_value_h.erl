@@ -38,5 +38,6 @@ terminate(_Reason, _Req, _State) ->
 values(Collection, undefined, Namespace, Tag) ->
     dqe_idx:values(Collection, Namespace, Tag);
 values(Collection, Metric64, Namespace, Tag) ->
-    Metric = base64:decode(Metric64),
+    MetricBin = base64:decode(Metric64),
+    Metric = dproto:metric_to_list(MetricBin),
     dqe_idx:values(Collection, Metric, Namespace, Tag).
