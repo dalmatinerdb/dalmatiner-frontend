@@ -43,6 +43,9 @@ start(_StartType, _StartArgs) ->
                          %% List all metrics in a collection
                          {"/collections/:collection/metrics/",
                           dalmatiner_metric_h, []},
+                         %% List metrics in a collection by prefix
+                         {"/collections/:collection/metrics/:prefix",
+                          dalmatiner_metric_h, []},
                          %% List all namespaces per metric
                          {"/collections/:collection/metrics/"
                           ":metric/namespaces/",
