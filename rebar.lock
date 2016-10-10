@@ -7,7 +7,7 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.1.25">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"e80851f8fb80fe8f89922d4db6b5aaf47b09bd51"}},
+       {ref,"c5e3c8c6d77399450c01ea3b1d9080ba87f8ecb0"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.1.11">>},1},
  {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.2.1">>},1},
@@ -17,7 +17,7 @@
  {<<"epgsql">>,{pkg,<<"epgsql">>,<<"3.1.1">>},3},
  {<<"erlang_localtime">>,{pkg,<<"erlang_localtime">>,<<"1.0.0">>},2},
  {<<"erlware_commons">>,{pkg,<<"erlware_commons">>,<<"0.20.0">>},2},
- {<<"fifo_utils">>,{pkg,<<"fifo_utils">>,<<"0.1.24">>},0},
+ {<<"fifo_utils">>,{pkg,<<"fifo_utils">>,<<"0.1.25">>},0},
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.8">>},1},
  {<<"hdr_histogram">>,{pkg,<<"hdr_histogram">>,<<"0.2.0">>},1},
  {<<"jsone">>,{pkg,<<"jsone">>,<<"1.2.6">>},0},
@@ -28,8 +28,8 @@
  {<<"pgapp">>,{pkg,<<"pgapp">>,<<"0.0.1">>},2},
  {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.1">>},2},
  {<<"qdate">>,{pkg,<<"qdate">>,<<"0.4.3">>},1},
- {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.3">>},2},
+ {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.4">>},2},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
  {<<"snappy">>,{pkg,<<"snappy">>,<<"1.1.1">>},2},
- {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.3">>},1}].
+ {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}].
