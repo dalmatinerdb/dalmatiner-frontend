@@ -16,7 +16,7 @@
 │  │  └─ pgapp─0.0.1
 │  │     └─ epgsql─3.1.1
 │  ├─ hdr_histogram─0.2.0
-│  ├─ mmath─0.2.9
+│  ├─ mmath─0.2.12
 │  └─ qdate─0.4.3
 │     ├─ erlang_localtime─1.0.0
 │     └─ erlware_commons─0.20.0
