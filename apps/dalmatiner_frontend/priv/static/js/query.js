@@ -65,19 +65,21 @@ if (QueryString.metric && QueryString.bucket) {
 function q() {
   var query = $("#query").val();
   msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
-    console.log("Fetched " + res.d[0].v.length + " elements in " + res.t / 1000 + "ms");
+    console.log(res);
+    console.log("Fetched " + res.results[0].values.length * res.results[0] + " elements in " +
+                res.query_time / 1000 + "ms");
     $("#permalink").attr("href", "/?query=" + encodeURIComponent(query));
     $("#permalink").show();
-    $("#time").text((res.t / 1000) + "ms");
+    $("#time").text((res.query_time / 1000) + "ms");
     $("#timewrap").show();
 
-    var start = res.s * 1000,
+    var start = res.start * 1000,
         legend = [],
         data;
 
-    data = res.d.map(function(s) {
-             var resolution = s.r,
-                 values = s.v,
+    data = res.results.map(function(s) {
+             var resolution = s.resolution,
+                 values = s.values,
                  points = new Array(values.length);
 
              legend.push(s.n);
