@@ -1,8 +1,8 @@
 [0m├─ cowboy─1.0.4
 │  └─ cowlib─1.0.2
 ├─ dalmatiner_frontend─0.2.1
-├─ dqe─0.3.24
-│  ├─ ddb_connection─0.1.14
+├─ dqe─0.4.2
+│  ├─ ddb_connection─0.1.17
 │  │  ├─ ddb_client─0.1.33
 │  │  └─ poolboy─1.5.1
 │  ├─ dflow─0.1.5
