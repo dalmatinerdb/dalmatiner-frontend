@@ -75,6 +75,7 @@ function q() {
 
     var start = res.start * 1000,
         legend = [],
+        markers = [],
         data;
 
     data = res.results.map(function(s) {
@@ -82,7 +83,7 @@ function q() {
                  values = s.values,
                  points = new Array(values.length);
 
-             legend.push(s.n);
+             legend.push(s.name);
              for (var i = 0; i < values.length; i++) {
                points[i] = {
                  "date": new Date(start + (i * resolution)),
@@ -95,6 +96,7 @@ function q() {
     MG.data_graphic({
       data: data,
       height: 400,
+      markers: markers,
       full_width: true,
       target: '#results',
       legend: legend,
