@@ -24,8 +24,17 @@ handle(Req, State) ->
             {ok, Req3, State};
         _ ->
             {ok, Bs} = ddb_connection:list(),
-            dalmatiner_idx_handler:send(ContentType, Bs, Req1, State)
+            Bs1 = [bucket_info(B) || B <- Bs],
+            dalmatiner_idx_handler:send(ContentType, Bs1, Req1, State)
     end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
+
+bucket_info(B) ->
+    case ddb_connection:info(B) of
+        {ok, I} ->
+            I#{name => B};
+        _ ->
+            #{name => B}
+    end.
