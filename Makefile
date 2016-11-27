@@ -19,7 +19,7 @@ clean:
 	make -C rel/deb clean
 	-rm -r apps/*/ebin
 
-rel: update
+rel:
 	$(REBAR) as prod compile
 	$(REBAR) as prod release
 
@@ -29,7 +29,7 @@ package: rel
 deb-clean: 
 	make -C rel/deb clean
 
-deb-prepare: update
+deb-prepare:
 	$(REBAR) as deb compile
 	$(REBAR) as deb release
 	make -C rel/deb prepare
