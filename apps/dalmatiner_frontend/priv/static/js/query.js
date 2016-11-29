@@ -62,8 +62,9 @@ if (QueryString.metric && QueryString.bucket) {
 
 
 
-function render_metrics(metrics, markers) {
-  var data;
+function render_metrics(start, metrics, markers) {
+  var data,
+      legend = [];
   if (metrics.length > 0) {
     $("#events").append($("<h3></h3>").text("Metrics")).append($("<hr/>"))
     data = metrics.map(function(s) {
@@ -114,7 +115,7 @@ function render_event(event) {
   div.append(hdr) .append(tbl)
   $("#events").append(div)
 }
-function render_events(events) {
+function render_events(start, events) {
   if (events.length > 0) {
     $("#events").append($("<h3></h3>").text("Events")).append($("<hr/>"))
     events.map(render_event)
@@ -133,7 +134,6 @@ function q() {
     $("#timewrap").show();
 
     var start = res.start * 1000,
-        legend = [],
         markers = [];
 
     gres = res
@@ -143,8 +143,8 @@ function q() {
     events = res.results.filter(function(e) {
                return e.type == "events"
              });
-    render_metrics(metrics, markers);
-    render_events(events);
+    render_metrics(start, metrics, markers);
+    render_events(start, events);
 
   });
 }
