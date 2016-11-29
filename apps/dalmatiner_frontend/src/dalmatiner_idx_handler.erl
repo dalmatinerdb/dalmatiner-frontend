@@ -41,7 +41,8 @@ handle(Req, State) ->
                                resolution := Resolution} <- R2],
                     R4 = [#{name => Name,
                             metadata => Mdata,
-                            values => Data,
+                            values => [#{timestamp => Ts, event => E}
+                                       || {Ts, E} <- Data],
                             type => <<"events">>}
                           || #{name := Name,
                                metadata := Mdata,
