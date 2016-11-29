@@ -8,7 +8,7 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.2.1">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"4f7678907f18df2b0365e7c0bf937c5160fbae19"}},
+       {ref,"31b1718fcc45429e3c49f7ca85ee38b892110ac1"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.1.11">>},1},
  {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.2.1">>},1},
