@@ -35,10 +35,10 @@
         </ul>
       </section>
     </nav>
-    <div class="row">
-      <form id="queryfrom" action="/events" method="get">
-        <div class="large-2 columns">
-          <input type="text" id="bucket" name="bucket" value="" placeholder="Bucket"/>
+    <form id="queryfrom" action="/events" method="get">
+      <div class="row">
+        <div class="large-4 columns">
+          <input type="text" id="bucket" name="bucket" value="" placeholderb="Bucket"/>
         </div>
         <div class="large-4 columns">
           <input type="text" id="start" name="start" value="" placeholder="Start date"/>
@@ -46,11 +46,20 @@
         <div class="large-4 columns">
           <input type="text" id="end" name="end" value="" placeholder="End date"/>
         </div>
+      </div>
+      <div class="row">
+        <div class="large-10 columns">
+          <input type="text" id="filter" name="filter" value="" placeholder="Filter"/>
+        </div>
         <div class="small-2 columns">
           <button type="submit" class="button postfix">Lookup</button>
         </div>
-
-      </form>
+      </div>
+    </form>
+    <div class="row">
+      <div class="large-12 columns">
+        Returned <span id="count"></span> events in <span id="time"></span>.
+      </div>
     </div>
     <div class="row">
       <div class="large-12 columns">

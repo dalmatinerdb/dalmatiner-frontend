@@ -29,13 +29,28 @@ handle(Req, State) ->
                         cowboy_req:reply(400, [], Error, Req1),
                     {ok, Req2, State};
                 {T, {ok, Start, R2}} ->
-                    R3 = [[{<<"n">>, Name},
-                           {<<"r">>, Resolution},
-                           {<<"v">>, mmath_bin:to_list(Data)}]
-                          || {Name, Data, Resolution} <- R2],
-                    D = [{<<"s">>, Start},
-                         {<<"t">>, T},
-                         {<<"d">>, R3}],
+                    R3 = [#{name => Name,
+                            resolution => Resolution,
+                            values => mmath_bin:to_list(Data),
+                            metadata => Mdata,
+                            type => <<"metrics">>}
+                          || #{name := Name,
+                               data := Data,
+                               type := metrics,
+                               metadata := Mdata,
+                               resolution := Resolution} <- R2],
+                    R4 = [#{name => Name,
+                            metadata => Mdata,
+                            values => [#{timestamp => Ts, event => E}
+                                       || {Ts, E} <- Data],
+                            type => <<"events">>}
+                          || #{name := Name,
+                               metadata := Mdata,
+                               data := Data,
+                               type := events} <- R2],
+                    D = #{start => Start,
+                          query_time => T,
+                          results => R3 ++ R4},
                     {ContentType, Req2} = content_type(Req1),
                     send(ContentType, D, Req2, State)
             end

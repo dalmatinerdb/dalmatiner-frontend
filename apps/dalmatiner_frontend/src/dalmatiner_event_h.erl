@@ -11,7 +11,16 @@ init(_Transport, Req, []) ->
 
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
-    {ContentType, Req1} = dalmatiner_idx_handler:content_type(Req),
+    {Filter, Req0} =
+        case cowboy_req:qs_val(<<"filter">>, Req) of
+            {undefined, Req0x} ->
+                {[], Req0x};
+            {<<>>, Req0x} ->
+                {[], Req0x};
+            {Q, Req0x} ->
+                {event_query:parse(Q), Req0x}
+        end,
+    {ContentType, Req1} = dalmatiner_idx_handler:content_type(Req0),
     {Bucket, Req2} = cowboy_req:qs_val(<<"bucket">>, Req1),
     {StartS, Req3} = cowboy_req:qs_val(<<"start">>, Req2),
     {EndS, Req4} = cowboy_req:qs_val(<<"end">>, Req3),
@@ -43,9 +52,14 @@ handle(Req, State) ->
             Start = erlang:convert_time_unit(StartSec, seconds, nano_seconds),
             EndSec = qdate:to_unixtime(EndS),
             End = erlang:convert_time_unit(EndSec, seconds, nano_seconds),
-            {ok, Es} = ddb_connection:read_events(Bucket, Start, End),
-            Es1 = [[{<<"timestamp">>, T}, {<<"event">>, E}] ||
-                      {T, E} <- Es],
+            {QT, {ok, Es}} =
+                timer:tc(ddb_connection, read_events,
+                         [Bucket, Start, End, Filter]),
+            Es1 = #{
+              t => QT,
+              e => [#{timestamp => T, event => E} ||
+                       {T, E} <- Es]
+             },
             dalmatiner_idx_handler:send(ContentType, Es1, Req4, State)
     end.
 

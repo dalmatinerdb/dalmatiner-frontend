@@ -62,25 +62,17 @@ if (QueryString.metric && QueryString.bucket) {
 
 
 
-function q() {
-  var query = $("#query").val();
-  msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
-    console.log("Fetched " + res.d[0].v.length + " elements in " + res.t / 1000 + "ms");
-    $("#permalink").attr("href", "/?query=" + encodeURIComponent(query));
-    $("#permalink").show();
-    $("#time").text((res.t / 1000) + "ms");
-    $("#timewrap").show();
-
-    var start = res.s * 1000,
-        legend = [],
-        data;
-
-    data = res.d.map(function(s) {
-             var resolution = s.r,
-                 values = s.v,
+function render_metrics(start, metrics, markers) {
+  var data,
+      legend = [];
+  if (metrics.length > 0) {
+    $("#events").append($("<h3></h3>").text("Metrics")).append($("<hr/>"))
+    data = metrics.map(function(s) {
+             var resolution = s.resolution,
+                 values = s.values,
                  points = new Array(values.length);
 
-             legend.push(s.n);
+             legend.push(s.name);
              for (var i = 0; i < values.length; i++) {
                points[i] = {
                  "date": new Date(start + (i * resolution)),
@@ -93,6 +85,7 @@ function q() {
     MG.data_graphic({
       data: data,
       height: 400,
+      markers: markers,
       full_width: true,
       target: '#results',
       legend: legend,
@@ -101,5 +94,57 @@ function q() {
       missing_is_hidden: true,
       aggregate_rollover: true
     });
+  }
+}
+
+function render_event(event) {
+  var div = $("<div class='events'></div>"),
+      hdr = $("<h5></h5>").text(event.name),
+      tbl = $("<table></table>"),
+      th  = $("<thead><tr><th>Date</th><th>Event</th></tr></thead>"),
+      tb  = $("<tbody></tbody>");
+  event.values.map(function (e) {
+    var tr = $("<tr></tr>"),
+        date = new Date(e.timestamp/1000/1000);
+    tr.append($("<td></td>").text(date))
+    .append($("<td></td>").append($("<pre></pre>").text(JSON.stringify(e.event, null, 2))));
+    tb.append(tr)
+  });
+  tbl.append(th)
+  tbl.append(tb)
+  div.append(hdr) .append(tbl)
+  $("#events").append(div)
+}
+function render_events(start, events) {
+  if (events.length > 0) {
+    $("#events").append($("<h3></h3>").text("Events")).append($("<hr/>"))
+    events.map(render_event)
+  }
+}
+
+function q() {
+  var query = $("#query").val();
+  $("#events").text("").append($("<hr/>"))
+  msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
+    console.log("Fetched " + res.results[0].values.length * res.results[0] + " elements in " +
+                res.query_time / 1000 + "ms");
+    $("#permalink").attr("href", "/?query=" + encodeURIComponent(query));
+    $("#permalink").show();
+    $("#time").text((res.query_time / 1000) + "ms");
+    $("#timewrap").show();
+
+    var start = res.start * 1000,
+        markers = [];
+
+    gres = res
+    metrics = res.results.filter(function(e) {
+                return e.type == "metrics"
+              });
+    events = res.results.filter(function(e) {
+               return e.type == "events"
+             });
+    render_metrics(start, metrics, markers);
+    render_events(start, events);
+
   });
 }

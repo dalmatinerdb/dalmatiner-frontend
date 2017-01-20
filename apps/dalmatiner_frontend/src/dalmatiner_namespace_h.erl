@@ -35,5 +35,6 @@ terminate(_Reason, _Req, _State) ->
 namespaces(Collection, undefined) ->
     dqe_idx:namespaces(Collection);
 namespaces(Collection, Metric64) ->
-    Metric = base64:decode(Metric64),
+    MetricBin = base64:decode(Metric64),
+    Metric = dproto:metric_to_list(MetricBin),
     dqe_idx:namespaces(Collection, Metric).
