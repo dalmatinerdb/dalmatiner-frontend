@@ -21,13 +21,22 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         {Q, Req1} ->
-            case timer:tc(dqe, run, [Q]) of
+            {Opts, Req2} = case cowboy_req:qs_val(<<"debug">>, Req1) of
+                               {undefined, ReqX} ->
+                                   {[{timeout, infinity}], ReqX};
+                               {<<>>, ReqX} ->
+                                   {[{timeout, infinity}, debug], ReqX};
+                               {Token, ReqX} ->
+                                   {[{timeout, infinity}, debug,
+                                     {token, Token}], ReqX}
+                           end,
+            case timer:tc(dqe, run, [Q, Opts]) of
                 {_, {error, E}} ->
                     Error = list_to_binary(dqe:error_string({error, E})),
                     lager:warning("Error in query [~s]: ~p", [Q, E]),
-                    {ok, Req2} =
-                        cowboy_req:reply(400, [], Error, Req1),
-                    {ok, Req2, State};
+                    {ok, Req3} =
+                        cowboy_req:reply(400, [], Error, Req2),
+                    {ok, Req3, State};
                 {T, {ok, Start, R2}} ->
                     R3 = [#{name => Name,
                             resolution => Resolution,
@@ -51,8 +60,8 @@ handle(Req, State) ->
                     D = #{start => Start,
                           query_time => T,
                           results => R3 ++ R4},
-                    {ContentType, Req2} = content_type(Req1),
-                    send(ContentType, D, Req2, State)
+                    {ContentType, Req3} = content_type(Req2),
+                    send(ContentType, D, Req3, State)
             end
     end.
 
