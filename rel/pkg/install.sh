@@ -27,6 +27,7 @@ case $2 in
         mkdir -p /data/dalmatinerfe/etc
         mkdir -p /data/dalmatinerfe/db
         mkdir -p /data/dalmatinerfe/log/sasl
+        mkdir -p /data/dalmatinerfe/log/query
         chown -R $USER:$GROUP /data/dalmatinerfe
         if [ -d /tmp/dalmatinerfe ]
         then

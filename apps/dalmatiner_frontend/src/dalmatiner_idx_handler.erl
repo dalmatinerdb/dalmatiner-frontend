@@ -21,48 +21,51 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         {Q, Req1} ->
-            {Opts, Req2} = case cowboy_req:qs_val(<<"debug">>, Req1) of
-                               {undefined, ReqX} ->
-                                   {[{timeout, infinity}], ReqX};
-                               {<<>>, ReqX} ->
-                                   {[{timeout, infinity}, debug], ReqX};
-                               {Token, ReqX} ->
-                                   {[{timeout, infinity}, debug,
-                                     {token, Token}], ReqX}
-                           end,
+            {Opts, Req2} = build_opts(Req1),
+            ReqR = Req2,
             case timer:tc(dqe, run, [Q, Opts]) of
                 {_, {error, E}} ->
                     Error = list_to_binary(dqe:error_string({error, E})),
                     lager:warning("Error in query [~s]: ~p", [Q, E]),
-                    {ok, Req3} =
-                        cowboy_req:reply(400, [], Error, Req2),
-                    {ok, Req3, State};
+                    {ok, ReqR1} =
+                        cowboy_req:reply(400, [], Error, ReqR),
+                    {ok, ReqR1, State};
                 {T, {ok, Start, R2}} ->
-                    R3 = [#{name => Name,
-                            resolution => Resolution,
-                            values => mmath_bin:to_list(Data),
-                            metadata => Mdata,
-                            type => <<"metrics">>}
-                          || #{name := Name,
-                               data := Data,
-                               type := metrics,
-                               metadata := Mdata,
-                               resolution := Resolution} <- R2],
-                    R4 = [#{name => Name,
-                            metadata => Mdata,
-                            values => [#{timestamp => Ts, event => E}
-                                       || {Ts, E} <- Data],
-                            type => <<"events">>}
-                          || #{name := Name,
-                               metadata := Mdata,
-                               data := Data,
-                               type := events} <- R2],
-                    D = #{start => Start,
-                          query_time => T,
-                          results => R3 ++ R4},
-                    {ContentType, Req3} = content_type(Req2),
-                    send(ContentType, D, Req3, State)
+                    D = encode_reply(Start, T, R2),
+                    {ContentType, ReqR1} = content_type(ReqR),
+                    send(ContentType, D, ReqR1, State)
             end
+    end.
+
+encode_reply(Start, T, R2) ->
+    R3 = [#{name => Name,
+            resolution => Resolution,
+            values => mmath_bin:to_list(Data),
+            metadata => Mdata,
+            type => <<"metrics">>}
+          || #{name := Name,
+               data := Data,
+               type := metrics,
+               metadata := Mdata,
+               resolution := Resolution} <- R2],
+    R4 = [#{name => Name,
+            metadata => Mdata,
+            values => [#{timestamp => Ts, event => E}
+                       || {Ts, E} <- Data],
+            type => <<"events">>}
+          || #{name := Name,
+               metadata := Mdata,
+               data := Data,
+               type := events} <- R2],
+    D = #{start => Start,
+          query_time => T,
+          results => R3 ++ R4},
+    case R2 of
+        [#{type := graph,
+           value := Graph} | _] ->
+            maps:put(D, graph, Graph);
+        _ ->
+            D
     end.
 
 content_type(Req) ->
@@ -104,3 +107,25 @@ send(_, _D, Req, State) ->
 
 terminate(_Reason, _Req, _State) ->
     ok.
+
+build_opts(Req) ->
+    O0 = case application:get_env(dalmatiner_frontend, log_slow) of
+             {ok, true} ->
+                 [{timeout, infinity}, log_slow_queries];
+             _ ->
+                 [{timeout, infinity}]
+         end,
+    {O1, R1} = case cowboy_req:qs_val(<<"debug">>, Req) of
+                   {undefined, ReqX} ->
+                       {O0, ReqX};
+                   {<<>>, ReqX} ->
+                       {[debug | O0], ReqX};
+                   {Token, ReqX} ->
+                       {[debug, {token, Token} | O0], ReqX}
+               end,
+    case cowboy_req:qs_val(<<"graph">>, R1) of
+        {undefined, Rx1} ->
+            {O1, Rx1};
+        {_, Rx1} ->
+            {[return_graph | O1], Rx1}
+    end.

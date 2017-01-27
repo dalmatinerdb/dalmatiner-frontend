@@ -15,3 +15,18 @@
  [{default, "{{run_user_home}}"},
   hidden,
   {datatype, string}]}.
+
+%% Directory for query logs to be written to
+{mapping, "debug.folder", "dqe.debug_folder",
+  [{default, "{{platform_log_dir}}/query"},
+   {datatype, directory}]}.
+
+%% Default time for a query to be considered slow
+{mapping, "debug.max_time", "dqe.debug_slow",
+  [{default, "5s"},
+   {datatype, {duration, ms}}]}.
+
+%% @doc The path data gets stored into.
+{mapping, "debug.log_slow", "dalmatiner_frontend.log_slow",
+ [{default, "off"},
+  {datatype, flag}]}.
