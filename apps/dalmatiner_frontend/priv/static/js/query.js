@@ -127,7 +127,10 @@ function render_events(start, events) {
 function render_graph(graph) {
   $("#graph").text("")
   if (graph) {
-    $("#graph").append($("<h3></h3>").text("Query graph")).append($("<pre/>").append(Viz(graph)))
+    $("#graph")
+    .append($("<h3></h3>").text("Query graph"))
+    .append($("<pre/>")
+            .append(Viz(graph, {scale: 0.1})))
   }
 }
 
