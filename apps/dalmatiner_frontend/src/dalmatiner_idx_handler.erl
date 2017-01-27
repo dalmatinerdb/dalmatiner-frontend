@@ -63,7 +63,7 @@ encode_reply(Start, T, R2) ->
     case R2 of
         [#{type := graph,
            value := Graph} | _] ->
-            maps:put(D, graph, Graph);
+            maps:put(graph, Graph, D);
         _ ->
             D
     end.

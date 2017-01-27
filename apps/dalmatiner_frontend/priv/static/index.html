@@ -40,17 +40,27 @@
             <button type="submit" class="button postfix">query</button>
           </div>
         </div>
+        <div class="row collapse">
+          <div class="small-10 columns">
+          </div>
+          <div class="small-2 columns">
+            <input id="debug" type="checkbox"/><label for="debug">Debug</label>
+          </div>
+        </div>
+
       </form>
       <div id="results"></div>
       <div id="legend"></div>
       <div id="events"></div>
+      <div id="graph"></div>
 
       <div id="timewrap">
-        <p>Query completed in <span id="time"></span></p>
+        <p>Query completed in <span id="time"></span>.</p>
       </div>
     </div>
 
     <script src="/js/vendor/modernizr.js"></script>
+    <script src="/js/vendor/viz.js"></script>
     <script src="/js/vendor/jquery.js"></script>
     <script src="/js/vendor/jquery.cookie.js"></script>
     <script src="/js/vendor/fastclick.js"></script>

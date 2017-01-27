@@ -65,8 +65,9 @@ if (QueryString.metric && QueryString.bucket) {
 function render_metrics(start, metrics, markers) {
   var data,
       legend = [];
+  $("#results").text("");
   if (metrics.length > 0) {
-    $("#events").append($("<h3></h3>").text("Metrics")).append($("<hr/>"))
+    $("#results").append($("<h3></h3>").text("Metrics")).append($("<hr/>"))
     data = metrics.map(function(s) {
              var resolution = s.resolution,
                  values = s.values,
@@ -116,18 +117,30 @@ function render_event(event) {
   $("#events").append(div)
 }
 function render_events(start, events) {
+  $("#events").text("");
   if (events.length > 0) {
     $("#events").append($("<h3></h3>").text("Events")).append($("<hr/>"))
     events.map(render_event)
   }
 }
 
+function render_graph(graph) {
+  $("#graph").text("")
+  if (graph) {
+    $("#graph").append($("<h3></h3>").text("Query graph")).append($("<pre/>").append(Viz(graph)))
+  }
+}
+
 function q() {
   var query = $("#query").val();
+  var base = "?"
   $("#events").text("").append($("<hr/>"))
-  msgpack.download("?q=" + query, {header: {accept:"application/x-msgpack"}}, function(res) {
-    console.log("Fetched " + res.results[0].values.length * res.results[0] + " elements in " +
-                res.query_time / 1000 + "ms");
+  if ($("#debug").is(':checked')) {
+    base = "?graph&q=";
+  } else {
+    base = "?q=";
+  }
+  msgpack.download(base + query, {header: {accept:"application/x-msgpack"}}, function(res) {
     $("#permalink").attr("href", "/?query=" + encodeURIComponent(query));
     $("#permalink").show();
     $("#time").text((res.query_time / 1000) + "ms");
@@ -140,11 +153,15 @@ function q() {
     metrics = res.results.filter(function(e) {
                 return e.type == "metrics"
               });
+    console.log(metrics[0])
+    console.log("Fetched " + metrics[0].values.length * metrics.length + " elements in " +
+                res.query_time / 1000 + "ms");
     events = res.results.filter(function(e) {
                return e.type == "events"
              });
     render_metrics(start, metrics, markers);
     render_events(start, events);
+    render_graph(res.graph)
 
   });
 }
