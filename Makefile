@@ -3,7 +3,7 @@ REBAR = $(shell pwd)/rebar3
 
 .PHONY: deps rel stagedevrel package version all tree
 
-all: version_header compile fifo.mk
+all: version_header compile
 
 include fifo.mk
 
