@@ -29,7 +29,9 @@ handle(Req, State) ->
                     lager:warning("Error in query [~s]: ~p", [Q, E]),
                     StatusCode = error_code(E),
                     {ok, Req2} =
-                        cowboy_req:reply(StatusCode, [], Error, Req1),
+                        cowboy_req:reply(StatusCode,
+                                        [{<<"content-type">>, <<"text/plain">>}],
+                                         Error, Req1),
                     {ok, Req2, State};
                 {T, {ok, Start, R2}} ->
                     D = encode_reply(Start, T, R2),
