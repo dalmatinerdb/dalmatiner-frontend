@@ -30,7 +30,8 @@ handle(Req, State) ->
                     StatusCode = error_code(E),
                     {ok, Req2} =
                         cowboy_req:reply(StatusCode,
-                                        [{<<"content-type">>, <<"text/plain">>}],
+                                        [{<<"content-type">>,
+                                          <<"text/plain">>}],
                                          Error, Req1),
                     {ok, Req2, State};
                 {T, {ok, Start, R2}} ->
