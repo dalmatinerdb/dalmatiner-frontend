@@ -4,7 +4,7 @@
  {<<"cowlib">>,{pkg,<<"cowlib">>,<<"1.0.2">>},1},
  {<<"ddb_client">>,
   {git,"https://github.com/dalmatinerdb/ddb_client.git",
-       {ref,"37b80429773a49cc0fbb5bba5ba3e760d17de4b2"}},
+       {ref,"c2972dce2b5882c0545d4514a4b8a4938613fbad"}},
   0},
  {<<"ddb_connection">>,{pkg,<<"ddb_connection">>,<<"0.2.0">>},1},
  {<<"dflow">>,{pkg,<<"dflow">>,<<"0.1.7">>},1},
