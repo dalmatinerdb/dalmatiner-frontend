@@ -2,7 +2,7 @@
 │  └─ cowlib─1.0.2
 ├─ dalmatiner_frontend─0.3.2
 ├─ ddb_client─0.4.2
-│  └─ mmath─0.2.16
+│  └─ mmath─0.2.17
 ├─ dproto─0.4.0
 │  ├─ jsxd─0.2.4
 │  └─ snappyer─1.2.0
