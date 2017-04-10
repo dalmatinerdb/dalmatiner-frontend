@@ -10,7 +10,7 @@
  {<<"dflow">>,{pkg,<<"dflow">>,<<"0.1.7">>},1},
  {<<"dproto">>,
   {git,"https://github.com/dalmatinerdb/dproto.git",
-       {ref,"4ec6b1c8d4af92fb8f7ead9bfee7cdac8d30ff78"}},
+       {ref,"fb9885f41e227e09ac165225464f54c95d49e260"}},
   0},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
@@ -47,7 +47,7 @@
  {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.4">>},2},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
- {<<"snappyer">>,{pkg,<<"snappyer">>,<<"1.2.0">>},1},
+ {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},1},
  {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}]}.
 [
 {pkg_hash,[
@@ -81,6 +81,6 @@
  {<<"quickrand">>, <<"47ADD4755CC5F209CBEFFD6F47C84061196CD7FAD99FD8FD12418EB0D06B939D">>},
  {<<"ranch">>, <<"A6FB992C10F2187B46FFD17CE398DDF8A54F691B81768F9EF5F461EA7E28C762">>},
  {<<"recon">>, <<"4444C879BE323B1B133EEC5241CB84BD3821EA194C740D75617E106BE4744318">>},
- {<<"snappyer">>, <<"4761F475C53FEC4A027DC90EA0626A735E3D276BFCFAF9A8DC4C7BBDA4D1E058">>},
+ {<<"snappiest">>, <<"25706FEBB5ECAEA900D879A89C6D967C8D1BF700F8546BEBD0DEA514A8CCBFB7">>},
  {<<"uuid">>, <<"06240EFF3EAF013CC22274689B0C1FF6345645EE5D47A9E4ED7545EEB7698B23">>}]}
 ].

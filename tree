@@ -3,9 +3,9 @@
 ├─ dalmatiner_frontend─0.3.2
 ├─ ddb_client─0.4.2
 │  └─ mmath─0.2.17
-├─ dproto─0.4.0
+├─ dproto─0.4.1
 │  ├─ jsxd─0.2.4
-│  └─ snappyer─1.2.0
+│  └─ snappiest─1.2.0
 ├─ dqe─0.5.0
 │  ├─ ddb_connection─0.2.0
 │  │  └─ poolboy─1.5.1
