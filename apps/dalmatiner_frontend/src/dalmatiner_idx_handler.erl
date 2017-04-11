@@ -129,12 +129,34 @@ build_opts(Req) ->
                        {O0, ReqX};
                    {<<>>, ReqX} ->
                        {[debug | O0], ReqX};
+                   {true, ReqX} ->
+                       {[debug | O0], ReqX};
                    {Token, ReqX} ->
                        {[debug, {token, Token} | O0], ReqX}
                end,
-    case cowboy_req:qs_val(<<"graph">>, R1) of
+    {O2, R2} = case cowboy_req:qs_val(<<"trace_id">>, R1) of
+                   {undefined, ReqX1} ->
+                       {O1, ReqX1};
+                   {<<>>, ReqX1} ->
+                       {[{trace_id, otters_lib:id()} | O1], ReqX1};
+                   {true, ReqX1} ->
+                       {[{trace_id, otters_lib:id()} | O1], ReqX1};
+                   {TraceID, ReqX1} ->
+                       {[{trace_id, TraceID} | O1], ReqX1}
+               end,
+    {O3, R3} = case cowboy_req:qs_val(<<"parent_id">>, R2) of
+                   {undefined, ReqX2} ->
+                       {O2, ReqX2};
+                   {<<>>, ReqX2} ->
+                       {O2, ReqX2};
+                   {true, ReqX2} ->
+                       {O2, ReqX2};
+                   {ParentID, ReqX2} ->
+                       {[{parent_id, ParentID} | O2], ReqX2}
+               end,
+    case cowboy_req:qs_val(<<"graph">>, R3) of
         {undefined, Rx1} ->
-            {O1, Rx1};
+            {O3, Rx1};
         {_, Rx1} ->
-            {[return_graph | O1], Rx1}
+            {[return_graph | O3], Rx1}
     end.
