@@ -28,12 +28,12 @@ handle(Req, State) ->
                     Error = list_to_binary(dqe:error_string({error, E})),
                     lager:warning("Error in query [~s]: ~p", [Q, E]),
                     StatusCode = error_code(E),
-                    {ok, Req2} =
+                    {ok, ErrReq} =
                         cowboy_req:reply(StatusCode,
                                         [{<<"content-type">>,
                                           <<"text/plain">>}],
-                                         Error, Req1),
-                    {ok, Req2, State};
+                                         Error, ReqR),
+                    {ok, ErrReq, State};
                 {T, {ok, Start, R2}} ->
                     D = encode_reply(Start, T, R2),
                     {ContentType, ReqR1} = content_type(ReqR),
