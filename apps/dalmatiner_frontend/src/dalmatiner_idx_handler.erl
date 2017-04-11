@@ -142,7 +142,7 @@ build_opts(Req) ->
                    {true, ReqX1} ->
                        {[{trace_id, otters_lib:id()} | O1], ReqX1};
                    {TraceID, ReqX1} ->
-                       {[{trace_id, TraceID} | O1], ReqX1}
+                       {[{trace_id, binary_to_integer(TraceID)} | O1], ReqX1}
                end,
     {O3, R3} = case cowboy_req:qs_val(<<"parent_id">>, R2) of
                    {undefined, ReqX2} ->
@@ -152,7 +152,7 @@ build_opts(Req) ->
                    {true, ReqX2} ->
                        {O2, ReqX2};
                    {ParentID, ReqX2} ->
-                       {[{parent_id, ParentID} | O2], ReqX2}
+                       {[{parent_id, binary_to_integer(ParentID)} | O2], ReqX2}
                end,
     case cowboy_req:qs_val(<<"graph">>, R3) of
         {undefined, Rx1} ->
