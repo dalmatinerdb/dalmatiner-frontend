@@ -22,9 +22,15 @@ handle(Req, State) ->
             {ok, Req3, State};
         {Q, Req1} ->
             {Opts, Req2} = build_opts(Req1),
+            TraceID = proplists:get_value(trace_id, Opts, undefined),
+            ParentID = proplists:get_value(parent_id, Opts, undefined),
+            S = otters:start(dfe, TraceID, ParentID),
+            S1 = otters:tag(S, query, Q, dfe),
             ReqR = Req2,
             case timer:tc(dqe, run, [Q, Opts]) of
                 {_, {error, E}} ->
+                    S2 = otters:tag(S1, result, error, dfe),
+                    S3 = otters:tag(S2, error, E, dfe),
                     Error = list_to_binary(dqe:error_string({error, E})),
                     lager:warning("Error in query [~s]: ~p", [Q, E]),
                     StatusCode = error_code(E),
@@ -33,11 +39,16 @@ handle(Req, State) ->
                                         [{<<"content-type">>,
                                           <<"text/plain">>}],
                                          Error, ReqR),
+                    otters:finish(S3),
                     {ok, ErrReq, State};
                 {T, {ok, Start, R2}} ->
+                    S2 = otters:tag(S1, result, success, dfe),
+                    S3 = otters:log(S2, "query finished", dfe),
                     D = encode_reply(Start, T, R2),
+                    S4 = otters:log(S3, "translated", dfe),
                     {ContentType, ReqR1} = content_type(ReqR),
-                    send(ContentType, D, ReqR1, State)
+                    S5 = otters:tag(S4, content_type, ContentType, dfe),
+                    send(ContentType, D, ReqR1, S5, State)
             end
     end.
 
@@ -97,21 +108,25 @@ error_code(no_results) ->
     404;
 error_code(_) ->
     400.
-
-send(json, D, Req, State) ->
+send(Type, D, Req, State) ->
+    send(Type, D, Req, undefined, State).
+send(json, D, Req, S, State) ->
     {ok, Req1} =
         cowboy_req:reply(
           200, [{<<"content-type">>, <<"application/json">>}],
           jsone:encode(D), Req),
+    otters:finish(S),
     {ok, Req1, State};
-send(msgpack, D, Req, State) ->
+send(msgpack, D, Req, S, State) ->
     {ok, Req1} =
         cowboy_req:reply(
           200, [{<<"content-type">>, <<"application/x-msgpack">>}],
           msgpack:pack(D, [jsx, {allow_atom, pack}]), Req),
+    otters:finish(S),
     {ok, Req1, State};
-send(_, _D, Req, State) ->
+send(_, _D, Req, S, State) ->
     {ok, Req1} = cowboy_req:reply(415, Req),
+    otters:finish(S),
     {ok, Req1, State}.
 
 terminate(_Reason, _Req, _State) ->
