@@ -1,4 +1,4 @@
-VERSION=0.3.1
+VERSION=0.3.2
 COMPONENT_INTERNAL=dalmatinerfe
 COMPONENT=dalmatinerfe
 DEPS="erlang" "coreutils" "sudo"

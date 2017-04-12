@@ -18,12 +18,28 @@ handle(Req, State) ->
     handle(Method, Req1, State).
 
 -dialyzer({no_opaque, handle/3}).
-handle(<<"POST">>, Req, State) ->
-    case cowboy_req:has_body(Req) of
-        true ->
+handle(<<"POST">>, Req0, State) ->
+    {ok, CType, Req} = cowboy_req:parse_header(<<"content-type">>, Req0,
+                                               {<<"text">>, <<"plain">>, []}),
+    ReqHasBody = cowboy_req:has_body(Req),
+    case CType of
+        {<<"text">>, <<"plain">>, _Charset}
+          when ReqHasBody =:= true ->
             {ok, Query, Req1} = read_req_body(Req),
             run_query(Query, Req1, State);
-        false ->
+        {<<"application">>, <<"x-www-form-urlencoded">>, []}
+          when ReqHasBody =:= true ->
+            {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
+            Encoded = proplists:get_value(<<"q">>, PostVals),
+            Query = cow_qs:urldecode(Encoded),
+            run_query(Query, Req1, State);
+        _Other
+          when ReqHasBody =:= true ->
+            Headers = [{<<"content-type">>, <<"text/plain">>}],
+            {ok, ErrReq} = cowboy_req:reply(415, Headers,
+                                <<"Content type not supported">>, Req),
+            {ok, ErrReq, State};
+        _Else ->
             {ok, Req1} = cowboy_req:reply(400, [], <<"Missing body.">>, Req),
             {ok, Req1, State}
     end;
@@ -54,14 +70,19 @@ read_req_body(Req, Acc) ->
             read_req_body(Req1, <<Acc/binary, Data/binary>>)
     end.
 
-run_query(Query, Req, State) ->
-    {Opts, ReqR} = build_opts(Req),
-    case timer:tc(dqe, run, [Query, Opts]) of
+run_query(Q, Req, State) ->
+    {Opts, Req1} = build_opts(Req),
+    ReqR = Req1,
+    case timer:tc(dqe, run, [Q, Opts]) of
         {_, {error, E}} ->
             Error = list_to_binary(dqe:error_string({error, E})),
-            lager:warning("Error in query [~s]: ~p", [Query, E]),
-            {ok, ReqR1} = cowboy_req:reply(400, [], Error, ReqR),
-            {ok, ReqR1, State};
+            lager:warning("Error in query [~s]: ~p", [Q, E]),
+            StatusCode = error_code(E),
+            {ok, ErrReq} = cowboy_req:reply(StatusCode,
+                                            [{<<"content-type">>,
+                                              <<"text/plain">>}],
+                                            Error, ReqR),
+            {ok, ErrReq, State};
         {T, {ok, Start, R2}} ->
             D = encode_reply(Start, T, R2),
             {ContentType, ReqR1} = content_type(ReqR),
@@ -119,6 +140,11 @@ content_type_([{{<<"application">>, <<"x-msgpack">>, _}, _, _} | _]) ->
     msgpack;
 content_type_([_ | R]) ->
     content_type_(R).
+
+error_code(no_results) ->
+    404;
+error_code(_) ->
+    400.
 
 send(json, D, Req, State) ->
     {ok, Req1} =
