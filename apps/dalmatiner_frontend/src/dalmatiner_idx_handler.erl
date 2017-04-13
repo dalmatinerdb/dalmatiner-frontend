@@ -1,15 +1,49 @@
 -module(dalmatiner_idx_handler).
 -behaviour(cowboy_http_handler).
 
--export([send/4, content_type/1, init/3, handle/2, terminate/3]).
+-export([send/4, content_type/1, allowed_methods/2, init/3, handle/2,
+         terminate/3]).
 
 -ignore_xref([init/3, handle/2, terminate/3]).
 
 init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
+allowed_methods(Req, State) ->
+    {[<<"GET">>, <<"POST">>], Req, State}.
+
 -dialyzer({no_opaque, handle/2}).
 handle(Req, State) ->
+    {Method, Req1} = cowboy_req:method(Req),
+    handle(Method, Req1, State).
+
+-dialyzer({no_opaque, handle/3}).
+handle(<<"POST">>, Req0, State) ->
+    {ok, CType, Req} = cowboy_req:parse_header(<<"content-type">>, Req0,
+                                               {<<"text">>, <<"plain">>, []}),
+    ReqHasBody = cowboy_req:has_body(Req),
+    case CType of
+        {<<"text">>, <<"plain">>, _Charset}
+          when ReqHasBody =:= true ->
+            {ok, Query, Req1} = read_req_body(Req),
+            run_query(Query, Req1, State);
+        {<<"application">>, <<"x-www-form-urlencoded">>, []}
+          when ReqHasBody =:= true ->
+            {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
+            Query = proplists:get_value(<<"q">>, PostVals),
+            run_query(Query, Req1, State);
+        _Other
+          when ReqHasBody =:= true ->
+            Headers = [{<<"content-type">>, <<"text/plain">>}],
+            {ok, ErrReq} = cowboy_req:reply(415, Headers,
+                                <<"Content type not supported">>, Req),
+            {ok, ErrReq, State};
+        _Else ->
+            {ok, Req1} = cowboy_req:reply(400, [], <<"Missing body.">>, Req),
+            {ok, Req1, State}
+    end;
+
+handle(<<"GET">>, Req, State) ->
     case cowboy_req:qs_val(<<"q">>, Req) of
         {undefined, Req1} ->
             F = fun (Socket, Transport) ->
@@ -21,24 +55,36 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         {Q, Req1} ->
-            {Opts, Req2} = build_opts(Req1),
-            ReqR = Req2,
-            case timer:tc(dqe, run, [Q, Opts]) of
-                {_, {error, E}} ->
-                    Error = list_to_binary(dqe:error_string({error, E})),
-                    lager:warning("Error in query [~s]: ~p", [Q, E]),
-                    StatusCode = error_code(E),
-                    {ok, ErrReq} =
-                        cowboy_req:reply(StatusCode,
-                                        [{<<"content-type">>,
-                                          <<"text/plain">>}],
-                                         Error, ReqR),
-                    {ok, ErrReq, State};
-                {T, {ok, Start, R2}} ->
-                    D = encode_reply(Start, T, R2),
-                    {ContentType, ReqR1} = content_type(ReqR),
-                    send(ContentType, D, ReqR1, State)
-            end
+            run_query(Q, Req1, State)
+    end.
+
+read_req_body(Req) ->
+    read_req_body(Req, <<>>).
+
+read_req_body(Req, Acc) ->
+    case cowboy_req:body(Req) of
+        {ok, Data, Req1} ->
+            {ok, <<Acc/binary, Data/binary>>, Req1};
+        {more, Data, Req1} ->
+            read_req_body(Req1, <<Acc/binary, Data/binary>>)
+    end.
+
+run_query(Q, Req, State) ->
+    {Opts, ReqR} = build_opts(Req),
+    case timer:tc(dqe, run, [Q, Opts]) of
+        {_, {error, E}} ->
+            Error = list_to_binary(dqe:error_string({error, E})),
+            lager:warning("Error in query [~s]: ~p", [Q, E]),
+            StatusCode = error_code(E),
+            {ok, ErrReq} = cowboy_req:reply(StatusCode,
+                                            [{<<"content-type">>,
+                                              <<"text/plain">>}],
+                                            Error, ReqR),
+            {ok, ErrReq, State};
+        {T, {ok, Start, R2}} ->
+            D = encode_reply(Start, T, R2),
+            {ContentType, ReqR1} = content_type(ReqR),
+            send(ContentType, D, ReqR1, State)
     end.
 
 encode_reply(Start, T, R2) ->
