@@ -30,8 +30,7 @@ handle(<<"POST">>, Req0, State) ->
         {<<"application">>, <<"x-www-form-urlencoded">>, []}
           when ReqHasBody =:= true ->
             {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
-            Encoded = proplists:get_value(<<"q">>, PostVals),
-            Query = cow_qs:urldecode(Encoded),
+            Query = proplists:get_value(<<"q">>, PostVals),
             run_query(Query, Req1, State);
         _Other
           when ReqHasBody =:= true ->
