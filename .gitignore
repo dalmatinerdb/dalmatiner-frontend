@@ -18,6 +18,7 @@ rel/dalmatinerfe
 rel/pkg/*.tgz
 rel/pkg/build-info
 rel/pkg/packlist
+rel/deb/*.deb
 .eqc-info
 *.eqc
 apps/dalmatiner_frontend/include/dalmatiner_frontend_version.hrl

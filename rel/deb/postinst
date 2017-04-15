@@ -1,12 +1,24 @@
 #!/bin/bash
 
-# Sort out file permissions
-if [[ $(id dalmatiner 2>/dev/null) ]] ;then
-    chown -R dalmatiner:dalmatiner /var/lib/dfe
-    chown -R dalmatiner:dalmatiner /var/log/dfe
+if [ ! -d "/data/dalmatinerfe" ]; then
+    mkdir -p /data/dalmatinerfe
 fi
 
-CONFFILE=/etc/dfe/dalmatinerfe.conf
+if [ ! -d "/data/dalmatinerfe/log" ]; then
+    mkdir -p /data/dalmatinerfe/log
+fi
 
-cp ${CONFFILE}.example ${CONFFILE}
-sed -i -e "s/dqe_idx_ddb/dqe_idx_pg/g" ${CONFFILE}
+# Sort out file permissions
+if [[ $(id dalmatinerfe 2>/dev/null) ]] ;then
+    chown -R dalmatinerfe:dalmatinerfe /data/dalmatinerfe
+fi
+
+CONFFILE=/data/dalmatinerfe/etc/dalmatinerfe.conf
+
+if [ ! -f "${CONFFILE}" ]
+then
+    echo "Creating new configuration from example file."
+    cp ${CONFFILE}.example ${CONFFILE}
+else
+    echo "Please update your configuration according to the update manual!"
+fi
