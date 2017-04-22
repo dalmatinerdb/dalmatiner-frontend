@@ -1,5 +1,6 @@
 # DalmatinerDB Frontend
 
+[![Build Status](https://travis-ci.org/dalmatinerdb/dalmatiner-frontend.svg)](https://travis-ci.org/dalmatinerdb/dalmatiner-frontend)
 [Official Site](https://dalmatiner.io/)
 [Query langauge](https://dalmatiner.readme.io/docs/dql-specification)
 
