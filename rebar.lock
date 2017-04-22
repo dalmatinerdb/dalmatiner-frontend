@@ -17,7 +17,7 @@
  {<<"dproto">>,
   {git,"https://github.com/dalmatinerdb/dproto.git",
        {ref,"f68cba09c7be0682693b3b7d59d5e4bb183d551d"}},
-  1},
+  0},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
        {ref,"d4eab218a286a087476ed0900a5e463624ca6ef3"}},
@@ -40,7 +40,7 @@
  {<<"ibrowse">>,{pkg,<<"ibrowse">>,<<"4.4.0">>},1},
  {<<"jsone">>,{pkg,<<"jsone">>,<<"1.2.6">>},0},
  {<<"jsx">>,{pkg,<<"jsx">>,<<"2.8.0">>},2},
- {<<"jsxd">>,{pkg,<<"jsxd">>,<<"0.2.4">>},2},
+ {<<"jsxd">>,{pkg,<<"jsxd">>,<<"0.2.4">>},1},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.2.4">>},0},
  {<<"lager_graylog">>,{pkg,<<"lager_graylog">>,<<"0.1.1">>},1},
  {<<"lager_logstash_backend">>,
@@ -62,7 +62,7 @@
  {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.4">>},2},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
- {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},2},
+ {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},1},
  {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}]}.
 [
 {pkg_hash,[
