@@ -1,0 +1,8 @@
+Package: dalmatinerfe
+Version: 0.3.2
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: Project-Fifo <info@project-fifo.net>
+Description: DalmatinerFE
+ Distributed TSBD. Woof.

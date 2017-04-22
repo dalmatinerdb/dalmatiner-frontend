@@ -1,9 +1,10 @@
 [Unit]
-Description=DalmatinerDB Frontend
+Description=DalmatinerFE Frontend
 After=network.target
 
 [Service]
-User=dalmatiner
+User=dalmatinerfe
+Group=dalmatinerfe
 ExecStart=/usr/lib/dfe/bin/dalmatinerfe console -noinput +Bd
 
 [Install]
