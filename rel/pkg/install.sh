@@ -52,10 +52,10 @@ case $2 in
             echo "Please make sure you update your config according to the update manual!"
         fi
 
-        ADVANCED=/data/dalmatinerfe/etc/advanced.config
-        if [ ! -f "${ADVANCED}" ]
+        OT=/data/dalmatinerfe/etc/rules.ot
+        if [ ! -f "${OT}" ]
         then
-            cp /opt/local/dalmatinerfe/share/advanced.config "${ADVANCED}"
+            echo "none() -> drop." > ${OT}
         fi
         ;;
 esac
