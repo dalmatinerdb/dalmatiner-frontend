@@ -1,8 +1,8 @@
 [0m├─ cowboy─1.0.4
 │  └─ cowlib─1.0.2
 ├─ dalmatiner_frontend─0.3.2
-├─ dqe─0.6.2
-│  ├─ ddb_connection─0.3.3
+├─ dqe─v0.7.0+build.309.ref8591d32
+│  ├─ ddb_connection─0.4.2
 │  │  ├─ ddb_client─0.5.5
 │  │  └─ poolboy─1.5.1
 │  ├─ dflow─0.2.1
@@ -10,9 +10,9 @@
 │  │  ├─ jsxd─0.2.4
 │  │  └─ snappiest─1.2.0
 │  ├─ dqe_fun─0.2.0
-│  ├─ dqe_idx─0.2.1
-│  ├─ dqe_idx_ddb─0.2.4
-│  ├─ dqe_idx_pg─0.3.6
+│  ├─ dqe_idx─0.3.0
+│  ├─ dqe_idx_ddb─0.4.0
+│  ├─ dqe_idx_pg─0.4.0
 │  │  └─ pgapp─0.0.2
 │  │     └─ epgsql─3.3.0
 │  ├─ hdr_histogram─0.2.0
@@ -26,14 +26,14 @@
 │  ├─ lager_graylog─0.1.1
 │  └─ lager_logstash_backend─0.1.1
 │     └─ jsx─2.8.0
-├─ fifo_utils─0.1.35
+├─ fifo_utils─0.1.37
 │  └─ uuid─1.5.4
 │     └─ quickrand─1.5.4
 ├─ jsone─1.2.6
 ├─ lager─3.2.4
 │  └─ goldrush─0.1.9
 ├─ msgpack─0.3.5
-├─ otters─0.2.4
+├─ otters─0.2.8
 │  ├─ dynamic_compile─1.0.0
 │  └─ ibrowse─4.4.0
 ├─ ranch─1.2.1

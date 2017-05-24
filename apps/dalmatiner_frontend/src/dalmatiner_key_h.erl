@@ -38,7 +38,7 @@ get_metrics(Bucket, []) ->
          || Metric <- Ms];
 
 get_metrics(Bucket, Path) ->
-    {ok, Ms} = ddb_connection:list(
+    {ok, Ms} = ddb_connection:list_pfx(
                  Bucket, dproto:metric_from_list(Path)),
     Sep = <<"'.'">>,
     [<<"'", (dproto:metric_to_string(Metric, Sep))/binary, "'">>

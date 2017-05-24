@@ -23,7 +23,7 @@ handle(Req, State) ->
             {ok, Req3} = cowboy_req:reply(200, Req2),
             {ok, Req3, State};
         _ ->
-            {ok, Bs} = ddb_connection:list(),
+            {ok, Bs} = ddb_connection:list_buckets(),
             Bs1 = [bucket_info(B) || B <- Bs],
             dalmatiner_idx_handler:send(ContentType, Bs1, Req1, State)
     end.
