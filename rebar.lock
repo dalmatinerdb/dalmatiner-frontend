@@ -8,12 +8,12 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.5.2">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"8591d328275e9165df47cb3bcb65a09680cf3de0"}},
+       {ref,"1978117285fe1839ff55a247e8bab2ea1dc58904"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.2.0">>},1},
  {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.3.0">>},1},
  {<<"dqe_idx_ddb">>,{pkg,<<"dqe_idx_ddb">>,<<"0.4.0">>},1},
- {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.4.0">>},1},
+ {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.4.1">>},1},
  {<<"dynamic_compile">>,{pkg,<<"dynamic_compile">>,<<"1.0.0">>},1},
  {<<"eper">>,{pkg,<<"eper">>,<<"0.94.0">>},0},
  {<<"epgsql">>,{pkg,<<"epgsql">>,<<"3.3.0">>},3},
@@ -45,6 +45,7 @@
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
  {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},2},
+ {<<"sqlmig">>,{pkg,<<"sqlmig">>,<<"0.1.4">>},2},
  {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}]}.
 [
 {pkg_hash,[
@@ -58,7 +59,7 @@
  {<<"dqe_fun">>, <<"BA26ED83AC2A75B6D9A448413416AACE21B5D057DA9FB7E8ECEAAE3B45E9DA3A">>},
  {<<"dqe_idx">>, <<"EDCA91E5130C532D4B33AF678197ADC25AA4FA7471AC75033290F8AD8392874D">>},
  {<<"dqe_idx_ddb">>, <<"815DB58A7ED01A7040E43A9228DDD119738C4C743F1F33D61E550AAE83CF4319">>},
- {<<"dqe_idx_pg">>, <<"198FDE786226CB4688C3F9A06A74C765CAAFF0ED0F5528A4D56D73A54305F2FA">>},
+ {<<"dqe_idx_pg">>, <<"1BC018855A9565856938F5919C4DC5FB0E8ECEF7FC271D5378D9B4589D3F01B3">>},
  {<<"dynamic_compile">>, <<"8171B2CB4953EA3ED2EF63F5B26ABF677ACD0CA32210C2A08A7A8406A743F76B">>},
  {<<"eper">>, <<"F5FB2DAA0DF8878748E1C598428EDA942A173E5121FF35C1D632129B84593A3A">>},
  {<<"epgsql">>, <<"974A578340E52012CBAB820CE756E7ED1DF1BAF0110C59A6753D8337A2CF9454">>},
@@ -84,5 +85,6 @@
  {<<"ranch">>, <<"A6FB992C10F2187B46FFD17CE398DDF8A54F691B81768F9EF5F461EA7E28C762">>},
  {<<"recon">>, <<"4444C879BE323B1B133EEC5241CB84BD3821EA194C740D75617E106BE4744318">>},
  {<<"snappiest">>, <<"25706FEBB5ECAEA900D879A89C6D967C8D1BF700F8546BEBD0DEA514A8CCBFB7">>},
+ {<<"sqlmig">>, <<"73163B3842A81EEBBF78A38D5FA03D2430863AE79DACCF588CD9EFFD48470A6C">>},
  {<<"uuid">>, <<"06240EFF3EAF013CC22274689B0C1FF6345645EE5D47A9E4ED7545EEB7698B23">>}]}
 ].
