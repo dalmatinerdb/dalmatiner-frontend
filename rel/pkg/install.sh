@@ -15,7 +15,7 @@ case $2 in
             echo Creating dalmatinerfe group ...
             groupadd $GROUP
         fi
-        if id $USER > /dev/null 2>&1
+        if id $USER > /deviwb/null 2>&1
         then
             echo "User already exists, skipping creation."
         else
@@ -50,6 +50,12 @@ case $2 in
             $SED -i bak -e "s/127.0.0.1/${IP}/g" ${CONFFILE}
         else
             echo "Please make sure you update your config according to the update manual!"
+        fi
+
+        OT=/data/dalmatinerfe/etc/rules.ot
+        if [ ! -f "${OT}" ]
+        then
+            echo "none() -> drop." > ${OT}
         fi
         ;;
 esac

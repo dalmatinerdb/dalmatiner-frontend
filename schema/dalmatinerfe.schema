@@ -30,3 +30,9 @@
 {mapping, "debug.log_slow", "dalmatiner_frontend.log_slow",
  [{default, "off"},
   {datatype, flag}]}.
+
+%% @doc File to read filter rules from
+{mapping, "otters.filter", "otters.filter_file",
+ [{commented, "rules.ot"},
+  {default, "{{platform_etc_dir}}/rules.ot"},
+  {datatype, file}]}.
