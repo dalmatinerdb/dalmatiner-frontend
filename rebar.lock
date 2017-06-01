@@ -8,12 +8,12 @@
  {<<"dproto">>,{pkg,<<"dproto">>,<<"0.5.2">>},1},
  {<<"dqe">>,
   {git,"https://github.com/dalmatinerdb/dqe.git",
-       {ref,"1a4ee55f0da9f23519cc1f1f67227f518858cf5a"}},
+       {ref,"20ac0f1f32c22db129c0b9399289af182a5884eb"}},
   0},
  {<<"dqe_fun">>,{pkg,<<"dqe_fun">>,<<"0.2.1">>},1},
- {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.3.0">>},1},
- {<<"dqe_idx_ddb">>,{pkg,<<"dqe_idx_ddb">>,<<"0.4.0">>},1},
- {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.4.4">>},1},
+ {<<"dqe_idx">>,{pkg,<<"dqe_idx">>,<<"0.4.0">>},1},
+ {<<"dqe_idx_ddb">>,{pkg,<<"dqe_idx_ddb">>,<<"0.5.0">>},1},
+ {<<"dqe_idx_pg">>,{pkg,<<"dqe_idx_pg">>,<<"0.5.0">>},1},
  {<<"dynamic_compile">>,{pkg,<<"dynamic_compile">>,<<"1.0.0">>},1},
  {<<"eper">>,{pkg,<<"eper">>,<<"0.94.0">>},0},
  {<<"epgsql">>,{pkg,<<"epgsql">>,<<"3.3.0">>},3},
@@ -45,7 +45,7 @@
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
  {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},2},
- {<<"sqlmig">>,{pkg,<<"sqlmig">>,<<"0.1.4">>},2},
+ {<<"sqlmig">>,{pkg,<<"sqlmig">>,<<"0.1.5">>},2},
  {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}]}.
 [
 {pkg_hash,[
@@ -57,9 +57,9 @@
  {<<"dflow">>, <<"DA0EB8F14B01ED894BD32F1CEE3B13646DFC30FA60D59B408BFCD0653E0984D7">>},
  {<<"dproto">>, <<"D1C9929353589BD395CAB3E5C6E1CFC4DC8B0660527145E2DD221771D4467ABD">>},
  {<<"dqe_fun">>, <<"6A634A0DC40D82365C7DE8BFEE6485E1A64770E6568497DEA70926DF46CE9B7C">>},
- {<<"dqe_idx">>, <<"EDCA91E5130C532D4B33AF678197ADC25AA4FA7471AC75033290F8AD8392874D">>},
- {<<"dqe_idx_ddb">>, <<"815DB58A7ED01A7040E43A9228DDD119738C4C743F1F33D61E550AAE83CF4319">>},
- {<<"dqe_idx_pg">>, <<"1A1AC02E5372DF932D1A0DEEB7C018BF744E8275FF502E4710637DD92285A0B1">>},
+ {<<"dqe_idx">>, <<"E8EFDACA194C916281F7E4887B1573DE1B21CBE435A4476CD5542144DF757926">>},
+ {<<"dqe_idx_ddb">>, <<"57A31FE7B0C969744F02554451A6E369F58F4DB742B67A1496D2D500E86345DE">>},
+ {<<"dqe_idx_pg">>, <<"6AE0CEFD9B41F32AFDC086916A4715440C73A8930881100D2CC6C11823765AD0">>},
  {<<"dynamic_compile">>, <<"8171B2CB4953EA3ED2EF63F5B26ABF677ACD0CA32210C2A08A7A8406A743F76B">>},
  {<<"eper">>, <<"F5FB2DAA0DF8878748E1C598428EDA942A173E5121FF35C1D632129B84593A3A">>},
  {<<"epgsql">>, <<"974A578340E52012CBAB820CE756E7ED1DF1BAF0110C59A6753D8337A2CF9454">>},
@@ -85,6 +85,6 @@
  {<<"ranch">>, <<"A6FB992C10F2187B46FFD17CE398DDF8A54F691B81768F9EF5F461EA7E28C762">>},
  {<<"recon">>, <<"4444C879BE323B1B133EEC5241CB84BD3821EA194C740D75617E106BE4744318">>},
  {<<"snappiest">>, <<"25706FEBB5ECAEA900D879A89C6D967C8D1BF700F8546BEBD0DEA514A8CCBFB7">>},
- {<<"sqlmig">>, <<"73163B3842A81EEBBF78A38D5FA03D2430863AE79DACCF588CD9EFFD48470A6C">>},
+ {<<"sqlmig">>, <<"8208D222A9335C1B1171F4FD1CE4150CF28B1FDF37CA9A66715AC434ED9B9AF4">>},
  {<<"uuid">>, <<"06240EFF3EAF013CC22274689B0C1FF6345645EE5D47A9E4ED7545EEB7698B23">>}]}
 ].
