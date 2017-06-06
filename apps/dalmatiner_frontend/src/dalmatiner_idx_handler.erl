@@ -56,7 +56,7 @@ encode_reply(Start, T, R2) ->
     R3 = [#{name => Name,
             resolution => Resolution,
             values => mmath_bin:to_list(Data),
-            metadata => Mdata,
+            metadata => maps:map(fun to_null/2, Mdata),
             type => <<"metrics">>}
           || #{name := Name,
                data := Data,
@@ -64,7 +64,7 @@ encode_reply(Start, T, R2) ->
                metadata := Mdata,
                resolution := Resolution} <- R2],
     R4 = [#{name => Name,
-            metadata => Mdata,
+            metadata => maps:map(fun to_null/2, Mdata),
             values => [#{timestamp => Ts, event => E}
                        || {Ts, E} <- Data],
             type => <<"events">>}
@@ -82,6 +82,11 @@ encode_reply(Start, T, R2) ->
         _ ->
             D
     end.
+
+to_null(_, undefined) ->
+    null;
+to_null(_, V) ->
+    V.
 
 content_type(Req) ->
     {ok, A, Req1} = cowboy_req:parse_header(<<"accept">>, Req),
