@@ -22,3 +22,9 @@ then
 else
     echo "Please update your configuration according to the update manual!"
 fi
+
+OT=/data/dalmatinerfe/etc/rules.ot
+if [ ! -f "${OT}" ]
+then
+    echo "none() -> drop." > ${OT}
+fi
