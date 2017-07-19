@@ -76,7 +76,7 @@ function render_metrics(start, metrics, markers) {
              legend.push(s.name);
              for (var i = 0; i < values.length; i++) {
                points[i] = {
-                 "date": new Date(start + (i * resolution)),
+                 "date": new Date((start + (i * resolution)) / 1000) ,
                  "value": values[i]
                };
              }
