@@ -5,7 +5,7 @@
 |                                                                              |
 | Please have a look at the configuraiton files:                               |
 |                                                                              |
-|  * /data/dalmatinerfe/etc/dalmatinerfe.conf                                  |
+|  * /data/dalmatinerfe/etc/dfe.conf                                           |
 |                                                                              |
 | Note: To enable DalmatinerFE you first need to enable the epmd service.      |
 |                                                                              |
