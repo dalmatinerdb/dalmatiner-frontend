@@ -13,7 +13,7 @@ if [[ $(id dalmatinerfe 2>/dev/null) ]] ;then
     chown -R dalmatinerfe:dalmatinerfe /data/dalmatinerfe
 fi
 
-CONFFILE=/data/dalmatinerfe/etc/dalmatinerfe.conf
+CONFFILE=/data/dalmatinerfe/etc/dfe.conf
 
 if [ ! -f "${CONFFILE}" ]
 then

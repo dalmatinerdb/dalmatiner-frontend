@@ -40,8 +40,8 @@ case $2 in
         echo Trying to guess configuration ...
         IP=`ifconfig net0 | grep inet | $AWK '{print $2}'`
 
-        CONFFILE=/data/dalmatinerfe/etc/dalmatinerfe.conf
-        cp /opt/local/dalmatinerfe/etc/dalmatinerfe.conf.example ${CONFFILE}.example
+        CONFFILE=/data/dalmatinerfe/etc/dfe.conf
+        cp /opt/local/dalmatinerfe/etc/dfe.conf ${CONFFILE}.example
 
         if [ ! -f "${CONFFILE}" ]
         then
