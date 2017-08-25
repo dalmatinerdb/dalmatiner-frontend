@@ -19,7 +19,7 @@
  {<<"epgsql">>,{pkg,<<"epgsql">>,<<"3.3.0">>},3},
  {<<"erlware_commons">>,{pkg,<<"erlware_commons">>,<<"1.0.0">>},0},
  {<<"fifo_lager">>,{pkg,<<"fifo_lager">>,<<"0.1.6">>},0},
- {<<"fifo_utils">>,{pkg,<<"fifo_utils">>,<<"0.1.38">>},0},
+ {<<"fifo_utils">>,{pkg,<<"fifo_utils">>,<<"0.1.39">>},0},
  {<<"goldrush">>,{pkg,<<"goldrush">>,<<"0.1.9">>},1},
  {<<"hdr_histogram">>,{pkg,<<"hdr_histogram">>,<<"0.2.0">>},1},
  {<<"ibrowse">>,{pkg,<<"ibrowse">>,<<"4.4.0">>},1},
@@ -41,12 +41,12 @@
        {ref,"fcfb8105014b8bef19f50dd89647c0e58dae0903"}},
   1},
  {<<"qdate_localtime">>,{pkg,<<"qdate_localtime">>,<<"1.1.0">>},2},
- {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.4">>},2},
+ {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.7.1">>},1},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},0},
  {<<"recon">>,{pkg,<<"recon">>,<<"2.3.2">>},0},
  {<<"snappiest">>,{pkg,<<"snappiest">>,<<"1.2.0">>},2},
  {<<"sqlmig">>,{pkg,<<"sqlmig">>,<<"0.1.5">>},2},
- {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.4">>},1}]}.
+ {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.7.1">>},1}]}.
 [
 {pkg_hash,[
  {<<"cf">>, <<"7F2913FFF90ABCABD0F489896CFEB0B0674F6C8DF6C10B17A83175448029896C">>},
@@ -65,7 +65,7 @@
  {<<"epgsql">>, <<"974A578340E52012CBAB820CE756E7ED1DF1BAF0110C59A6753D8337A2CF9454">>},
  {<<"erlware_commons">>, <<"087467DE5833C0BB5B3CCDD387F9E9C1FB816A75B7A709629BF24B5ED3246C51">>},
  {<<"fifo_lager">>, <<"5D350A2C85F27F776B28E022A731B1B2F4A8C0D1703416C2553C4046AA09E837">>},
- {<<"fifo_utils">>, <<"0C2B3255442A7ABC6ACB2FD4DF1894861D6740ADDBEEF6B785CB35182A125E4D">>},
+ {<<"fifo_utils">>, <<"04151D9F840A6DC1430269C8AD65135ADB21212AC386DFD5D0955C74D3D1A87D">>},
  {<<"goldrush">>, <<"F06E5D5F1277DA5C413E84D5A2924174182FB108DABB39D5EC548B27424CD106">>},
  {<<"hdr_histogram">>, <<"95A7EC3C8FA354E4CFBFC8F4168EE8F07BD3965CA22B9C45B2A2C9D13B03DCEC">>},
  {<<"ibrowse">>, <<"2D923325EFE0D2CB09B9C6A047B2835A5EDA69D8A47ED6FF8BC03628B764E991">>},
@@ -81,10 +81,10 @@
  {<<"pgapp">>, <<"3E104BB777C8455D8B26D1538B67ABE0188EE97B1DF973FD936C2204CB316196">>},
  {<<"poolboy">>, <<"6B46163901CFD0A1B43D692657ED9D7E599853B3B21B95AE5AE0A777CF9B6CA8">>},
  {<<"qdate_localtime">>, <<"5F6C3ACF10ECC5A7E2EFA3DCD2C863102B962188DBD9E086EC01D29FE029DA29">>},
- {<<"quickrand">>, <<"47ADD4755CC5F209CBEFFD6F47C84061196CD7FAD99FD8FD12418EB0D06B939D">>},
+ {<<"quickrand">>, <<"B0C2A41D08C955F055C44BED357660DE443CD9068A33ABA530076910B7333659">>},
  {<<"ranch">>, <<"A6FB992C10F2187B46FFD17CE398DDF8A54F691B81768F9EF5F461EA7E28C762">>},
  {<<"recon">>, <<"4444C879BE323B1B133EEC5241CB84BD3821EA194C740D75617E106BE4744318">>},
  {<<"snappiest">>, <<"25706FEBB5ECAEA900D879A89C6D967C8D1BF700F8546BEBD0DEA514A8CCBFB7">>},
  {<<"sqlmig">>, <<"8208D222A9335C1B1171F4FD1CE4150CF28B1FDF37CA9A66715AC434ED9B9AF4">>},
- {<<"uuid">>, <<"06240EFF3EAF013CC22274689B0C1FF6345645EE5D47A9E4ED7545EEB7698B23">>}]}
+ {<<"uuid">>, <<"252D12D1154BC75C40BC03E2E67714BD843DDFAD40FD3BC1541F65F622C9E7FC">>}]}
 ].
