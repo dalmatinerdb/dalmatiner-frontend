@@ -36,3 +36,8 @@
  [{commented, "rules.ot"},
   {default, "{{platform_etc_dir}}/rules.ot"},
   {datatype, file}]}.
+
+%% @doc DQE Indexing backend like dqe_idx_pg or dqe_idx_ddb
+{mapping, "idx.backend", "dqe_idx.lookup_module",
+ [{default, "dqe_idx_pg"},
+  {datatype, atom}]}.
