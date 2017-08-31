@@ -30,3 +30,6 @@ deb-prepare:
 
 deb-package: deb-prepare
 	make -C rel/deb package
+
+version_header: version
+	true

@@ -1,0 +1,8 @@
+name: dalmatinerfe
+version: "__VNS__"
+origin: projectfifo/dalmatinerfe
+comment: "Dalmatiner TS Frontend"
+desc: "Dalmatiner TS Frontend"
+maintainer: info@project-fifo.net
+www: https://project-fifo.net
+prefix: /

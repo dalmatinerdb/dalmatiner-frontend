@@ -27,3 +27,4 @@ TEST-*
 rebar3.crashdump
 apps/dalmatiner_frontend/src/event_query_lexer.xrl
 apps/dalmatiner_frontend/src/event_query_parser.yrl
+compile_commands.json

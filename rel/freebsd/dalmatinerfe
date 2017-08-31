@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# $FreeBSD$
+#
+
+# PROVIDE: dalmatinerfe
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+
+. /etc/rc.subr
+
+name="dalmatinerfe"
+rcvar=dalmatinerfe_enable
+
+load_rc_config $name
+: ${dalmatinerfe="NO"}
+
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+
+
+
+dalmatinerfe_start()
+{
+	if checkyesno ${rcvar}; then
+		echo "* starting dalmatiner db... "
+		/usr/local/bin/sudo -u dalmatinerfe /usr/ddb/bin/ddb start
+	fi
+}
+
+dalmatinerfe_stop()
+{
+	if checkyesno ${rcvar}; then
+		echo "* stopping dalmatiner db... "
+		/usr/local/bin/sudo -u dalmatinerfe /usr/ddb/bin/ddb stop
+	fi
+}
+
+run_rc_command "$1"
