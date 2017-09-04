@@ -13,4 +13,4 @@ prepare:
 	cp -r ../../_build/${REBARPROFILE}/rel/$(COMPONENT_INTERNAL) $(STAGE_DIR)/$(INSTALL_DIR)
 	rm -rf $(STAGE_DIR)/$(INSTALL_DIR)/lib/*/c_src
 	mkdir -p $(STAGE_DIR)/etc/rc.d
-	cp ../freebsd/dalmatinerdb $(STAGE_DIR)/etc/rc.d/
+	cp ../freebsd/dalmatinerfe $(STAGE_DIR)/etc/rc.d/
