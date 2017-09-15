@@ -26,7 +26,7 @@ dalmatinerfe_start()
 {
 	if checkyesno ${rcvar}; then
 		echo "* starting dalmatiner db... "
-		/usr/local/bin/sudo -u dalmatinerfe /usr/dpx/bin/dpx start
+		/usr/local/bin/sudo -u dalmatinerfe /usr/local/lib/dfe/bin/dfe start
 	fi
 }
 
@@ -34,7 +34,7 @@ dalmatinerfe_stop()
 {
 	if checkyesno ${rcvar}; then
 		echo "* stopping dalmatiner db... "
-		/usr/local/bin/sudo -u dalmatinerfe /usr/dpx/bin/dpx stop
+		/usr/local/bin/sudo -u dalmatinerfe /usr/local/lib/dfe/bin/dfe stop
 	fi
 }
 
